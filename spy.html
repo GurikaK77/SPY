@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ჯაშუშების თამაში</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(-45deg, #1A1A1A, #0A0A0A, #1A1A1A, #0A0A0A);
+            background-size: 400% 400%;
+            animation: gradient-animation 15s ease infinite;
+            color: #E0E0E0;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            background-color: rgba(25, 25, 25, 0.85);
+            padding: 40px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            max-width: 500px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            color: #FFD700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #playerInput input[type="text"] {
+            padding: 12px;
+            border: 1px solid #444;
+            border-radius: 8px;
+            background-color: #222;
+            color: #FFD700;
+            font-size: 1em;
+            margin-right: 10px;
+            width: calc(100% - 130px);
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        #playerInput input[type="text"]:focus {
+            outline: none;
+            border-color: #FFD700;
+        }
+
+        button {
+            background: #FFD700;
+            color: #1A1A1A;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+        }
+
+        button:hover {
+            background: #E5C100;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        #playerList {
+            margin: 20px 0;
+            padding: 10px;
+            border: 1px dashed #444;
+            border-radius: 8px;
+            background-color: #111;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        #playerList div {
+            padding: 8px;
+            margin: 5px 0;
+            background-color: #222;
+            border-radius: 5px;
+            border-left: 3px solid #FFD700;
+            text-align: left;
+        }
+        
+        #playerInput label {
+            display: block;
+            margin-top: 15px;
+            color: #FFD700;
+            font-weight: bold;
+        }
+
+        #spyCount {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #444;
+            background-color: #222;
+            color: #FFD700;
+            margin-left: 10px;
+        }
+
+        #roleDisplay {
+            font-size: 1.8em;
+            margin: 30px 0;
+            min-height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+        }
+        
+        .spy {
+            color: #FF5252;
+            font-weight: bold;
+            text-shadow: 0 0 10px #FF5252;
+        }
+
+        #timer {
+            font-size: 3em;
+            margin-top: 20px;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+            letter-spacing: 2px;
+        }
+        
+        #gameSection button {
+            margin-top: 20px;
+        }
+        
+        #resultDisplay {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            background-color: rgba(255, 215, 0, 0.1);
+            color: #FFD700;
+        }
+
+        /* --- მობილური მოწყობილობებისთვის --- */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 20px;
+                max-width: 95%;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            #playerInput input[type="text"] {
+                width: calc(100% - 10px);
+                margin: 0 0 10px 0;
+            }
+
+            button {
+                width: 100%;
+                margin-top: 10px;
+            }
+            
+            #playerInput label {
+                margin-top: 10px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            #spyCount {
+                margin-top: 5px;
+                width: 80%;
+                box-sizing: border-box;
+            }
+
+            #roleDisplay {
+                font-size: 1.4em;
+            }
+
+            #timer {
+                font-size: 2.5em;
+            }
+            
+            #resultDisplay {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>ჯაშუშების თამაში</h1>
+
+    <div id="playerInput">
+        <input type="text" id="playerName" placeholder="მოთამაშის სახელი">
+        <button onclick="addPlayer()">დამატება</button>
+        <div id="playerList"></div>
+
+        <label>ჯაშუშების რაოდენობა:
+            <select id="spyCount">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+            </select>
+        </label><br>
+
+        <button onclick="startGame()">როლების დაწესება</button>
+    </div>
+
+    <div id="roleSection" class="hidden">
+        <div id="roleDisplay"></div>
+        <button onclick="revealRole()">არჩევა</button>
+    </div>
+
+    <div id="gameSection" class="hidden">
+        <div id="timer">02:00</div>
+        <button id="startTimerBtn" onclick="startTimer()">ტაიმერის დაწყება</button>
+        <button id="revealBtn" class="hidden" onclick="revealSpies()">გამოაშკარავება</button>
+    </div>
+
+    <div id="resultSection" class="hidden">
+        <div id="resultDisplay"></div>
+        <button onclick="restartGame()">რესტარტი</button>
+    </div>
+</div>
+
+<audio id="alarmSound">
+    <source src="https://www.soundjay.com/buttons/sounds/beep-07.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+    let players = [];
+    let roles = [];
+    let chosenWord = "";
+    let currentIndex = 0;
+    let timerInterval;
+    let timeLeft = 0;
+
+    const words = ["ფეხბურთი", "თეატრი", "კომპიუტერი"];
+
+    function addPlayer() {
+        let name = document.getElementById("playerName").value.trim();
+        if (name && !players.includes(name)) {
+            players.push(name);
+            updatePlayerList();
+            document.getElementById("playerName").value = "";
+        }
+    }
+
+    function updatePlayerList() {
+        let list = document.getElementById("playerList");
+        list.innerHTML = "";
+        players.forEach(p => {
+            let div = document.createElement("div");
+            div.textContent = p;
+            list.appendChild(div);
+        });
+    }
+
+    function startGame() {
+        if (players.length < 3) { alert("მინიმუმ 3 მოთამაშე უნდა იყოს!"); return; }
+
+        let spyCount = parseInt(document.getElementById("spyCount").value);
+        if (spyCount >= players.length) { alert("ჯაშუშების რაოდენობა უნდა იყოს ნაკლები მოთამაშეების რაოდენობაზე!"); return; }
+
+        chosenWord = words[Math.floor(Math.random() * words.length)];
+        roles = Array(players.length).fill(chosenWord);
+
+        let indices = [...Array(players.length).keys()];
+        indices.sort(() => Math.random() - 0.5);
+        indices.slice(0, spyCount).forEach(i => roles[i] = "ჯაშუში");
+
+        let combined = players.map((p, i) => ({ name: p, role: roles[i] }));
+        combined.sort(() => Math.random() - 0.5);
+
+        players = combined.map(c => c.name);
+        roles = combined.map(c => c.role);
+
+        document.getElementById("playerInput").classList.add("hidden");
+        document.getElementById("roleSection").classList.remove("hidden");
+        currentIndex = 0;
+        document.getElementById("roleDisplay").textContent = players[currentIndex] + " - დააჭირე 'არჩევა'";
+    }
+
+    function revealRole() {
+        let display = document.getElementById("roleDisplay");
+        let role = roles[currentIndex];
+        if (role === "ჯაშუში") {
+            display.innerHTML = players[currentIndex] + " შენი როლია: <span class='spy'>ჯაშუში</span>";
+        } else {
+            display.textContent = players[currentIndex] + " შენი სიტყვაა: " + chosenWord;
+        }
+
+        currentIndex++;
+        if (currentIndex < players.length) {
+            setTimeout(() => {
+                document.getElementById("roleDisplay").textContent = players[currentIndex] + " - დააჭირე 'არჩევა'";
+            }, 1500);
+        } else {
+            setTimeout(() => {
+                document.getElementById("roleSection").classList.add("hidden");
+                document.getElementById("gameSection").classList.remove("hidden");
+                document.getElementById("startTimerBtn").classList.remove("hidden");
+            }, 2000);
+        }
+    }
+
+    function startTimer() {
+        document.getElementById("startTimerBtn").classList.add("hidden");
+        document.getElementById("revealBtn").classList.remove("hidden");
+
+        timeLeft = 120;
+        updateTimerDisplay(timeLeft);
+
+        clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            updateTimerDisplay(timeLeft);
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById("timer").textContent = "დრო ამოიწურა";
+                document.getElementById("alarmSound").play();
+            }
+        }, 1000);
+    }
+
+    function updateTimerDisplay(time) {
+        let minutes = String(Math.floor(time / 60)).padStart(2, "0");
+        let seconds = String(time % 60).padStart(2, "0");
+        document.getElementById("timer").textContent = `${minutes}:${seconds}`;
+    }
+
+    function revealSpies() {
+        clearInterval(timerInterval);
+        document.getElementById("gameSection").classList.add("hidden");
+        document.getElementById("roleSection").classList.add("hidden");
+        document.getElementById("resultSection").classList.remove("hidden");
+
+        let spies = roles.map((r, i) => r === "ჯაშუში" ? players[i] : null).filter(Boolean);
+        document.getElementById("resultDisplay").textContent = "ჯაშუშები: " + spies.join(", ");
+    }
+
+    function restartGame() {
+        document.getElementById("resultSection").classList.add("hidden");
+        document.getElementById("playerInput").classList.remove("hidden");
+        document.getElementById("roleSection").classList.add("hidden");
+        document.getElementById("gameSection").classList.add("hidden");
+        document.getElementById("revealBtn").classList.add("hidden");
+        document.getElementById("startTimerBtn").classList.add("hidden");
+        updatePlayerList();
+        currentIndex = 0;
+    }
+</script>
+
+</body>
+</html>
