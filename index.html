@@ -3,412 +3,729 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ჯაშუშების თამაში</title>
-    <link rel="manifest" href="/manifest.json">
+    <title>SPY - მისტიკური თამაში</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Raleway:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="manifest.json">
+    <link rel="stylesheet" href="sw.js">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
-
-        body {
-            font-family: 'Roboto', sans-serif;
-            background: linear-gradient(-45deg, #1A1A1A, #0A0A0A, #1A1A1A, #0A0A0A);
-            background-size: 400% 400%;
-            animation: gradient-animation 15s ease infinite;
-            color: #E0E0E0;
-            text-align: center;
-            padding: 20px;
+        :root {
+            --primary-dark: #0A0A0A;
+            --primary-light: #1A1A1A;
+            --gold: #FFD700;
+            --gold-light: #FFE55C;
+            --gold-dark: #D4AF37;
+            --red: #C41E3A;
+            --text-light: #F5F5F5;
+            --text-dim: #A0A0A0;
+            --transition: all 0.3s ease;
+        }
+        
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Raleway', sans-serif;
+            background: linear-gradient(135deg, #0A0A0A 0%, #1A1A1A 50%, #0A0A0A 100%);
+            color: var(--text-light);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
         }
-
-        @keyframes gradient-animation {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        .container {
-            background-color: rgba(25, 25, 25, 0.85);
-            padding: 40px 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(10px);
-            max-width: 500px;
+        
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(212, 175, 55, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(196, 30, 58, 0.1) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: -1;
         }
-
-        h1 {
-            color: #FFD700;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-            font-size: 2.5em;
-            margin-bottom: 20px;
+        
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
         }
-
-        .hidden {
+        
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background-color: var(--gold);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float 15s linear infinite;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.6;
+            }
+            90% {
+                opacity: 0.4;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .container {
+            background: rgba(15, 15, 15, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(212, 175, 55, 0.1),
+                0 0 20px rgba(212, 175, 55, 0.2);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+        
+        .container::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(212, 175, 55, 0.1), transparent);
+            transform: rotate(45deg);
+            animation: shine 8s infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes shine {
+            0% {
+                left: -50%;
+            }
+            100% {
+                left: 150%;
+            }
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .logo h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 3.5rem;
+            color: var(--gold);
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            letter-spacing: 3px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .logo h1::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+        
+        .logo p {
+            color: var(--text-dim);
+            font-size: 1.2rem;
+            margin-top: 10px;
+            font-weight: 300;
+        }
+        
+        .section {
             display: none;
+            animation: fadeIn 0.5s ease;
         }
-
-        #playerInput input[type="text"] {
-            padding: 12px;
-            border: 1px solid #444;
-            border-radius: 8px;
-            background-color: #222;
-            color: #FFD700;
-            font-size: 1em;
-            margin-right: 10px;
-            width: calc(100% - 130px);
-            box-sizing: border-box;
-            transition: border-color 0.3s;
+        
+        .active {
+            display: block;
         }
-
-        #playerInput input[type="text"]:focus {
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .input-group {
+            margin-bottom: 25px;
+        }
+        
+        .input-with-button {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        input, select {
+            flex: 1;
+            padding: 15px 20px;
+            background: rgba(30, 30, 30, 0.8);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 10px;
+            color: var(--text-light);
+            font-family: 'Raleway', sans-serif;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        input:focus, select:focus {
             outline: none;
-            border-color: #FFD700;
+            border-color: var(--gold);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
         }
-
-        button {
-            background: #FFD700;
-            color: #1A1A1A;
+        
+        input::placeholder {
+            color: var(--text-dim);
+        }
+        
+        .btn {
+            padding: 15px 25px;
+            background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold) 100%);
+            color: var(--primary-dark);
             border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            font-weight: bold;
+            border-radius: 10px;
+            font-family: 'Raleway', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
             cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
         }
-
-        button:hover {
-            background: #E5C100;
+        
+        .btn:hover {
             transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
         }
-
-        button:active {
+        
+        .btn:active {
             transform: translateY(0);
         }
-
-        #playerList {
-            margin: 20px 0;
-            padding: 10px;
-            border: 1px dashed #444;
-            border-radius: 8px;
-            background-color: #111;
-            max-height: 150px;
-            overflow-y: auto;
-        }
-
-        #playerList div {
-            padding: 8px;
-            margin: 5px 0;
-            background-color: #222;
-            border-radius: 5px;
-            border-left: 3px solid #FFD700;
-            text-align: left;
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--gold);
+            color: var(--gold);
         }
         
-        #playerInput label {
+        .btn-outline:hover {
+            background: rgba(212, 175, 55, 0.1);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #8B0000 0%, var(--red) 100%);
+            box-shadow: 0 4px 15px rgba(196, 30, 58, 0.3);
+        }
+        
+        .btn-danger:hover {
+            box-shadow: 0 6px 20px rgba(196, 30, 58, 0.4);
+        }
+        
+        .player-list {
+            background: rgba(30, 30, 30, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+        
+        .player-item {
+            padding: 12px 15px;
+            background: rgba(40, 40, 40, 0.5);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 3px solid var(--gold);
+            transition: var(--transition);
+        }
+        
+        .player-item:hover {
+            background: rgba(50, 50, 50, 0.5);
+            transform: translateX(5px);
+        }
+        
+        .player-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .remove-btn {
+            background: none;
+            border: none;
+            color: var(--red);
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: var(--transition);
+        }
+        
+        .remove-btn:hover {
+            transform: scale(1.2);
+        }
+        
+        .form-label {
             display: block;
-            margin-top: 15px;
-            color: #FFD700;
-            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--gold);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-
-        #spyCount {
-            padding: 8px;
-            border-radius: 5px;
-            border: 1px solid #444;
-            background-color: #222;
-            color: #FFD700;
-            margin-left: 10px;
-        }
-
-        #roleDisplay {
-            font-size: 1.8em;
+        
+        .role-display {
+            padding: 30px;
+            background: rgba(30, 30, 30, 0.5);
+            border-radius: 15px;
             margin: 30px 0;
-            min-height: 50px;
+            text-align: center;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .role-text {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: var(--gold-light);
+            font-weight: 600;
+        }
+        
+        .spy-text {
+            color: var(--red);
+            text-shadow: 0 0 10px rgba(196, 30, 58, 0.5);
+        }
+        
+        .word-text {
+            color: var(--gold);
+            font-style: italic;
+        }
+        
+        .current-player {
+            font-size: 1.2rem;
+            color: var(--text-dim);
+            margin-top: 15px;
+        }
+        
+        .timer-container {
             display: flex;
             justify-content: center;
             align-items: center;
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+            margin: 30px 0;
         }
         
-        .spy {
-            color: #FF5252;
-            font-weight: bold;
-            text-shadow: 0 0 10px #FF5252;
+        .timer {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--gold);
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            font-family: 'Cinzel', serif;
+            letter-spacing: 3px;
+            padding: 20px;
+            background: rgba(30, 30, 30, 0.5);
+            border-radius: 15px;
+            min-width: 200px;
+            text-align: center;
+            border: 1px solid rgba(212, 175, 55, 0.3);
         }
-
-        #timer {
-            font-size: 3em;
+        
+        .result-display {
+            padding: 25px;
+            background: rgba(30, 30, 30, 0.5);
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: center;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+        
+        .result-title {
+            color: var(--gold);
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .spies-list {
+            color: var(--red);
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin: 15px 0;
+            text-shadow: 0 0 8px rgba(196, 30, 58, 0.3);
+        }
+        
+        .word-reveal {
+            color: var(--gold);
+            font-size: 1.5rem;
+            margin: 15px 0;
+            font-style: italic;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
             margin-top: 20px;
-            font-weight: bold;
-            color: #FFD700;
-            text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
-            letter-spacing: 2px;
+            flex-wrap: wrap;
         }
         
-        #gameSection button {
-            margin-top: 20px;
-        }
-        
-        #resultDisplay {
-            font-size: 1.5em;
+        .player-turn {
+            font-size: 1.5rem;
+            color: var(--gold);
             margin-bottom: 20px;
-            padding: 15px;
-            border-radius: 10px;
-            background-color: rgba(255, 215, 0, 0.1);
-            color: #FFD700;
+            text-align: center;
+            font-weight: 600;
         }
-
-        /* --- მობილური მოწყობილობებისთვის --- */
-        @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
-            
+        
+        /* Responsive styles */
+        @media (max-width: 768px) {
             .container {
-                padding: 20px;
-                max-width: 95%;
-            }
-
-            h1 {
-                font-size: 1.8em;
+                padding: 25px;
             }
             
-            #playerInput input[type="text"] {
-                width: calc(100% - 10px);
-                margin: 0 0 10px 0;
-            }
-
-            button {
-                width: 100%;
-                margin-top: 10px;
+            .logo h1 {
+                font-size: 2.5rem;
             }
             
-            #playerInput label {
-                margin-top: 10px;
-                display: flex;
+            .input-with-button {
                 flex-direction: column;
-                align-items: center;
-            }
-
-            #spyCount {
-                margin-top: 5px;
-                width: 80%;
-                box-sizing: border-box;
-            }
-
-            #roleDisplay {
-                font-size: 1.4em;
-            }
-
-            #timer {
-                font-size: 2.5em;
             }
             
-            #resultDisplay {
-                font-size: 1.2em;
+            .timer {
+                font-size: 3rem;
+            }
+            
+            .role-text {
+                font-size: 1.5rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
             }
         }
     </style>
-    <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
-        .then(registration => {
-          console.log('Service Worker registered: ', registration.scope);
-        })
-        .catch(error => {
-          console.log('Service Worker registration failed: ', error);
-        });
-    });
-  }
-</script>
 </head>
 <body>
-
-<div class="container">
-    <h1>ჯაშუშების თამაში</h1>
-
-    <div id="playerInput">
-        <input type="text" id="playerName" placeholder="მოთამაშის სახელი">
-        <button onclick="addPlayer()">დამატება</button>
-        <div id="playerList"></div>
-
-        <label>ჯაშუშების რაოდენობა:
-            <select id="spyCount">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-            </select>
-        </label><br>
-
-        <button onclick="startGame()">როლების დაწესება</button>
+    <div class="particles" id="particles"></div>
+    
+    <div class="container">
+        <div class="logo">
+            <h1>SPY</h1>
+            <p>მისტიკური თამაში რეალობის გამოცდისთვის</p>
+        </div>
+        
+        <div id="playerInput" class="section active">
+            <div class="input-with-button">
+                <input type="text" id="playerName" placeholder="მოთამაშის სახელი">
+                <button class="btn" onclick="addPlayer()"><i class="fas fa-plus"></i> დამატება</button>
+            </div>
+            
+            <div class="player-list" id="playerList"></div>
+            
+            <div class="input-group">
+                <label class="form-label">
+                    <i class="fas fa-user-secret"></i>
+                    ჯაშუშების რაოდენობა:
+                </label>
+                <select id="spyCount">
+                    <option value="1">1 ჯაშუში</option>
+                    <option value="2">2 ჯაშუში</option>
+                    <option value="3">3 ჯაშუში</option>
+                </select>
+            </div>
+            
+            <button class="btn" onclick="startGame()"><i class="fas fa-play"></i> თამაშის დაწყება</button>
+        </div>
+        
+        <div id="roleSection" class="section">
+            <div class="player-turn" id="playerTurn"></div>
+            
+            <div class="role-display">
+                <div id="roleDisplay" class="role-text">მომზადება...</div>
+                <div id="currentPlayer" class="current-player"></div>
+            </div>
+            
+            <button class="btn" onclick="revealRole()"><i class="fas fa-eye"></i> როლის ნახვა</button>
+        </div>
+        
+        <div id="gameSection" class="section">
+            <div class="timer-container">
+                <div class="timer" id="timer">02:00</div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn" id="startTimerBtn" onclick="startTimer()"><i class="fas fa-hourglass-start"></i> ტაიმერის დაწყება</button>
+                <button class="btn btn-danger" id="revealBtn" onclick="revealSpies()"><i class="fas fa-user-secret"></i> ჯაშუშების გამოვლენა</button>
+            </div>
+        </div>
+        
+        <div id="resultSection" class="section">
+            <div class="result-display">
+                <div class="result-title">თამაში დასრულდა!</div>
+                <div id="resultDisplay" class="spies-list"></div>
+                <div id="wordDisplay" class="word-reveal"></div>
+            </div>
+            
+            <button class="btn" onclick="restartGame()"><i class="fas fa-redo"></i> თამაშის რესტარტი</button>
+        </div>
     </div>
 
-    <div id="roleSection" class="hidden">
-        <div id="roleDisplay"></div>
-        <button onclick="revealRole()">არჩევა</button>
-    </div>
+    <audio id="alarmSound">
+        <source src="https://www.soundjay.com/buttons/sounds/beep-07.mp3" type="audio/mpeg">
+    </audio>
 
-    <div id="gameSection" class="hidden">
-        <div id="timer">02:00</div>
-        <button id="startTimerBtn" onclick="startTimer()">ტაიმერის დაწყება</button>
-        <button id="revealBtn" class="hidden" onclick="revealSpies()">გამოაშკარავება</button>
-    </div>
-
-    <div id="resultSection" class="hidden">
-        <div id="resultDisplay"></div>
-        <button onclick="restartGame()">რესტარტი</button>
-    </div>
-</div>
-
-<audio id="alarmSound">
-    <source src="https://www.soundjay.com/buttons/sounds/beep-07.mp3" type="audio/mpeg">
-</audio>
-
-<script>
-    let players = [];
-    let roles = [];
-    let chosenWord = "";
-    let currentIndex = 0;
-    let timerInterval;
-    let timeLeft = 0;
-
-    const words = [
-  "ფეხბურთი", "თეატრი", "კომპიუტერი", "სახლი", "ტელეფონი", "საქართველო", "კუ", "ძაღლი", "ჩრდილი", "საიდუმლო",
-  "ყვავილი", "წიგნი", "ჩანთა", "მთა", "საათი", "ნაყინი", "ფანარი", "წყალი", "ფანჯარა", "კატა",
-  "კარადა", "სკამი", "ტყე", "ხე", "ცხენი", "ბრინჯი", "პური", "ბოსტანი", "კოლა", "ყავა",
-  "ჩაი", "კატარღა", "სასმელი", "თევზი", "ზღვა", "მზა", "ვარსკვლავი", "მთვარე", "ღამე", "დღე",
-  "ქარი", "წვიმა", "თოვლი", "გრილი", "ფერი", "სიტყვა", "მელოდი", "მუსიკა", "პიანინო", "გიტარა",
-  "ბგერა", "ფლეიერი", "ვიდეო", "კინოფილმი", "სერიალი", "საღამო", "დილა", "მომენტი", "ხედი", "კარავი",
-  "ბანაკი", "საბანი", "დრონი", "პლედი", "მიკროფონი", "შაკი", "ჩაფხუტი", "სათვალე", "ბასრია", "ზურგჩანთა",
-  "ვერცხლი", "ბენზინი", "ფაზლი", "ყუთი", "პლანშეტი", "მოლბერტი", "კარტოფილი", "ჩამრთველი", "კიბე", "ხალიჩა",
-  "ფარდები", "თიხა", "ქაფი", "ტილო", "ბისიკლეტი", "სანათი", "მეტრონი", "კომპასი", "სარკე", "ბალიში",
-  "გოგო", "გოგონა", "ბატონი", "ბალახი", "სანახავი", "საფენი", "დანა", "კოვზი", "ჩანგალი", "თასი",
-  "ჭიქა", "ყუთი", "ბოთლი", "საფარი", "პლედო", "გოგლა", "რეკეტი", "ბურთი", "ხალათი", "პლაჟი",
-  "ქუდი", "კეპი", "ჩაფხუტი", "ჟილეტი", "შარვალი", "კომბინიზონი", "წყვილი", "შარფი", "ყურსასმენი", "მაკრატელი"
-];
-
-
-    function addPlayer() {
-        let name = document.getElementById("playerName").value.trim();
-        if (name && !players.includes(name)) {
-            players.push(name);
-            updatePlayerList();
-            document.getElementById("playerName").value = "";
-        }
-    }
-
-    function updatePlayerList() {
-        let list = document.getElementById("playerList");
-        list.innerHTML = "";
-        players.forEach(p => {
-            let div = document.createElement("div");
-            div.textContent = p;
-            list.appendChild(div);
-        });
-    }
-
-    function startGame() {
-        if (players.length < 3) { alert("მინიმუმ 3 მოთამაშე უნდა იყოს!"); return; }
-
-        let spyCount = parseInt(document.getElementById("spyCount").value);
-        if (spyCount >= players.length) { alert("ჯაშუშების რაოდენობა უნდა იყოს ნაკლები მოთამაშეების რაოდენობაზე!"); return; }
-
-        chosenWord = words[Math.floor(Math.random() * words.length)];
-        roles = Array(players.length).fill(chosenWord);
-
-        let indices = [...Array(players.length).keys()];
-        indices.sort(() => Math.random() - 0.5);
-        indices.slice(0, spyCount).forEach(i => roles[i] = "ჯაშუში");
-
-        let combined = players.map((p, i) => ({ name: p, role: roles[i] }));
-        combined.sort(() => Math.random() - 0.5);
-
-        players = combined.map(c => c.name);
-        roles = combined.map(c => c.role);
-
-        document.getElementById("playerInput").classList.add("hidden");
-        document.getElementById("roleSection").classList.remove("hidden");
-        currentIndex = 0;
-        document.getElementById("roleDisplay").textContent = players[currentIndex] + " - დააჭირე 'არჩევა'";
-    }
-
-    function revealRole() {
-        let display = document.getElementById("roleDisplay");
-        let role = roles[currentIndex];
-        if (role === "ჯაშუში") {
-            display.innerHTML = players[currentIndex] + " შენი როლია: <span class='spy'>ჯაშუში</span>";
-        } else {
-            display.textContent = players[currentIndex] + " შენი სიტყვაა: " + chosenWord;
-        }
-
-        currentIndex++;
-        if (currentIndex < players.length) {
-            setTimeout(() => {
-                document.getElementById("roleDisplay").textContent = players[currentIndex] + " - დააჭირე 'არჩევა'";
-            }, 1500);
-        } else {
-            setTimeout(() => {
-                document.getElementById("roleSection").classList.add("hidden");
-                document.getElementById("gameSection").classList.remove("hidden");
-                document.getElementById("startTimerBtn").classList.remove("hidden");
-            }, 2000);
-        }
-    }
-
-    function startTimer() {
-        document.getElementById("startTimerBtn").classList.add("hidden");
-        document.getElementById("revealBtn").classList.remove("hidden");
-
-        timeLeft = 120;
-        updateTimerDisplay(timeLeft);
-
-        clearInterval(timerInterval);
-        timerInterval = setInterval(() => {
-            timeLeft--;
-            updateTimerDisplay(timeLeft);
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                document.getElementById("timer").textContent = "დრო ამოიწურა";
-                document.getElementById("alarmSound").play();
+    <script>
+        // Create floating particles for background effect
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Random position and size
+                const size = Math.random() * 3 + 1;
+                const posX = Math.random() * 100;
+                const delay = Math.random() * 15;
+                const duration = 15 + Math.random() * 10;
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${posX}%`;
+                particle.style.animationDelay = `${delay}s`;
+                particle.style.animationDuration = `${duration}s`;
+                
+                particlesContainer.appendChild(particle);
             }
-        }, 1000);
-    }
+        }
+        
+        // Game logic
+        let players = [];
+        let roles = [];
+        let chosenWord = "";
+        let currentIndex = 0;
+        let timerInterval;
+        let timeLeft = 0;
 
-    function updateTimerDisplay(time) {
-        let minutes = String(Math.floor(time / 60)).padStart(2, "0");
-        let seconds = String(time % 60).padStart(2, "0");
-        document.getElementById("timer").textContent = `${minutes}:${seconds}`;
-    }
+        const words = [
+            "ფეხბურთი", "თეატრი", "კომპიუტერი", "სახლი", "ტელეფონი", "საქართველო", "კუ", "ძაღლი", "ჩრდილი", "საიდუმლო",
+            "ყვავილი", "წიგნი", "ჩანთა", "მთა", "საათი", "ნაყინი", "ფანარი", "წყალი", "ფანჯარა", "კატა",
+            "კარადა", "სკამი", "ტყე", "ხე", "ცხენი", "ბრინჯი", "პური", "ბოსტანი", "კოლა", "ყავა",
+            "ჩაი", "კატარღა", "სასმელი", "თევზი", "ზღვა", "მზა", "ვარსკვლავი", "მთვარე", "ღამე", "დღე",
+            "ქარი", "წვიმა", "თოვლი", "გრილი", "ფერი", "სიტყვა", "მელოდი", "მუსიკა", "პიანინო", "გიტარა",
+            "ბგერა", "ფლეიერი", "ვიდეო", "კინოფილმი", "სერიალი", "საღამო", "დილა", "მომენტი", "ხედი", "კარავი",
+            "ბანაკი", "საბანი", "დრონი", "პლედი", "მიკროფონი", "შაკი", "ჩაფხუტი", "სათვალე", "ბასრია", "ზუგჩანთა",
+            "ვერცხლი", "ბენზინი", "ფაზლი", "ყუთი", "პლანშეტი", "კარტოფილი", "ჩამრთველი", "კიბე", "ხალიჩა",
+            "ფარდები", "თიხა", "ქაფი", "ტილო", "ბისიკლეტი", "სანათი", "მეტრონი", "კომპასი", "სარკე", "ბალიში",
+            "გოგო", "გოგონა", "ბატონი", "ბალახი", "სანახავი", "საფენი", "დანა", "კოვზი", "ჩანგალი", "თასი",
+            "ჭიქა", "ყუთი", "ბოთლი", "საფარი", "პლედო", "გოგლა",  "ბურთი", "ხალათი", "პლაჟი",
+            "ქუდი", "კეპი", "ჩაფხუტი", "ჟილეტი", "შარვალი", "კომბინიზონი", "წყვილი", "შარფი", "ყურსასმენი", "მაკრატელი"
+        ];
 
-    function revealSpies() {
-        clearInterval(timerInterval);
-        document.getElementById("gameSection").classList.add("hidden");
-        document.getElementById("roleSection").classList.add("hidden");
-        document.getElementById("resultSection").classList.remove("hidden");
+        function addPlayer() {
+            let name = document.getElementById("playerName").value.trim();
+            if (name && !players.includes(name)) {
+                players.push(name);
+                updatePlayerList();
+                document.getElementById("playerName").value = "";
+            } else if (players.includes(name)) {
+                alert("მოთამაშე ამ სახელით უკვე დამატებულია!");
+            }
+        }
 
-        let spies = roles.map((r, i) => r === "ჯაშუში" ? players[i] : null).filter(Boolean);
-        document.getElementById("resultDisplay").textContent = "ჯაშუშები: " + spies.join(", ");
-    }
+        function updatePlayerList() {
+            let list = document.getElementById("playerList");
+            list.innerHTML = "";
+            
+            if (players.length === 0) {
+                list.innerHTML = '<div style="padding: 15px; text-align: center; color: var(--text-dim);">მოთამაშეები არ არის დამატებული</div>';
+                return;
+            }
+            
+            players.forEach((p, index) => {
+                let item = document.createElement("div");
+                item.classList.add("player-item");
+                
+                let nameSpan = document.createElement("span");
+                nameSpan.textContent = p;
+                
+                let removeBtn = document.createElement("button");
+                removeBtn.classList.add("remove-btn");
+                removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                removeBtn.onclick = function() {
+                    players.splice(index, 1);
+                    updatePlayerList();
+                };
+                
+                item.appendChild(nameSpan);
+                item.appendChild(removeBtn);
+                list.appendChild(item);
+            });
+        }
 
-    function restartGame() {
-        document.getElementById("resultSection").classList.add("hidden");
-        document.getElementById("playerInput").classList.remove("hidden");
-        document.getElementById("roleSection").classList.add("hidden");
-        document.getElementById("gameSection").classList.add("hidden");
-        document.getElementById("revealBtn").classList.add("hidden");
-        document.getElementById("startTimerBtn").classList.add("hidden");
-        updatePlayerList();
-        currentIndex = 0;
-    }
-</script>
+        function startGame() {
+            if (players.length < 3) { 
+                alert("მინიმუმ 3 მოთამაშე უნდა იყოს!"); 
+                return; 
+            }
 
+            let spyCount = parseInt(document.getElementById("spyCount").value);
+            if (spyCount >= players.length) { 
+                alert("ჯაშუშების რაოდენობა უნდა იყოს ნაკლები მოთამაშეების რაოდენობაზე!"); 
+                return; 
+            }
+
+            chosenWord = words[Math.floor(Math.random() * words.length)];
+            roles = Array(players.length).fill(chosenWord);
+
+            let indices = [...Array(players.length).keys()];
+            indices.sort(() => Math.random() - 0.5);
+            indices.slice(0, spyCount).forEach(i => roles[i] = "ჯაშუში");
+
+            let combined = players.map((p, i) => ({ name: p, role: roles[i] }));
+            combined.sort(() => Math.random() - 0.5);
+
+            players = combined.map(c => c.name);
+            roles = combined.map(c => c.role);
+
+            // Switch to role section
+            document.getElementById("playerInput").classList.remove("active");
+            document.getElementById("roleSection").classList.add("active");
+            
+            currentIndex = 0;
+            updateTurnDisplay();
+        }
+
+        function updateTurnDisplay() {
+            document.getElementById("playerTurn").textContent = players[currentIndex] + " დააჭირე როლის სანახავად";
+            document.getElementById("currentPlayer").textContent = `${currentIndex + 1} / ${players.length}`;
+            document.getElementById("roleDisplay").textContent = "მომზადება როლის საჩვენებლად...";
+        }
+
+        function revealRole() {
+            let display = document.getElementById("roleDisplay");
+            let role = roles[currentIndex];
+            
+            if (role === "ჯაშუში") {
+                display.innerHTML = `<span class="spy-text">ჯაშუში</span>`;
+            } else {
+                display.innerHTML = `სიტყვა: <span class="word-text">${chosenWord}</span>`;
+            }
+
+            currentIndex++;
+            
+            if (currentIndex < players.length) {
+                setTimeout(() => {
+                    updateTurnDisplay();
+                }, 2000);
+            } else {
+                setTimeout(() => {
+                    document.getElementById("roleSection").classList.remove("active");
+                    document.getElementById("gameSection").classList.add("active");
+                }, 2000);
+            }
+        }
+
+        function startTimer() {
+            document.getElementById("startTimerBtn").style.display = "none";
+
+            timeLeft = 120;
+            updateTimerDisplay(timeLeft);
+
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay(timeLeft);
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById("timer").textContent = "დრო ამოიწურა!";
+                    document.getElementById("alarmSound").play();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay(time) {
+            let minutes = String(Math.floor(time / 60)).padStart(2, "0");
+            let seconds = String(time % 60).padStart(2, "0");
+            document.getElementById("timer").textContent = `${minutes}:${seconds}`;
+        }
+
+        function revealSpies() {
+            clearInterval(timerInterval);
+            
+            // Get spy names
+            let spies = roles.map((r, i) => r === "ჯაშუში" ? players[i] : null).filter(Boolean);
+            
+            // Update result display
+            document.getElementById("resultDisplay").textContent = spies.join(", ");
+            document.getElementById("wordDisplay").textContent = `სიტყვა იყო: ${chosenWord}`;
+            
+            // Switch to result section
+            document.getElementById("gameSection").classList.remove("active");
+            document.getElementById("resultSection").classList.add("active");
+        }
+
+        function restartGame() {
+            document.getElementById("resultSection").classList.remove("active");
+            document.getElementById("playerInput").classList.add("active");
+            
+            // Reset game state but keep players
+            currentIndex = 0;
+            
+            // Reset timer button
+            document.getElementById("startTimerBtn").style.display = "block";
+            document.getElementById("timer").textContent = "02:00";
+        }
+        
+        // Initialize the game
+        window.onload = function() {
+            createParticles();
+            updatePlayerList();
+        };
+    </script>
 </body>
 </html>

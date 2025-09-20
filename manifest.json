@@ -1,6 +1,6 @@
 {
-  "name": "My Offline App",
-  "short_name": "OfflineApp",
+  "name": "SPY",
+  "short_name": "SPY",
   "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#ffffff",
