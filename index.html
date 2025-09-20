@@ -8,8 +8,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Raleway:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="manifest.json">
-    <link rel="stylesheet" href="sw.js">
     <style>
         :root {
             --primary-dark: #0A0A0A;
@@ -27,11 +25,12 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
         
         body {
             font-family: 'Raleway', sans-serif;
-            background: linear-gradient(135deg, #0A0A0A 0%, #1A1A1A 50%, #0A0A0A 100%);
+            background: #0A0A0A;
             color: var(--text-light);
             min-height: 100vh;
             display: flex;
@@ -51,9 +50,17 @@
             height: 100%;
             background: 
                 radial-gradient(circle at 20% 30%, rgba(212, 175, 55, 0.1) 0%, transparent 40%),
-                radial-gradient(circle at 80% 70%, rgba(196, 30, 58, 0.1) 0%, transparent 40%);
+                radial-gradient(circle at 80% 70%, rgba(196, 30, 58, 0.1) 0%, transparent 40%),
+                linear-gradient(135deg, #0A0A0A 0%, #1A1A1A 50%, #0A0A0A 100%);
             pointer-events: none;
             z-index: -1;
+        }
+        
+        /* iOS-ისთვის სპეციალური მორგება */
+        @supports (-webkit-touch-callout: none) {
+            body::before {
+                background-attachment: fixed;
+            }
         }
         
         .particles {
@@ -95,6 +102,7 @@
         
         .container {
             background: rgba(15, 15, 15, 0.8);
+            -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 40px;
@@ -509,7 +517,7 @@
                 <div id="wordDisplay" class="word-reveal"></div>
             </div>
             
-            <button class="btn" onclick="restartGame()"><i class="fas fa-redo"></i> თამაშის რესტარტი</button>
+            <button class="btn" onclick="restartGame()"><i class="fas fa-redo"></i> ახალი თამაში</button>
         </div>
     </div>
 
@@ -559,10 +567,10 @@
             "ქარი", "წვიმა", "თოვლი", "გრილი", "ფერი", "სიტყვა", "მელოდი", "მუსიკა", "პიანინო", "გიტარა",
             "ბგერა", "ფლეიერი", "ვიდეო", "კინოფილმი", "სერიალი", "საღამო", "დილა", "მომენტი", "ხედი", "კარავი",
             "ბანაკი", "საბანი", "დრონი", "პლედი", "მიკროფონი", "შაკი", "ჩაფხუტი", "სათვალე", "ბასრია", "ზუგჩანთა",
-            "ვერცხლი", "ბენზინი", "ფაზლი", "ყუთი", "პლანშეტი", "კარტოფილი", "ჩამრთველი", "კიბე", "ხალიჩა",
+            "ვერცხლი", "ბენზინი", "ფაზლი", "ყუთი", "პლანშეტი", "მოლბერტი", "კარტოფილი", "ჩამრთველი", "კიბე", "ხალიჩა",
             "ფარდები", "თიხა", "ქაფი", "ტილო", "ბისიკლეტი", "სანათი", "მეტრონი", "კომპასი", "სარკე", "ბალიში",
             "გოგო", "გოგონა", "ბატონი", "ბალახი", "სანახავი", "საფენი", "დანა", "კოვზი", "ჩანგალი", "თასი",
-            "ჭიქა", "ყუთი", "ბოთლი", "საფარი", "პლედო", "გოგლა",  "ბურთი", "ხალათი", "პლაჟი",
+            "ჭიქა", "ყუთი", "ბოთლი", "საფარი", "პლედო", "გოგლა", "რეკეტი", "ბურთი", "ხალათი", "პლაჟი",
             "ქუდი", "კეპი", "ჩაფხუტი", "ჟილეტი", "შარვალი", "კომბინიზონი", "წყვილი", "შარფი", "ყურსასმენი", "მაკრატელი"
         ];
 
@@ -641,7 +649,7 @@
         }
 
         function updateTurnDisplay() {
-            document.getElementById("playerTurn").textContent = players[currentIndex] + " დააჭირე როლის სანახავად";
+            document.getElementById("playerTurn").textContent = players[currentIndex] + "-ის როლის გამოვლენის დროა";
             document.getElementById("currentPlayer").textContent = `${currentIndex + 1} / ${players.length}`;
             document.getElementById("roleDisplay").textContent = "მომზადება როლის საჩვენებლად...";
         }
