@@ -882,27 +882,26 @@
             setTimeout(showReadyScreen, 1000); // 1 second loading screen
         };
 
-<
-        // ეს კოდი უნდა გაეშვას, როცა აპლიკაცია/ვებგვერდი ჩაიტვირთება
-        async function requestNotificationPermission() {
-            try {
-                const response = await median.permissions.status(['Notifications']);
-                
-                if (response.Notifications !== 'granted') {
-                    console.log('მოვითხოვთ შეტყობინებების ნებართვას...');
-                } else {
-                    console.log('შეტყობინებების ნებართვა უკვე მინიჭებულია.');
-                }
-            } catch (e) {
-                console.error('შეცდომა ნებართვის შემოწმებისას:', e);
+
+          // ეს კოდი უნდა გაეშვას, როცა აპლიკაცია/ვებგვერდი ჩაიტვირთება
+    async function requestNotificationPermission() {
+        try {
+            const response = await median.permissions.status(['Notifications']);
+            
+            if (response.Notifications !== 'granted') {
+                console.log('მოვითხოვთ შეტყობინებების ნებართვას...');
+            } else {
+                console.log('შეტყობინებების ნებართვა უკვე მინიჭებულია.');
             }
+        } catch (e) {
+            console.error('შეცდომა ნებართვის შემოწმებისას:', e);
         }
+    }
 
-        // გამოიძახეთ ფუნქცია გვერდის ჩატვირთვისას
-        requestNotificationPermission();
-    
+    // გამოიძახეთ ფუნქცია გვერდის ჩატვირთვისას
+    requestNotificationPermission();
 
-
+        
     </script>
 </body>
 </html>
