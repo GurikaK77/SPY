@@ -39,6 +39,7 @@
             padding: 20px;
             position: relative;
             overflow-x: hidden;
+            transition: opacity 0.5s ease-in-out;
         }
         
         body::before {
@@ -424,6 +425,86 @@
             font-weight: 600;
         }
         
+        /* Loading Screen Styles */
+        #loadingScreen, #readyScreen, #transitionScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-dark);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-light);
+            z-index: 1000;
+            transition: opacity 0.5s ease-in-out;
+            text-align: center;
+        }
+        
+        #loadingScreen .spinner {
+            border: 5px solid rgba(255, 255, 255, 0.1);
+            border-left-color: var(--gold);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        #loadingScreen .loading-text {
+            font-family: 'Cinzel', serif;
+            font-size: 2rem;
+            color: var(--gold);
+            letter-spacing: 2px;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+
+        #readyScreen h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--gold-light);
+            margin-bottom: 30px;
+        }
+
+        #readyScreen p {
+            font-size: 1.2rem;
+            color: var(--text-dim);
+            margin-bottom: 40px;
+            max-width: 400px;
+        }
+
+        #readyScreen .btn {
+            font-size: 1.2rem;
+            padding: 18px 35px;
+        }
+
+        #transitionScreen .spinner {
+            border: 5px solid rgba(255, 255, 255, 0.1);
+            border-left-color: var(--gold);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        
+        #transitionScreen .loading-text {
+            font-size: 1.5rem;
+            color: var(--gold);
+        }
+
         /* Responsive styles */
         @media (max-width: 768px) {
             .container {
@@ -453,13 +534,45 @@
             .btn {
                 width: 100%;
             }
+
+            #loadingScreen .loading-text, #readyScreen h2 {
+                font-size: 2rem;
+            }
+            #readyScreen p {
+                font-size: 1rem;
+            }
+            #readyScreen .btn {
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
 <body>
+    <div id="loadingScreen">
+        <div class="spinner"></div>
+        <div class="loading-text">იტვირთება...</div>
+    </div>
+
+    <div id="readyScreen" style="display:none;">
+        <div class="logo">
+            <h1>SPY</h1>
+            <p>მისტიკური თამაში რეალობის გამოცდისთვის</p>
+        </div>
+        <h2>მზად ხართ საიდუმლოს გასამჟღავნებლად?</h2>
+        <p>მოემზადეთ და დაიწყეთ თამაში, მაგრამ გაითვალისწინეთ: ერთ-ერთი თქვენგანი ჯაშუშია. მისი მიზანია დაადგინოს საიდუმლო სიტყვა, თქვენი - კი მისი გამოვლენა.</p>
+        <button class="btn" onclick="showMainPage()">
+            <i class="fas fa-check-circle"></i> მზად ვარ
+        </button>
+    </div>
+
+    <div id="transitionScreen" style="display:none;">
+        <div class="spinner"></div>
+        <div class="loading-text">თამაშზე გადასვლა...</div>
+    </div>
+
     <div class="particles" id="particles"></div>
     
-    <div class="container">
+    <div class="container" id="mainContent" style="display:none;">
         <div class="logo">
             <h1>SPY</h1>
             <p>მისტიკური თამაში რეალობის გამოცდისთვის</p>
@@ -549,6 +662,39 @@
                 
                 particlesContainer.appendChild(particle);
             }
+        }
+
+        function showReadyScreen() {
+            const loadingScreen = document.getElementById('loadingScreen');
+            const readyScreen = document.getElementById('readyScreen');
+            loadingScreen.style.opacity = '0';
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+                readyScreen.style.display = 'flex';
+                readyScreen.style.opacity = '1';
+            }, 500);
+        }
+
+        function showMainPage() {
+            const readyScreen = document.getElementById('readyScreen');
+            const mainContent = document.getElementById('mainContent');
+            const transitionScreen = document.getElementById('transitionScreen');
+
+            readyScreen.style.opacity = '0';
+            setTimeout(() => {
+                readyScreen.style.display = 'none';
+                transitionScreen.style.display = 'flex';
+                transitionScreen.style.opacity = '1';
+
+                setTimeout(() => {
+                    transitionScreen.style.opacity = '0';
+                    setTimeout(() => {
+                        transitionScreen.style.display = 'none';
+                        mainContent.style.display = 'block';
+                        mainContent.style.opacity = '1';
+                    }, 500);
+                }, 2000); // 2 second transition
+            }, 500);
         }
         
         // Game logic
@@ -733,6 +879,7 @@
         window.onload = function() {
             createParticles();
             updatePlayerList();
+            setTimeout(showReadyScreen, 1000); // 1 second loading screen
         };
     </script>
 </body>
