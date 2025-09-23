@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Raleway:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="manifest" href="/manifest.json">
     <style>
         :root {
             --primary-dark: #0A0A0A;
@@ -736,7 +737,7 @@
                     დეტექტივის რაოდენობა:
                 </label>
                 <select id="detectiveCount">
-                    <option value="0">გამორთვა</option>
+                    <option value="0" selected>გამორთვა</option>
                     <option value="1">1 დეტექტივი</option>
                 </select>
             </div>
@@ -748,7 +749,7 @@
                 </label>
                 <select id="pointsSystem">
                     <option value="enabled">ჩართვა</option>
-                    <option value="disabled">გამორთვა</option>
+                    <option value="disabled" selected>გამორთვა</option>
                 </select>
             </div>
             
@@ -992,7 +993,6 @@
             players = combined.map(c => ({ name: c.name, points: c.points }));
             roles = combined.map(c => c.role);
             
-            // Hide the 'Show Points' button if points are disabled
             if (isPointsEnabled) {
                 document.getElementById('showPointsBtn').style.display = 'inline-flex';
             } else {
@@ -1116,11 +1116,9 @@
             
             if (isPointsEnabled) {
                 if (guessIndex === spyIndex) {
-                    // Players found the spy
                     players[spyIndex].points -= 30;
                     resultText = "თქვენ სწორად იპოვეთ ჯაშუში!";
                 } else {
-                    // Players did not find the spy
                     players[spyIndex].points += 70;
                     resultText = "თქვენ ვერ იპოვეთ ჯაშუში!";
                 }
@@ -1142,7 +1140,7 @@
         }
 
         function endGameWithDetectiveLoss(detectiveIndex) {
-            let resultText = "თქვენ მოკალით დეტექტივი.";
+            let resultText = "თამაში დასრულდა! თქვენ მოკალით დეტექტივი.";
             let spyIndex = roles.indexOf("Spy");
             
             if (isPointsEnabled) {
@@ -1241,6 +1239,18 @@
             createParticles();
             updatePlayerList();
             setTimeout(showReadyScreen, 1000);
+            
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/sw.js')
+                        .then(registration => {
+                            console.log('Service Worker registered! Scope:', registration.scope);
+                        })
+                        .catch(err => {
+                            console.log('Service Worker registration failed:', err);
+                        });
+                });
+            }
         };
         
     </script>
