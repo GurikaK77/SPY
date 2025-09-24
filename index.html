@@ -282,7 +282,7 @@
         display: flex;
         gap: 1rem;
         margin-bottom: 1.5rem;
-        flex-wrap: wrap;
+        flex-wrap: wrap; /* Added for responsiveness */
       }
 
       input,
@@ -612,7 +612,7 @@
         gap: 1.3rem;
         justify-content: center;
         margin-top: 2.5rem;
-        flex-wrap: wrap;
+        flex-wrap: wrap; /* Added for responsiveness */
       }
 
       .player-turn {
@@ -911,9 +911,8 @@
     </div>
     <h2>მზად ხართ საიდუმლოს გასამჟღავნებლად?</h2>
     <p>
-      მოემზადეთ და დაიწყეთ თამაში, მაგრამ გაითვალისწინეთ: ერთ-ერთი თქვენგანი
-      ჯაშუშია. მისი მიზანია დაადგინოს საიდუმლო სიტყვა, თქვენი - კი მისი
-      გამოვლენა.
+      მოემზადეთ და დაიწყეთ თამაში, მაგრამ გაითვალისწინეთ: ერთ-ერთი თქვენგანი ჯაშუშია.
+      მისი მიზანია დაადგინოს საიდუმლო სიტყვა, თქვენი - კი მისი გამოვლენა.
     </p>
     <button class="btn" onclick="showMainPage()">
       <i class="fas fa-check-circle"></i> მზად ვარ
@@ -981,12 +980,10 @@
 
     <div id="roleSection" class="section">
       <div class="player-turn" id="playerTurn"></div>
-
       <div class="role-display">
         <div id="roleDisplay" class="role-text">მომზადება...</div>
         <div id="currentPlayer" class="current-player"></div>
       </div>
-
       <button class="btn" onclick="revealRole()">
         <i class="fas fa-eye"></i> როლის ნახვა
       </button>
@@ -997,7 +994,6 @@
       <div class="timer-container">
         <div class="timer" id="timer">02:00</div>
       </div>
-
       <div class="controls">
         <button class="btn" id="startTimerBtn" onclick="startTimer()">
           <i class="fas fa-hourglass-start"></i> ტაიმერის დაწყება
@@ -1041,7 +1037,6 @@
         <div id="resultDisplay" class="spies-list"></div>
         <div id="wordDisplay" class="word-reveal"></div>
       </div>
-
       <div class="controls result-buttons">
         <button class="btn" id="showPointsBtn" onclick="showFinalPoints()">
           <i class="fas fa-trophy"></i> ქულების ნახვა
@@ -1071,7 +1066,6 @@
   </audio>
 
   <script>
-    // JavaScript unchanged as requested
     function createParticles() {
       const particlesContainer = document.getElementById("particles");
       const particleCount = 30;
@@ -1136,7 +1130,6 @@
     let timeLeft = 0;
     let isDetectiveMode = false;
     let isPointsEnabled = false;
-
     const words = [
       "ფეხბურთი",
       "თეატრი",
@@ -1303,7 +1296,6 @@
       );
       isDetectiveMode = detectiveCount === 1;
       isPointsEnabled = document.getElementById("pointsSystem").value === "enabled";
-
       if (spyCount + detectiveCount >= players.length) {
         alert(
           "ჯაშუშების და დეტექტივების რაოდენობა უნდა იყოს ნაკლები მოთამაშეების რაოდენობაზე!"
@@ -1319,7 +1311,6 @@
 
       let spyIndices = indices.slice(0, spyCount);
       spyIndices.forEach((i) => (roles[i] = "Spy"));
-
       if (isDetectiveMode) {
         let availableIndices = indices.filter((i) => !spyIndices.includes(i));
         let detectiveIndex = availableIndices[0];
@@ -1335,7 +1326,6 @@
 
       players = combined.map((c) => ({ name: c.name, points: c.points }));
       roles = combined.map((c) => c.role);
-
       if (isPointsEnabled) {
         document.getElementById("showPointsBtn").style.display = "inline-flex";
       } else {
@@ -1363,7 +1353,6 @@
     function revealRole() {
       let display = document.getElementById("roleDisplay");
       let role = roles[currentIndex];
-
       display.classList.remove("spy-text", "word-text");
       if (role === "Spy") {
         display.innerHTML = `<span class="spy-text">ჯაშუში</span>`;
@@ -1406,7 +1395,6 @@
           clearInterval(timerInterval);
           document.getElementById("timer").textContent = "დრო ამოიწურა!";
           document.getElementById("alarmSound").play();
-
           showFindSpySection();
         }
       }, 1000);
@@ -1449,7 +1437,6 @@
       let guessIndex = parseInt(document.getElementById("findSpySelect").value);
 
       document.getElementById("findSpySection").classList.remove("active");
-
       if (isDetectiveMode && roles[guessIndex] === "Detective") {
         endGameWithDetectiveLoss(guessIndex);
       } else {
@@ -1521,7 +1508,6 @@
       let spyIndex = roles.indexOf("Spy");
       let detectiveIndex = roles.indexOf("Detective");
       let resultText = "";
-
       if (isPointsEnabled) {
         if (guessIndex === spyIndex) {
           players[detectiveIndex].points += 50;
@@ -1560,7 +1546,6 @@
     function showFinalPoints() {
       let modal = document.getElementById("finalPointsModal");
       let content = document.getElementById("finalPointsContent");
-
       content.innerHTML = "";
       players.forEach((p) => {
         let item = document.createElement("div");
@@ -1568,7 +1553,6 @@
         item.innerHTML = `<span class="name">${p.name}:</span> <span class="points">${p.points}</span>`;
         content.appendChild(item);
       });
-
       modal.style.display = "flex";
     }
 
