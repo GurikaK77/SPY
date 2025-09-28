@@ -1514,11 +1514,11 @@
         if (guessIndex === spyIndex) {
           players[detectiveIndex].points += 50;
           if (spyIndex !== -1) players[spyIndex].points -= 20;
-          resultText = `დეტექტივმა, ${players[detectiveIndex].name}-მა, სწორად გამოიცნო!`;
+          resultText = `დეტექტივმა, ${players[detectiveIndex].name}-მ, სწორად გამოიცნო!`;
         } else {
           players[detectiveIndex].points -= 10;
           if (spyIndex !== -1) players[spyIndex].points += 30;
-          resultText = `დეტექტივმა, ${players[detectiveIndex].name}-მა, ვერ გამოიცნო.`;
+          resultText = `დეტექტივმა, ${players[detectiveIndex].name}-მ, ვერ გამოიცნო.`;
         }
       } else {
         if (guessIndex === spyIndex) {
