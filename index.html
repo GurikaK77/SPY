@@ -35,9 +35,14 @@
         box-sizing: border-box;
         -webkit-tap-highlight-color: transparent;
       }
-       html {
-    background: var(--bg-gradient); 
-  }
+     
+html, body {
+  height: 100%;
+  background: var(--bg-gradient);
+  overflow-x: hidden;
+  overscroll-behavior: none; /* iOS bounce-scroll თავიდან ასაცილებლად */
+}
+
 
       body {
         font-family: "Raleway", sans-serif;
@@ -48,6 +53,10 @@
         display: flex;
         justify-content: center;
         align-items: center;
+
+ flex-direction: column;   /* ახალი */
+  justify-content: flex-start; /* ახალი */
+
         padding: 2rem;
         overflow-x: hidden;
         transition: opacity 0.5s ease-in-out;
