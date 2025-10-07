@@ -541,3 +541,8 @@ window.onload = function () {
   updatePlayerList();
   setTimeout(showReadyScreen, 1000);
 };
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js');
+  });
+}
