@@ -1,32 +1,5 @@
-// Function createParticles() {
-//   const particlesContainer = document.getElementById("particles");
-//   const particleCount = 30;
-
-//   for (let i = 0; i < particleCount; i++) {
-//     const particle = document.createElement("div");
-//     particle.classList.add("particle");
-
-//     const size = Math.random() * 3 + 1;
-//     const posX = Math.random() * 100;
-//     const delay = Math.random() * 15;
-//     const duration = 15 + Math.random() * 10;
-
-//     particle.style.width = `${size}px`;
-//     particle.style.height = `${size}px`;
-//     particle.style.left = `${posX}%`;
-//     particle.style.animationDelay = `${delay}s`;
-//     particle.style.animationDuration = `${duration}s`;
-
-//     particlesContainer.appendChild(particle);
-//   }
-// }
-
-// ამ ფუნქციას ვამატებთ, რადგან წყარო კოდშია მოცემული, 
-// თუმცა მისი რეალური შინაარსი კომენტარებშია (თუ არ მოგვაწოდეთ).
-// ვივარაუდებ, რომ კოდის სტრუქტურა შენარჩუნებულია.
-function createParticles() {
+Function createParticles() {
   const particlesContainer = document.getElementById("particles");
-  if (!particlesContainer) return; // უსაფრთხოების შემოწმება
   const particleCount = 30;
 
   for (let i = 0; i < particleCount; i++) {
@@ -51,13 +24,11 @@ function createParticles() {
 function showReadyScreen() {
   const loadingScreen = document.getElementById("loadingScreen");
   const readyScreen = document.getElementById("readyScreen");
-  if (loadingScreen) loadingScreen.style.opacity = "0";
+  loadingScreen.style.opacity = "0";
   setTimeout(() => {
-    if (loadingScreen) loadingScreen.style.display = "none";
-    if (readyScreen) {
-        readyScreen.style.display = "flex";
-        readyScreen.style.opacity = "1";
-    }
+    loadingScreen.style.display = "none";
+    readyScreen.style.display = "flex";
+    readyScreen.style.opacity = "1";
   }, 500);
 }
 
@@ -66,22 +37,18 @@ function showMainPage() {
   const mainContent = document.getElementById("mainContent");
   const transitionScreen = document.getElementById("transitionScreen");
 
-  if (readyScreen) readyScreen.style.opacity = "0";
+  readyScreen.style.opacity = "0";
   setTimeout(() => {
-    if (readyScreen) readyScreen.style.display = "none";
-    if (transitionScreen) {
-        transitionScreen.style.display = "flex";
-        transitionScreen.style.opacity = "1";
-    }
+    readyScreen.style.display = "none";
+    transitionScreen.style.display = "flex";
+    transitionScreen.style.opacity = "1";
 
     setTimeout(() => {
-      if (transitionScreen) transitionScreen.style.opacity = "0";
+      transitionScreen.style.opacity = "0";
       setTimeout(() => {
-        if (transitionScreen) transitionScreen.style.display = "none";
-        if (mainContent) {
-            mainContent.style.display = "block";
-            mainContent.style.opacity = "1";
-        }
+        transitionScreen.style.display = "none";
+        mainContent.style.display = "block";
+        mainContent.style.opacity = "1";
       }, 500);
     }, 2000);
   }, 500);
@@ -214,8 +181,6 @@ function addPlayer() {
 
 function updatePlayerList() {
   let list = document.getElementById("playerList");
-  if (!list) return;
-
   list.innerHTML = "";
 
   if (players.length === 0) {
@@ -306,10 +271,6 @@ function startGame() {
   updateTurnDisplay();
 }
 
-/**
- * !!! გასწორებული ფუნქცია !!!
- * აჩვენებს მოთამაშის რიგს და ღილაკს "როლის ნახვა".
- */
 function updateTurnDisplay() {
   document.getElementById(
     "playerTurn"
@@ -320,28 +281,11 @@ function updateTurnDisplay() {
   document.getElementById("roleDisplay").textContent =
     "ნახე შენი როლი";  // მომზადება როლის საჩვენებლად...
     
-  // 👇 ღილაკის გამოჩენა
-  const revealBtn = document.getElementById("revealRoleBtn");
-  if (revealBtn) {
-      revealBtn.style.display = "block";
-  }
 }
 
-/**
- * !!! გასწორებული ფუნქცია !!!
- * აჩვენებს როლს და მალავს ღილაკს, სანამ შემდეგ მოთამაშეზე არ გადავა.
- */
 function revealRole() {
   let display = document.getElementById("roleDisplay");
   let role = roles[currentIndex];
-  
-  // 👇 ღილაკის დამალვა
-  const revealBtn = document.getElementById("revealRoleBtn");
-  if (revealBtn) {
-      revealBtn.style.display = "none";
-  }
-  // -------------------------
-  
   display.classList.remove("spy-text", "word-text");
   if (role === "Spy") {
     display.innerHTML = `<span class="spy-text">ჯაშუში</span>`;
@@ -355,7 +299,7 @@ function revealRole() {
 
   if (currentIndex < players.length) {
     setTimeout(() => {
-      updateTurnDisplay(); // updateTurnDisplay ახლიდან გამოაჩენს ღილაკს
+      updateTurnDisplay();
     }, 2000);
   } else {
     setTimeout(() => {
@@ -383,11 +327,7 @@ function startTimer() {
     if (timeLeft <= 0) {
       clearInterval(timerInterval);
       document.getElementById("timer").textContent = "დრო ამოიწურა!";
-      // უსაფრთხოების შემოწმება
-      const alarmSound = document.getElementById("alarmSound");
-      if (alarmSound && typeof alarmSound.play === 'function') {
-          alarmSound.play();
-      }
+      document.getElementById("alarmSound").play();
       showFindSpySection();
     }
   }, 1000);
@@ -417,7 +357,6 @@ function showFindSpySection() {
   document.getElementById("findSpySection").classList.add("active");
 
   let select = document.getElementById("findSpySelect");
-  if (!select) return; // უსაფრთხოების შემოწმება
   select.innerHTML = "";
   
   // დავამატოთ "აირჩიეთ" დეფოლტად
@@ -501,7 +440,6 @@ function endGameWithDetectiveLoss(detectiveIndex) {
 function showDetectiveGuessSection() {
   document.getElementById("detectiveSection").classList.add("active");
   let select = document.getElementById("detectiveGuessSelect");
-  if (!select) return; // უსაფრთხოების შემოწმება
   select.innerHTML = "";
   
   // დავამატოთ "აირჩიეთ" დეფოლტად
@@ -574,8 +512,6 @@ function revealSpies() {
 function showFinalPoints() {
   let modal = document.getElementById("finalPointsModal");
   let content = document.getElementById("finalPointsContent");
-  if (!modal || !content) return; // უსაფრთხოების შემოწმება
-    
   content.innerHTML = "";
   players.forEach((p) => {
     let item = document.createElement("div");
@@ -587,8 +523,7 @@ function showFinalPoints() {
 }
 
 function closeModal(id) {
-  const modal = document.getElementById(id);
-  if (modal) modal.style.display = "none";
+  document.getElementById(id).style.display = "none";
 }
 
 function restartGame() {
@@ -601,37 +536,14 @@ function restartGame() {
   document.getElementById("timer").textContent = "02:00";
 }
 
-// ეკრანის გააქტიურების კოდი, თუ Media API ხელმისაწვდომია
-// (ეს ნაწილი თქვენი კოდიდან იყო)
-const isMediaAvailable = typeof window.screen.keepScreenOn === 'function';
-if (isMediaAvailable) {
-    try {
-        window.screen.keepScreenOn(true);
-    } catch (e) {
-        console.warn("ეკრანის შენარჩუნების ფუნქცია მიუწვდომელია:", e);
-    }
-} else if ('wakeLock' in navigator) {
-    // ალტერნატიული Wake Lock API-ის გამოყენება
-    let wakeLock = null;
-    const requestWakeLock = async () => {
-        try {
-            wakeLock = await navigator.wakeLock.request('screen');
-        } catch (err) {
-            console.warn(`${err.name}, ${err.message}`);
-        }
-    };
-    requestWakeLock();
-}
-
-
 window.onload = function () {
   createParticles();
   updatePlayerList();
   setTimeout(showReadyScreen, 1000);
 };
-
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
     navigator.serviceWorker.register('/sw.js');
   });
 }
+median.screen.keepScreenOn(); 
