@@ -1,25 +1,4 @@
- Function createParticles() {
-   const particlesContainer = document.getElementById("particles");
-   const particleCount = 30;
-
-   for (let i = 0; i < particleCount; i++) {
-  const particle = document.createElement("div");
-     particle.classList.add("particle");
-
-    const size = Math.random() * 3 + 1;
-     const posX = Math.random() * 100;
-     const delay = Math.random() * 15;
-     const duration = 15 + Math.random() * 10;
-
-     particle.style.width = `${size}px`;
-     particle.style.height = `${size}px`;
-     particle.style.left = `${posX}%`;
-     particle.style.animationDelay = `${delay}s`;
-     particle.style.animationDuration = `${duration}s`;
-
-     particlesContainer.appendChild(particle);
-   }
- }
+ 
 
 // ამ ფუნქციას ვამატებთ, რადგან წყარო კოდშია მოცემული, 
 // თუმცა მისი რეალური შინაარსი კომენტარებშია (თუ არ მოგვაწოდეთ).
