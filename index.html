@@ -4,30 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>SPY - მისტიკური თამაში</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <!-- საიტის აიქონი -->
-    <link rel="icon" href="data:image/png;base64,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">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Raleway:wght@300;400;600&display=swap"
-      rel="stylesheet"
-    />
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#8a2be2">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="SPY Game">
-    <link rel="apple-touch-icon" href="data:image/png;base64,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">
-<link rel="stylesheet" href="style.css">
-    <!-- <style>
-      
-    </style> -->
-    
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Raleway:wght@300;400;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="loadingScreen">
@@ -36,18 +17,20 @@
   </div>
 
   <div id="readyScreen" style="display:none;">
-    <div class="logo">
-      <h1>SPY</h1>
-      <p>მისტიკური თამაში რეალობის გამოცდისთვის</p>
+    <div class="ready-content">
+      <div class="logo">
+        <h1>SPY</h1>
+        <p>მისტიკური თამაში რეალობის გამოცდისთვის</p>
+      </div>
+      <h2>მზად ხართ საიდუმლოს გასამჟღავნებლად?</h2>
+      <p>
+        მოემზადეთ და დაიწყეთ თამაში, მაგრამ გაითვალისწინეთ: ერთ-ერთი თქვენგანი ჯაშუშია.
+        მისი მიზანია დაადგინოს საიდუმლო სიტყვა, თქვენი - კი მისი გამოვლენა.
+      </p>
+      <button class="btn im-ready" onclick="showMainPage()">
+        <i class="fas fa-check-circle"></i> მზად ვარ 
+      </button>
     </div>
-    <h2>მზად ხართ საიდუმლოს გასამჟღავნებლად?</h2>
-    <p>
-      მოემზადეთ და დაიწყეთ თამაში, მაგრამ გაითვალისწინეთ: ერთ-ერთი თქვენგანი ჯაშუშია.
-      მისი მიზანია დაადგინოს საიდუმლო სიტყვა, თქვენი - კი მისი გამოვლენა.
-    </p>
-    <button class="btn im-ready" onclick="showMainPage()">
-      <i class="fas fa-check-circle"></i> მზად ვარ 
-    </button>
   </div>
 
   <div id="transitionScreen" style="display:none;">
@@ -57,10 +40,17 @@
 
   <div class="particles" id="particles"></div>
 
+  <!-- Timer End Signal -->
+  <div id="timerEndSignal" class="timer-end-signal">
+    <div class="timer-end-content">
+      <i class="fas fa-exclamation-triangle"></i>
+      <div>დრო ამოიწურა!</div>
+    </div>
+  </div>
+
   <div class="container" id="mainContent" style="display:none;">
     <div class="logo">
       <h1>SPY</h1>
-      <!-- This paragraph is hidden by CSS when game started -->
       <p>მისტიკური თამაში რეალობის გამოცდისთვის</p>
     </div>
 
@@ -85,7 +75,7 @@
         </select>
       </div>
 
-       <div class="input-group">
+      <div class="input-group">
         <label class="form-label">
           <i class="fas fa-search"></i> დეტექტივის რაოდენობა:
         </label>
@@ -93,7 +83,7 @@
           <option value="0" selected>გამორთვა</option>
           <option value="1">1 დეტექტივი</option>
         </select>
-      </div> 
+      </div>
 
       <div class="input-group">
         <label class="form-label">
@@ -110,14 +100,29 @@
       </button>
     </div>
 
+    <!-- UPDATED ROLE SECTION WITH CARD FLIP -->
     <div id="roleSection" class="section">
       <div class="player-turn" id="playerTurn"></div>
-      <div class="role-display">
-        <div id="roleDisplay" class="role-text">მომზადება...</div>
-        <div id="currentPlayer" class="current-player"></div>
+      
+      <div class="role-card" id="roleCard" onclick="revealRole()">
+        <div class="role-card-inner">
+          <div class="role-card-front" id="roleCardFront">
+            <div class="role-icon">
+              <i class="fas fa-user-secret"></i>
+            </div>
+            <div class="role-text">დააჭირე როლის საჩვენებლად</div>
+          </div>
+          <div class="role-card-back" id="roleCardBack">
+            <!-- Role will be filled by JavaScript -->
+          </div>
+        </div>
       </div>
-      <button class="btn" onclick="revealRole()">
-        <i class="fas fa-eye"></i> როლის ნახვა
+      
+      <div id="currentPlayer" class="current-player"></div>
+      
+      <!-- Next Player Button -->
+      <button class="btn next-player-btn" id="nextPlayerBtn" onclick="nextPlayer()" style="display:none;">
+        <i class="fas fa-arrow-right"></i> შემდეგი მოთამაშე
       </button>
     </div>
 
@@ -149,19 +154,6 @@
       </div>
     </div>
 
-    <!-- <div id="detectiveSection" class="section">
-      <div class="result-display">
-        <div class="result-title">დეტექტივის სვლა</div>
-        <p>დეტექტივმა უნდა გამოიცნოს ჯაშუში.</p>
-        <select id="detectiveGuessSelect"></select>
-      </div>
-      <div class="controls">
-        <button class="btn" onclick="detectiveGuess()">
-          <i class="fas fa-hand-point-right"></i> გამოცნობა
-        </button>
-      </div>
-    </div> -->
-
     <div id="resultSection" class="section">
       <div class="result-display">
         <div class="result-title">თამაში დასრულდა!</div>
@@ -191,15 +183,9 @@
   </div>
 
   <audio id="alarmSound">
-    <source
-      src="https://www.soundjay.com/buttons/sounds/beep-07.mp3"
-      type="audio/mpeg"
-    />
+    <source src="https://www.soundjay.com/buttons/sounds/beep-07.mp3" type="audio/mpeg" />
   </audio>
 
-  <script src="script.js">
-    
-</script>
-
+  <script src="script.js"></script>
 </body>
 </html>
