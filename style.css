@@ -1,9 +1,10 @@
 :root {
-    --primary: #8a2be2;
+    /* ფერები */
+    --primary: #8a2be2; /* Blue Violet */
     --primary-dark: #6a1cb3;
     --primary-light: #9d4edd;
-    --secondary: #ff6b6b;
-    --accent: #00d4ff;
+    --secondary: #ff6b6b; /* Red */
+    --accent: #00d4ff; /* Cyan */
     --accent-dark: #00a8cc;
     --dark: #0f0f1a;
     --darker: #070710;
@@ -14,22 +15,26 @@
     --warning: #f59e0b;
     --info: #3b82f6;
     
+    /* გრადიენტები */
     --gradient-primary: linear-gradient(135deg, var(--primary), var(--accent));
     --gradient-dark: linear-gradient(135deg, var(--darker), #1e1b4b);
     --gradient-card: linear-gradient(145deg, rgba(138, 43, 226, 0.15), rgba(0, 212, 255, 0.1));
     --gradient-glow: linear-gradient(45deg, var(--primary), var(--accent), var(--primary));
     
+    /* ჩრდილები */
     --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.4);
     --shadow-glow: 0 0 30px rgba(138, 43, 226, 0.6);
     --shadow-accent: 0 0 25px rgba(0, 212, 255, 0.4);
     
+    /* საზღვრები */
     --border-radius: 16px;
     --border-radius-lg: 24px;
     
     --transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
+/* Base Styles */
 * {
     margin: 0;
     padding: 0;
@@ -94,7 +99,7 @@ body {
     50% { opacity: 0.7; }
 }
 
-/* Ready Screen - FIXED FOR MOBILE */
+/* Ready Screen */
 #readyScreen {
     position: fixed;
     top: 0;
@@ -157,7 +162,6 @@ body {
     line-height: 1.6;
 }
 
-/* FIXED BUTTON FOR MOBILE */
 .im-ready {
     padding: 16px 32px;
     font-size: 1.2rem;
@@ -226,9 +230,6 @@ body {
         opacity: 0.8;
         transform: translateY(90vh) rotate(36deg) scale(1);
     }
-    90% {
-        opacity: 0.8;
-    }
     100% {
         transform: translateY(-100px) rotate(360deg) scale(0);
         opacity: 0;
@@ -248,7 +249,8 @@ body {
     justify-content: flex-start;
 }
 
-.container .logo {
+/* LOGO Area */
+.logo-area {
     text-align: center;
     margin-bottom: 3rem;
     padding: 2rem;
@@ -256,6 +258,7 @@ body {
     background: var(--gradient-card);
     position: relative;
     overflow: hidden;
+    transition: var(--transition);
 }
 
 .container .logo h1 {
@@ -270,12 +273,31 @@ body {
     font-family: 'Cinzel', serif;
 }
 
-.container .logo p {
-    color: var(--accent);
-    font-style: italic;
-    font-size: 1.2rem;
-    text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+/* Configuration Button on Main Screen */
+.btn-config {
+    margin-top: 1rem;
+    padding: 10px 20px;
+    font-size: 1rem;
+    background: linear-gradient(135deg, var(--accent), var(--info));
+    box-shadow: var(--shadow-accent);
 }
+
+.btn-config:hover {
+    box-shadow: var(--shadow-lg), 0 0 25px rgba(0, 212, 255, 0.6);
+}
+
+/* --- LOGO HIDING LOGIC (გასწორებულია) --- */
+
+/* ეს წესი უზრუნველყოფს, რომ ლოგო დაიმალოს როლების გადანაწილების, თამაშის (ტაიმერის), 
+   ჯაშუშის ძიების და შედეგების გვერდებზე. */
+#roleSection.active ~ #logoArea,
+#gameSection.active ~ #logoArea,
+#findSpySection.active ~ #logoArea,
+#resultSection.active ~ #logoArea { 
+    display: none !important;
+}
+
+/* --- END LOGO HIDING LOGIC --- */
 
 /* Sections */
 .section {
@@ -297,6 +319,19 @@ body {
     animation: slideUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
+/* Special centering for Role and Game Sections when logo is hidden */
+#roleSection.active-centered,
+#gameSection.active-centered,
+#findSpySection.active-centered,
+#resultSection.active-centered { 
+    min-height: 80vh; 
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
 @keyframes slideUp {
     from {
         opacity: 0;
@@ -306,6 +341,20 @@ body {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* Config Section Styling */
+.config-title {
+    font-size: 1.8rem;
+    color: var(--light);
+    margin-bottom: 2rem;
+    text-align: center;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 }
 
 /* Buttons */
@@ -338,6 +387,11 @@ body {
 
 .btn-danger {
     background: linear-gradient(135deg, var(--danger), #ff4757);
+}
+
+.btn-secondary {
+    background: var(--gray);
+    background: linear-gradient(135deg, var(--gray), #64748b);
 }
 
 /* Input Groups */
@@ -448,7 +502,7 @@ input::placeholder {
     box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
 }
 
-/* Role Section - UPDATED WITH CARD FLIP */
+/* Role Section - Card Flip */
 .player-turn {
     font-size: 1.8rem;
     text-align: center;
@@ -460,6 +514,7 @@ input::placeholder {
 
 .role-card {
     width: 100%;
+    max-width: 400px;
     height: 250px;
     perspective: 1000px;
     margin-bottom: 2rem;
@@ -547,7 +602,7 @@ input::placeholder {
     margin-top: 1rem;
 }
 
-/* Game Section */
+/* Game Section (Timer) */
 .points-display {
     display: none;
     background: rgba(0, 0, 0, 0.4);
@@ -570,11 +625,12 @@ input::placeholder {
 
 .timer-container {
     text-align: center;
-    margin-bottom: 2rem;
     padding: 2rem;
     background: var(--gradient-card);
     border-radius: var(--border-radius-lg);
     border: 2px solid rgba(138, 43, 226, 0.3);
+    width: 100%;
+    max-width: 600px;
 }
 
 .timer {
@@ -607,6 +663,7 @@ input::placeholder {
     gap: 20px;
     justify-content: center;
     flex-wrap: wrap;
+    margin-top: 2rem;
 }
 
 /* Timer End Signal */
@@ -753,46 +810,21 @@ input::placeholder {
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
-    #readyScreen .logo h1 {
-        font-size: 2.5rem;
+    .container {
+        padding: 0.5rem;
     }
     
-    #readyScreen h2 {
-        font-size: 1.5rem;
-    }
-    
-    #readyScreen p {
-        font-size: 1rem;
-    }
-    
-    .ready-content {
+    .logo-area {
+        margin-bottom: 1.5rem;
         padding: 1.5rem;
     }
-    
-    .im-ready {
-        padding: 14px 28px;
-        font-size: 1.1rem;
-        min-width: 180px;
-    }
-    
+
     .container .logo h1 {
         font-size: 3rem;
     }
     
     .section {
         padding: 1.5rem;
-    }
-    
-    .role-card {
-        height: 200px;
-    }
-    
-    .role-icon {
-        font-size: 2.5rem;
-    }
-    
-    .role-text {
-        font-size: 1.3rem;
     }
     
     .timer {
@@ -812,27 +844,13 @@ input::placeholder {
         width: 100%;
         max-width: 300px;
     }
+    
+    .role-card {
+        height: 200px;
+    }
 }
 
 @media (max-width: 480px) {
-    #readyScreen {
-        padding: 0.5rem;
-    }
-    
-    .ready-content {
-        padding: 1rem;
-    }
-    
-    #readyScreen .logo h1 {
-        font-size: 2rem;
-    }
-    
-    .im-ready {
-        padding: 12px 24px;
-        font-size: 1rem;
-        min-width: 160px;
-    }
-    
     .container .logo h1 {
         font-size: 2.5rem;
     }
