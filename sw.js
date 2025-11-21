@@ -1,11 +1,13 @@
 // sw.js - განახლებული ვერსია
-const CACHE_NAME = 'spy-cache-v6';
+const CACHE_NAME = 'spy-cache-v7';
 const urlsToCache = [
   '/',
   '/index.html',
+  '/style.css',
+  '/script.js',
   '/manifest.json',
-  // თუ გაქვთ ხმის ფაილი, დაამატეთ:
-  // 'https://www.soundjay.com/buttons/sounds/beep-07.mp3'
+  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
+  'https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Raleway:wght@300;400;600&display=swap'
 ];
 
 // --- Install Event ---
