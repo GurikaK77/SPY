@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Raleway:wght@300;400;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
 </head>
 <body>
     <div id="loadingScreen">
@@ -93,6 +94,18 @@
                 <select id="detectiveCount">
                     <option value="0" selected>გამორთვა</option>
                     <option value="1">1 დეტექტივი</option>
+                    <option value="2">2 დეტექტივი</option>
+                    <option value="3">3 დეტექტივი</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label class="form-label">
+                    <i class="fas fa-random"></i> მოთამაშეების რიგი:
+                </label>
+                <select id="playerOrder">
+                    <option value="random" selected>შემთხვევითი</option>
+                    <option value="sequential">თანმიმდევრობით</option>
                 </select>
             </div>
 
@@ -151,8 +164,8 @@
 
         <div id="findSpySection" class="section">
             <div class="result-display">
-                <div class="result-title">მოთამაშეები ეძებენ ჯაშუშს</div>
-                <p>დააფიქსირეთ თქვენი ეჭვი, ვინ არის ჯაშუში:</p>
+                <div class="result-title" id="findSpyTitle">მოთამაშეები ეძებენ ჯაშუშს</div>
+                <p id="findSpyDescription">დააფიქსირეთ თქვენი ეჭვი, ვინ არის ჯაშუში:</p>
                 <select id="findSpySelect"></select>
             </div>
             <div class="controls">
