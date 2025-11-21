@@ -31,11 +31,14 @@ let timerInterval;
 let timeLeft = 0;
 let isDetectiveMode = false;
 let isPointsEnabled = false;
+let originalPlayerOrder = [];
+let usedWords = []; // Track used words to avoid repetition
 
 // Configuration State
 let configState = {
     spyCount: 1,
     detectiveCount: 0,
+    playerOrder: "random",
     pointsSystem: "disabled"
 };
 
@@ -47,7 +50,7 @@ const words = [
     "ანბანი", "გლობუსი", "ტანკი", "ჰიტლერი",
     
 "საფოსტო ყუთი", "თეთრი ღრუბელი", "ელექტრო ჩაიდანი", "საბუთების უჯრა", "დიდი კედელი", "ცისფერი პეპელა", "შავი ზღვა", "მწვანე ბალახი", "ტკბილი ნამცხვარი", "გემრიელი წვენი",
-"წყნარი ტბა", "ხის მასალა", "ცეცხლმაქრი", "პლასტმასის ბოთლი", "მზის ამოსვლა", "შხაპის მიღება", "ზაფხულის სეზონი", "ზამთრის პერიოდი", "პოლიციის მანქანა", "გადაუდებელი დახმარება",
+"წყნარი ტბა", "ხის მასალა", "ცეცხლმაქრი", "პლასტმასის ბორბალი", "მზის ამოსვლა", "შხაპის მიღება", "ზაფხულის სეზონი", "ზამთრის პერიოდი", "პოლიციის მანქანა", "გადაუდებელი დახმარება",
 "სამედიცინო ცენტრი", "საფეხმავლო ბილიკი", "ველოსიპედის ბორბალი", "თხევადი საპონი", "ყავის ფინჯანი", "კომპიუტერის თაგვი", "რბილი დივანი", "ფილმის გმირი", "ხელოვნური ინტელექტი", "თვითმფრინავის ფრთა",
 "ჩოგბურთის ბურთი", "სპორტული დარბაზი", "კომპლექსური ამოცანა", "მშვიდი ღამე", "წმინდა წყალი", "სალაშქრო ფეხსაცმელი", "საზოგადოებრივი ტრანსპორტი", "საათის ისარი", "გარდერობის კარი", "ქარის ტურბინა",
 "გაზაფხულის წვიმა", "ციფრული კამერა", "დედამიწის ღერძი", "პატარა ბავშვი", "მბზინავი ქვა", "სკამის საზურგე", "ტელევიზორის ანტენა", "ფინანსური ანგარიში", "ოქროს თევზი", "ინტერნეტის სიჩქარე"
@@ -132,6 +135,7 @@ function showPlayerInput() {
     // Load config from state to the UI
     document.getElementById('spyCount').value = configState.spyCount;
     document.getElementById('detectiveCount').value = configState.detectiveCount;
+    document.getElementById('playerOrder').value = configState.playerOrder;
     document.getElementById('pointsSystem').value = configState.pointsSystem;
 }
 
@@ -139,6 +143,7 @@ function showConfig() {
     // Update UI with current config state
     document.getElementById('spyCount').value = configState.spyCount;
     document.getElementById('detectiveCount').value = configState.detectiveCount;
+    document.getElementById('playerOrder').value = configState.playerOrder;
     document.getElementById('pointsSystem').value = configState.pointsSystem;
     setActiveSection('configSection');
 }
@@ -147,6 +152,7 @@ function saveConfig() {
     // Save config from UI to state
     configState.spyCount = parseInt(document.getElementById("spyCount").value);
     configState.detectiveCount = parseInt(document.getElementById("detectiveCount").value);
+    configState.playerOrder = document.getElementById("playerOrder").value;
     configState.pointsSystem = document.getElementById("pointsSystem").value;
     
     // Show success message
@@ -161,6 +167,7 @@ function saveConfig() {
 function loadConfigFromUI() {
     configState.spyCount = parseInt(document.getElementById("spyCount").value);
     configState.detectiveCount = parseInt(document.getElementById("detectiveCount").value);
+    configState.playerOrder = document.getElementById("playerOrder").value;
     configState.pointsSystem = document.getElementById("pointsSystem").value;
 }
 
@@ -214,6 +221,27 @@ function updatePlayerList() {
     });
 }
 
+function getRandomWord() {
+    // If all words have been used, reset the used words list
+    if (usedWords.length >= words.length) {
+        usedWords = [];
+    }
+    
+    // Filter out used words
+    const availableWords = words.filter(word => !usedWords.includes(word));
+    
+    // If no available words, reset used words
+    if (availableWords.length === 0) {
+        usedWords = [];
+        return words[Math.floor(Math.random() * words.length)];
+    }
+    
+    // Get random word from available words
+    const randomWord = availableWords[Math.floor(Math.random() * availableWords.length)];
+    usedWords.push(randomWord);
+    return randomWord;
+}
+
 function startGame() {
     if (players.length < 3) {
         alert("მინიმუმ 3 მოთამაშე უნდა იყოს!");
@@ -223,7 +251,8 @@ function startGame() {
     // Use the saved config state
     let spyCount = configState.spyCount;
     let detectiveCount = configState.detectiveCount;
-    isDetectiveMode = detectiveCount === 1;
+    let playerOrder = configState.playerOrder;
+    isDetectiveMode = detectiveCount > 0;
     isPointsEnabled = configState.pointsSystem === "enabled";
     
     if (spyCount + detectiveCount >= players.length) {
@@ -231,32 +260,55 @@ function startGame() {
         return;
     }
 
-    chosenWord = words[Math.floor(Math.random() * words.length)];
+    // Get a new random word that hasn't been used recently
+    chosenWord = getRandomWord();
     roles = Array(players.length).fill("Civilian");
-    let indices = [...Array(players.length).keys()];
-    indices.sort(() => Math.random() - 0.5);
-
-    let spyIndices = indices.slice(0, spyCount);
-    spyIndices.forEach((i) => (roles[i] = "Spy"));
     
-    if (isDetectiveMode) {
-        let availableIndices = indices.filter((i) => !spyIndices.includes(i));
-        let detectiveIndex = availableIndices[0];
-        roles[detectiveIndex] = "Detective";
+    // Save original player order for sequential mode
+    originalPlayerOrder = [...players];
+
+    // Handle player order
+    if (playerOrder === "sequential") {
+        // Keep players in the order they were added
+        // No shuffling needed - players stay in their original order
+        console.log("Sequential order - players remain in original order");
+    } else {
+        // Random order - shuffle players
+        let combined = players.map((p, i) => ({
+            name: p.name,
+            role: roles[i],
+            points: p.points
+        }));
+        combined.sort(() => Math.random() - 0.5);
+        players = combined.map((c) => ({ name: c.name, points: c.points }));
+        roles = combined.map((c) => c.role);
+        console.log("Random order - players shuffled");
     }
 
-    // Shuffle players and roles together
-    let combined = players.map((p, i) => ({
-        name: p.name,
-        role: roles[i],
-        points: p.points
-    }));
-    combined.sort(() => Math.random() - 0.5);
-
-    // Update players array with new order (keeping points)
-    players = combined.map((c) => ({ name: c.name, points: c.points }));
-    roles = combined.map((c) => c.role);
+    // Assign spy roles
+    let indices = [...Array(players.length).keys()];
+    let spyIndices = [];
     
+    for (let i = 0; i < spyCount; i++) {
+        let availableIndices = indices.filter(idx => !spyIndices.includes(idx));
+        let randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+        spyIndices.push(randomIndex);
+        roles[randomIndex] = "Spy";
+    }
+    
+    // Assign detective roles
+    if (isDetectiveMode) {
+        let availableIndices = indices.filter(idx => !spyIndices.includes(idx));
+        
+        for (let i = 0; i < detectiveCount; i++) {
+            if (availableIndices.length > 0) {
+                let randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+                roles[randomIndex] = "Detective";
+                availableIndices = availableIndices.filter(idx => idx !== randomIndex);
+            }
+        }
+    }
+
     if (isPointsEnabled) {
         document.getElementById("showPointsBtn").style.display = "inline-flex";
     } else {
@@ -306,6 +358,7 @@ function revealRole() {
                 <i class="fas fa-search"></i>
             </div>
             <div class="role-text detektivi">დეტექტივი</div>
+            <div class="role-text" style="margin-top: 10px; font-size: 1rem;">მხოლოდ შენ შეგიძლია ჯაშუშის გამოცნობა!</div>
         `;
     } else {
         roleCardBack.innerHTML = `
@@ -403,12 +456,31 @@ function showFindSpySection() {
     defaultOption.disabled = true;
     select.appendChild(defaultOption);
     
-    players.forEach((p, i) => {
-        let option = document.createElement("option");
-        option.value = i;
-        option.textContent = p.name;
-        select.appendChild(option);
-    });
+    // If detective mode is active, only detectives can guess
+    if (isDetectiveMode) {
+        let detectives = roles.map((r, i) => ({ role: r, index: i })).filter(p => p.role === "Detective");
+        if (detectives.length > 0) {
+            document.getElementById("findSpySelect").innerHTML = `
+                <option value="" selected disabled>აირჩიეთ ჯაშუში</option>
+                ${players.map((p, i) => 
+                    `<option value="${i}">${p.name}</option>`
+                ).join('')}
+            `;
+            // Show which detective is guessing
+            let detectiveNames = detectives.map(d => players[d.index].name).join(", ");
+            document.querySelector("#findSpySection .result-title").textContent = "დეტექტივი, ეძებე ჯაშუში!";
+            document.querySelector("#findSpySection p").innerHTML = `<strong>${detectiveNames}</strong> - დეტექტივმა უნდა გამოიცნოს ჯაშუში:`;
+        }
+    } else {
+        players.forEach((p, i) => {
+            let option = document.createElement("option");
+            option.value = i;
+            option.textContent = p.name;
+            select.appendChild(option);
+        });
+        document.querySelector("#findSpySection .result-title").textContent = "მოთამაშეები ეძებენ ჯაშუშს";
+        document.querySelector("#findSpySection p").textContent = "დააფიქსირეთ თქვენი ეჭვი, ვინ არის ჯაშუში:";
+    }
 }
 
 function makePlayerGuess() {
@@ -420,14 +492,44 @@ function makePlayerGuess() {
         return;
     }
 
-    if (roles[guessIndex] === "Detective") {
-        endGameWithDetectiveLoss(guessIndex);
+    if (isDetectiveMode) {
+        handleDetectiveGuess(guessIndex);
     } else {
-        endGameWithPlayerGuess(guessIndex);
+        handleRegularGuess(guessIndex);
     }
 }
 
-function endGameWithPlayerGuess(guessIndex) {
+function handleDetectiveGuess(guessIndex) {
+    let spies = roles.map((r, i) => ({ role: r, index: i })).filter(p => p.role === "Spy");
+    let detectives = roles.map((r, i) => ({ role: r, index: i })).filter(p => p.role === "Detective");
+    let isGuessCorrect = spies.some(spy => spy.index === guessIndex);
+    let resultText = "";
+
+    if (isPointsEnabled) {
+        if (isGuessCorrect) {
+            // Detective gets +50, spies lose -60 each
+            detectives.forEach(det => { players[det.index].points += 50; });
+            spies.forEach(spy => { players[spy.index].points -= 60; });
+            resultText = "დეტექტივმა მოიგო! სწორად იპოვეთ ჯაშუში!";
+        } else {
+            // Detective loses -20, spies get +40 each
+            detectives.forEach(det => { players[det.index].points -= 20; });
+            spies.forEach(spy => { players[spy.index].points += 40; });
+            resultText = "ჯაშუშებმა მოიგეს! დეტექტივმა ვერ იპოვა ჯაშუში.";
+        }
+    } else {
+        if (isGuessCorrect) {
+            resultText = "დეტექტივმა მოიგო! სწორად იპოვეთ ჯაშუში!";
+        } else {
+            resultText = "ჯაშუშებმა მოიგეს! დეტექტივმა ვერ იპოვა ჯაშუში.";
+        }
+    }
+
+    document.getElementById("resultText").textContent = resultText;
+    revealSpies();
+}
+
+function handleRegularGuess(guessIndex) {
     let spies = roles.map((r, i) => ({ role: r, index: i })).filter(p => p.role === "Spy");
     let isGuessCorrect = spies.some(spy => spy.index === guessIndex);
     let resultText = "";
@@ -442,22 +544,10 @@ function endGameWithPlayerGuess(guessIndex) {
         }
     } else {
         if (isGuessCorrect) {
-            resultText = "მოიგეს სამოქალაქოებმა (და დეტექტივმა)! წააგო ჯაშუშმა!";
+            resultText = "მოიგეს სამოქალაქოებმა! წააგო ჯაშუშმა!";
         } else {
             resultText = "მოიგო ჯაშუშმა! წააგეს სამოქალაქოებმა.";
         }
-    }
-
-    document.getElementById("resultText").textContent = resultText;
-    revealSpies();
-}
-
-function endGameWithDetectiveLoss(detectiveIndex) {
-    let resultText = "ჯაშუშმა მოიგო! თქვენ მოკალით დეტექტივი.";
-    let spies = roles.map((r, i) => ({ role: r, index: i })).filter(p => p.role === "Spy");
-
-    if (isPointsEnabled) {
-        spies.forEach(spy => { players[spy.index].points += 70; });
     }
 
     document.getElementById("resultText").textContent = resultText;
@@ -468,14 +558,14 @@ function revealSpies() {
     let spies = roles
         .map((r, i) => (r === "Spy" ? players[i].name : null))
         .filter(Boolean);
-    let detective = roles
+    let detectives = roles
         .map((r, i) => (r === "Detective" ? players[i].name : null))
         .filter(Boolean);
 
     let spiesText = spies.join(", ");
-    let detectiveText = detective.length > 0 ? ` (დეტექტივი: ${detective[0]})` : "";
+    let detectiveText = detectives.length > 0 ? ` (დეტექტივები: ${detectives.join(", ")})` : "";
 
-    document.getElementById("resultDisplay").textContent = `ჯაშუში: ${spiesText}${detectiveText}`;
+    document.getElementById("resultDisplay").textContent = `ჯაშუშები: ${spiesText}${detectiveText}`;
     document.getElementById("wordDisplay").textContent = `საიდუმლო სიტყვა: ${chosenWord}`;
 
     setActiveSection('resultSection');
@@ -512,11 +602,65 @@ function restartGame(sameConfig) {
     document.getElementById("timer").textContent = "02:00";
 
     if (sameConfig) {
-        // ეგრევე იწყებს ახალ თამაშს როლების არჩევით
+        // Rotate players for sequential mode
+        if (configState.playerOrder === "sequential" && players.length > 0) {
+            let firstPlayer = players.shift();
+            players.push(firstPlayer);
+            
+            let firstRole = roles.shift();
+            roles.push(firstRole);
+            
+            console.log("Sequential mode - rotated players:", players.map(p => p.name));
+        }
+        
+        // Start completely new game with new word and roles
         startGame();
     } else {
-        // ბრუნდება მთავარ მენიუში
+        // Return to main menu
         showPlayerInput();
+    }
+}
+
+// Service Worker Registration
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js')
+            .then(function(registration) {
+                console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            })
+            .catch(function(error) {
+                console.log('ServiceWorker registration failed: ', error);
+            });
+    });
+}
+
+// Prevent screen from turning off when app is active
+function preventScreenOff() {
+    // Request wake lock if supported
+    if ('wakeLock' in navigator) {
+        let wakeLock = null;
+        
+        const requestWakeLock = async () => {
+            try {
+                wakeLock = await navigator.wakeLock.request('screen');
+                console.log('Screen will stay on');
+                
+                wakeLock.addEventListener('release', () => {
+                    console.log('Screen Wake Lock was released');
+                });
+            } catch (err) {
+                console.error(`${err.name}, ${err.message}`);
+            }
+        };
+        
+        requestWakeLock();
+        
+        // Re-request wake lock when page becomes visible again
+        document.addEventListener('visibilitychange', async () => {
+            if (document.visibilityState === 'visible' && wakeLock === null) {
+                requestWakeLock();
+            }
+        });
     }
 }
 
@@ -525,5 +669,19 @@ window.onload = function () {
     createParticles();
     // Load initial config
     loadConfigFromUI();
+    // Prevent screen from turning off
+    preventScreenOff();
     setTimeout(showReadyScreen, 1000);
 };
+
+// Prevent context menu on long press
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    return false;
+});
+
+// Prevent text selection
+document.addEventListener('selectstart', function(e) {
+    e.preventDefault();
+    return false;
+});
