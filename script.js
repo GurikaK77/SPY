@@ -507,14 +507,16 @@ function handleDetectiveGuess(guessIndex) {
 
     if (isPointsEnabled) {
         if (isGuessCorrect) {
-            // Detective gets +50, spies lose -60 each
-            detectives.forEach(det => { players[det.index].points += 50; });
-            spies.forEach(spy => { players[spy.index].points -= 60; });
+            // Detective gets +4 points for finding spy
+            detectives.forEach(det => { players[det.index].points += 4; });
+            // Spy loses -1 point
+            spies.forEach(spy => { players[spy.index].points -= 1; });
             resultText = "დეტექტივმა მოიგო! სწორად იპოვეთ ჯაშუში!";
         } else {
-            // Detective loses -20, spies get +40 each
-            detectives.forEach(det => { players[det.index].points -= 20; });
-            spies.forEach(spy => { players[spy.index].points += 40; });
+            // Detective loses -1 point for wrong guess
+            detectives.forEach(det => { players[det.index].points -= 1; });
+            // Spy gets +3 points for not being found
+            spies.forEach(spy => { players[spy.index].points += 3; });
             resultText = "ჯაშუშებმა მოიგეს! დეტექტივმა ვერ იპოვა ჯაშუში.";
         }
     } else {
@@ -536,10 +538,12 @@ function handleRegularGuess(guessIndex) {
 
     if (isPointsEnabled) {
         if (isGuessCorrect) {
-            spies.forEach(spy => { players[spy.index].points -= 30; });
+            // Spy loses -1 point when found
+            spies.forEach(spy => { players[spy.index].points -= 1; });
             resultText = "სამოქალაქოებმა მოიგეს! სწორად იპოვეთ ჯაშუში!";
         } else {
-            spies.forEach(spy => { players[spy.index].points += 70; });
+            // Spy gets +3 points when not found
+            spies.forEach(spy => { players[spy.index].points += 3; });
             resultText = "ჯაშუშმა მოიგო! ვერ იპოვეთ ჯაშუში.";
         }
     } else {
