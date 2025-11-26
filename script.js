@@ -469,7 +469,7 @@ function showFindSpySection() {
             // Show which detective is guessing
             let detectiveNames = detectives.map(d => players[d.index].name).join(", ");
             document.querySelector("#findSpySection .result-title").textContent = "დეტექტივი, ეძებე ჯაშუში!";
-            document.querySelector("#findSpySection p").innerHTML = `<strong>${detectiveNames}</strong> - დეტექტივმა უნდა გამოიცნოს ჯაშუში:`;
+            document.querySelector("#findSpySection p").innerHTML = `<strong>${detectiveNames}</strong> - დეტექტივმა აირჩიოს ჯაშუში:`;
         }
     } else {
         players.forEach((p, i) => {
@@ -479,7 +479,7 @@ function showFindSpySection() {
             select.appendChild(option);
         });
         document.querySelector("#findSpySection .result-title").textContent = "მოთამაშეები ეძებენ ჯაშუშს";
-        document.querySelector("#findSpySection p").textContent = "დააფიქსირეთ თქვენი ეჭვი, ვინ არის ჯაშუში:";
+        document.querySelector("#findSpySection p").textContent = "იპოვეთ ჯაშუში ჯაშუში:";
     }
 }
 
@@ -540,7 +540,7 @@ function handleRegularGuess(guessIndex) {
         if (isGuessCorrect) {
             // Spy loses -1 point when found
             spies.forEach(spy => { players[spy.index].points -= 1; });
-            resultText = "სამოქალაქოებმა მოიგეს! სწორად იპოვეთ ჯაშუში!";
+            resultText = "თქვენ მოიგეთ! სწორად იპოვეთ ჯაშუში!";
         } else {
             // Spy gets +3 points when not found
             spies.forEach(spy => { players[spy.index].points += 3; });
@@ -548,9 +548,9 @@ function handleRegularGuess(guessIndex) {
         }
     } else {
         if (isGuessCorrect) {
-            resultText = "მოიგეს სამოქალაქოებმა! წააგო ჯაშუშმა!";
+            resultText = "წააგო ჯაშუშმა";
         } else {
-            resultText = "მოიგო ჯაშუშმა! წააგეს სამოქალაქოებმა.";
+            resultText = "მოიგო ჯაშუშმა!";
         }
     }
 
