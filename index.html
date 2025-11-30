@@ -52,9 +52,14 @@
         <div class="logo-area" id="logoArea">
             <div class="logo">
                 <h1>SPY</h1>
-                <button class="btn btn-config" id="configButton" onclick="showConfig()">
-                    <i class="fas fa-cogs"></i> კონფიგურაცია
-                </button>
+                <div class="menu-buttons">
+                    <button class="btn btn-config" id="configButton" onclick="showConfig()">
+                        <i class="fas fa-cogs"></i> პარამეტრები
+                    </button>
+                    <button class="btn btn-shop" id="shopButton" onclick="showShop()">
+                        <i class="fas fa-shopping-cart"></i> მაღაზია
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -73,9 +78,39 @@
             </button>
         </div>
         
+        <div id="shopSection" class="section">
+            <h3 class="config-title"><i class="fas fa-store"></i> მაღაზია</h3>
+            <div class="shop-header">
+                <p>შეიძინეთ ნივთები დაგროვებული ქოინებით</p>
+            </div>
+            
+            <div class="shop-player-select">
+                <label>აირჩიე მოთამაშე:</label>
+                <select id="shopPlayerSelect" onchange="renderShopItems()"></select>
+                <div class="current-balance">
+                    ბალანსი: <span id="shopBalance">0</span> <i class="fas fa-coins coin-gold"></i>
+                </div>
+            </div>
+
+            <div class="shop-grid" id="shopItemsGrid">
+                </div>
+
+            <button class="btn" onclick="showPlayerInput()">
+                <i class="fas fa-arrow-left"></i> უკან დაბრუნება
+            </button>
+        </div>
+
         <div id="configSection" class="section">
             <h3 class="config-title"><i class="fas fa-cogs"></i> თამაშის პარამეტრები</h3>
             
+            <div class="input-group">
+                <label class="form-label">
+                    <i class="fas fa-list"></i> სიტყვების კატეგორიები:
+                </label>
+                <div class="categories-container" id="categoriesContainer">
+                    </div>
+            </div>
+
             <div class="input-group">
                 <label class="form-label">
                     <i class="fas fa-user-secret"></i>ჯაშუშების რაოდენობა:
@@ -114,8 +149,8 @@
                     <i class="fas fa-star-half-alt"></i> ქულების სისტემა:
                 </label>
                 <select id="pointsSystem">
-                    <option value="enabled">ჩართვა</option>
-                    <option value="disabled" selected>გამორთვა</option>
+                    <option value="enabled" selected>ჩართვა</option>
+                    <option value="disabled">გამორთვა</option>
                 </select>
             </div>
             
@@ -179,6 +214,7 @@
             <div class="result-display">
                 <div class="result-title">თამაში დასრულდა!</div>
                 <div id="resultText"></div>
+                <div id="itemEffectText" class="item-effect-text"></div>
                 <div id="resultDisplay" class="spies-list"></div>
                 <div id="wordDisplay" class="word-reveal"></div>
             </div>
