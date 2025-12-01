@@ -1,69 +1,60 @@
-const CACHE_NAME = 'spy-game-dynamic'; // სახელი სულ ეს დარჩება
+const CACHE_NAME = 'spy-game-cache-v1';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/style.css',
+  // ყურადღება: დარწმუნდით, რომ ეს ფაილების სახელები ზუსტად ემთხვევა თქვენს პროექტს!
+  '/style.css', 
   '/script.js',
-  '/manifest.json',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png',
-  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
-  'https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap'
+  '/manifest.json'
 ];
 
-// --- Install Event ---
-self.addEventListener('install', event => {
-  self.skipWaiting();
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        return cache.addAll(urlsToCache);
-      })
+// 1. ინსტალაცია (უსაფრთხო მეთოდი - სათითაოდ ცდის ფაილებს)
+self.addEventListener('install', e => {
+  self.skipWaiting(); // აიძულებს ახალ ვერსიას მალევე ჩაენაცვლოს
+  e.waitUntil(
+    caches.open(CACHE_NAME).then(async cache => {
+      console.log('[SW] SPY: ქეშის გახსნა...');
+      for (const url of urlsToCache) {
+        try {
+          await cache.add(url);
+          console.log('[SW] ჩაიწერა:', url);
+        } catch (error) {
+          console.error('[SW] ❌ შეცდომა! ეს ფაილი ვერ მოიძებნა:', url);
+        }
+      }
+    })
   );
 });
 
-// --- Activate Event ---
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
+// 2. აქტივაცია და გასუფთავება
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys => {
       return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
+        keys.map(key => {
+          if (key !== CACHE_NAME) return caches.delete(key);
         })
       );
     })
   );
-  self.clients.claim();
+  return self.clients.claim();
 });
 
-// --- Fetch Event: NETWORK FIRST (ჯერ ინტერნეტი, მერე ქეში) ---
-self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET') return;
+// 3. წამოღება (Network First -> Cache Fallback)
+self.addEventListener('fetch', e => {
+  if (e.request.method !== 'GET') return;
 
-  event.respondWith(
-    fetch(event.request)
-      .then(networkResponse => {
-        // 1. თუ ინტერნეტი გვაქვს:
-        // ვამოწმებთ, ვალიდურია თუ არა პასუხი
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-          return networkResponse;
-        }
-
-        // ვაახლებთ ქეშს ახალი ვერსიით მომავლისთვის
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then(cache => {
-          cache.put(event.request, responseToCache);
-        });
-
-        // ვაბრუნებთ ახალ ვერსიას
-        return networkResponse;
+  e.respondWith(
+    fetch(e.request)
+      .then(response => {
+        // ინტერნეტი არის: ვაბრუნებთ პასუხს და ვაახლებთ ქეშს
+        const resClone = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(e.request, resClone));
+        return response;
       })
       .catch(() => {
-        // 2. თუ ინტერნეტი არ გვაქვს (ოფლაინ):
-        // ვაბრუნებთ ქეშირებულ ვერსიას
-        return caches.match(event.request);
+        // ინტერნეტი არ არის: ვიღებთ ქეშიდან
+        return caches.match(e.request);
       })
   );
 });
