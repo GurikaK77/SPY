@@ -1,4 +1,4 @@
-// Particles
+// Particles (ფონური ნაწილაკები)
 function createParticles() {
     const particlesContainer = document.getElementById("particles");
     if(!particlesContainer) return;
@@ -34,13 +34,75 @@ let timerInterval;
 let timeLeft = 0;
 let isDetectiveMode = false;
 let isPointsEnabled = false;
+let originalPlayerOrder = [];
 let usedWords = [];
 
-// Shop Items Data
+// --- SHOP ITEMS (განახლებული სია) ---
 const shopItems = [
-    { id: 'spy_mask', name: 'ჯაშუშის ნიღაბი', icon: '🎭', price: 15, desc: 'ჯაშუშად მოგებისას +2 ქულა', type: 'passive' },
-    { id: 'magnifier', name: 'ლუპა', icon: '🔍', price: 10, desc: 'დეტექტივის მიერ ჯაშუშის პოვნისას +3 ქულა', type: 'passive' },
-    { id: 'shield', name: 'დაცვის ამულეტი', icon: '🛡️', price: 20, desc: 'ერთჯერადი დაცვა ქულების დაკლებისგან', type: 'consumable' }
+    // 1. იაფი / მყისიერი (Instant)
+    { 
+        id: 'coffee', 
+        name: 'ყავა', 
+        icon: '☕', 
+        price: 5, 
+        desc: 'ენერგიისთვის. გაძლევს +1 ქულას მყისიერად.', 
+        type: 'instant', 
+        effectValue: 1 
+    },
+    { 
+        id: 'donut', 
+        name: 'დონატი', 
+        icon: '🍩', 
+        price: 8, 
+        desc: 'გემრიელია. გაძლევს +2 ქულას მყისიერად.', 
+        type: 'instant', 
+        effectValue: 2 
+    },
+    
+    // 2. საშუალო / პასიური (Inventory)
+    { 
+        id: 'magnifier', 
+        name: 'ლუპა', 
+        icon: '🔍', 
+        price: 15, 
+        desc: 'დეტექტივის ბონუსი: თუ იპოვი ჯაშუშს, იღებ +3 ქულას.', 
+        type: 'passive' 
+    },
+    { 
+        id: 'spy_mask', 
+        name: 'ჯაშუშის ნიღაბი', 
+        icon: '🎭', 
+        price: 20, 
+        desc: 'ჯაშუშის ბონუსი: თუ მოიგებ, იღებ +3 ქულას.', 
+        type: 'passive' 
+    },
+    { 
+        id: 'shield', 
+        name: 'დაცვის ამულეტი', 
+        icon: '🛡️', 
+        price: 25, 
+        desc: 'ერთჯერადი დაცვა ქულების დაკლებისგან (ავტომატური).', 
+        type: 'consumable' 
+    },
+
+    // 3. ძვირი / VIP
+    { 
+        id: 'bribe', 
+        name: 'ქრთამი', 
+        icon: '💰', 
+        price: 50, 
+        desc: 'მყისიერად იღებ +15 ქულას. ფულით ყველაფერი იყიდება.', 
+        type: 'instant',
+        effectValue: 15
+    },
+    { 
+        id: 'crown', 
+        name: 'მეფის გვირგვინი', 
+        icon: '👑', 
+        price: 100, 
+        desc: 'სტატუსის სიმბოლო. უბრალოდ აჩვენებს რომ მდიდარი ხარ.', 
+        type: 'passive' 
+    }
 ];
 
 // Configuration State
@@ -52,47 +114,12 @@ let configState = {
     selectedCategories: ["mix"]
 };
 
-// Word Data - UPDATED WITH MANY NEW WORDS
+// Word Data
 const wordData = {
-    "mix": [
-        "ფეხბურთი", "თეატრი", "კომპიუტერი", "სახლი", "ტელეფონი", "საქართველო", "კუ", "ძაღლი", "საიდუმლო", "ყვავილი", 
-        "წიგნი", "ჩანთა", "მთა", "საათი", "ნაყინი", "ფანარი", "წყალი", "ფანჯარა", "კატა", "კარადა", 
-        "სკამი", "ტყე", "ხე", "ცხენი", "გიტარა", "მზე", "მთვარე", "ვარსკვლავი", "თვითმფრინავი", "მანქანა",
-        "ველოსიპედი", "სარკე", "სათვალე", "ყავა", "ჩაი", "პიცა", "ხინკალი", "დროშა", "მეფე", "დედოფალი",
-        "ჯარისკაცი", "რობოტი", "უცხოპლანეტელი", "ზღაპარი", "კალამი", "ფურცელი", "საჩუქარი", "დაბადების დღე", "ნამცხვარი", "შოკოლადი",
-        "მიკროფონი", "ყურსასმენი", "ბურთი", "კალათბურთი", "ჭადრაკი", "კამათელი", "ბანქო", "სანთელი", "ცეცხლი", "ყინული",
-        "თოვლის პაპა", "ნაძვის ხე", "სააღდგომო კვერცხი", "ეკლესია", "ჯვარი", "ბეჭედი", "გვირგვინი", "ხმალი", "ფარი", "ცოცხი"
-    ],
-    "objects": [
-        "მიკროტალღური ღუმელი", "ჩანთა", "რუკა", "ქუდი", "ქურთუკი", "გამათბობელი", "რკინა", "ელვა შესაკრავი", "მანქანა", "ჰუდი", 
-        "კლავიატურა", "საათი", "ელექტრო ჩაიდანი", "საბუთების უჯრა", "ცეცხლმაქრი", "პლასტმასის ბორბალი", "თხევადი საპონი", "ყავის ფინჯანი", "კომპიუტერის თაგვი", "რბილი დივანი", 
-        "ციფრული კამერა", "სკამის საზურგე", "ტელევიზორის ანტენა", "მაცივარი", "სარეცხი მანქანა", "მტვერსასრუტი", "უთო", "ფენი", "სავარცხელი", "კბილის ჯაგრისი",
-        "კბილის პასტა", "საპონი", "შამპუნი", "პირსახოცი", "ხალათი", "ჩუსტები", "წინდები", "შარვალი", "პერანგი", "ჰალსტუხი",
-        "ქამარი", "საფულე", "გასაღები", "ბრელოკი", "სანთებელა", "საფერფლე", "ლარნაკი", "სურათის ჩარჩო", "პულტი", "ელემენტი",
-        "დამტენი", "უსბ კაბელი", "ლეპტოპი", "პლანშეტი", "ყურსასმენები", "დინამიკი", "პროექტორი", "პრინტერი", "სკანერი", "ქსეროქსი",
-        "მაკრატელი", "სტეპლერი", "წებო", "სკოჩი", "სახაზავი", "ფანქარი", "საშლელი", "სათლელი", "მარკერი", "დაფა",
-        "ჩაქუჩი", "სახრახნისი", "ბრტყელტუჩა", "ხერხი", "ლურსმანი", "ჭანჭიკი", "ბოქლომი", "კარის სახელური", "სიგნალიზაცია", "კამერა"
-    ],
-    "nature": [
-        "ამაზონის ჯუნგლები", "იაგუარი", "შავი პანტერა", "თეთრი ღრუბელი", "ცისფერი პეპელა", "შავი ზღვა", "მწვანე ბალახი", "წყნარი ტბა", "ხის მასალა", "მზის ამოსვლა", 
-        "ზაფხულის სეზონი", "ზამთრის პერიოდი", "გაზაფხულის წვიმა", "ოქროს თევზი", "დედამიწის ღერძი", "მბზინავი ქვა", "ლომი", "ვეფხვი", "დათვი", "მგელი",
-        "მელა", "კურდღელი", "ირემი", "შველი", "სპილო", "ჟირაფი", "ზებრა", "მაიმუნი", "გორილა", "შიმპანზე",
-        "ნიანგი", "გველი", "ხვლიკი", "კუ", "ბაყაყი", "არწივი", "ქორი", "მიმინო", "ბუ", "თუთიყუში",
-        "მტრედი", "ბეღურა", "მერცხალი", "ყვავი", "კაჭკაჭი", "ზვიგენი", "დელფინი", "ვეშაპი", "რვაფეხა", "მედუზა",
-        "კიბორჩხალა", "ლობსტერი", "კრევეტი", "ლოკოკინა", "ჭიანჭველა", "ფუტკარი", "კრაზანა", "ბუზი", "კოღო", "ობობა",
-        "მორიელი", "ჭიამაია", "კალია", "ვარდი", "იები", "გვირილა", "ტიტა", "ორქიდეა", "მუხა", "ფიჭვი",
-        "ნაძვი", "პალმა", "კაქტუსი", "სოკო", "ვულკანი", "მიწისძვრა", "ცუნამი", "ქარიშხალი", "ელვა", "ცისარტყელა"
-    ],
-    "places": [
-        "დიდი კედელი", "საფოსტო ყუთი", "სამედიცინო ცენტრი", "საფეხმავლო ბილიკი", "სპორტული დარბაზი", "გარდერობის კარი", "ქარის ტურბინა", "პოლიციის მანქანა",
-        "საავადმყოფო", "სკოლა", "უნივერსიტეტი", "ბაღი", "ბიბლიოთეკა", "მუზეუმი", "თეატრი", "კინოთეატრი", "ცირკი", "ზოოპარკი",
-        "სტადიონი", "აუზი", "პლაჟი", "პარკი", "ტყე-პარკი", "ბოტანიკური ბაღი", "აეროპორტი", "რკინიგზის სადგური", "ავტოსადგური", "მეტრო",
-        "გაჩერება", "ხიდი", "გვირაბი", "გზაჯვარედინი", "შუქნიშანი", "ბენზინგასამართი სადგური", "ავტოსამრეცხაო", "პროფილაქტიკა", "ქარხანა", "საწყობი",
-        "ბანკი", "ბანკომატი", "ვალუტის ჯიხური", "მაღაზია", "სუპერმარკეტი", "ჰიპერმარკეტი", "ბაზარი", "აფთიაქი", "ოპტიკა", "საიუველირო",
-        "რესტორანი", "კაფე", "ბარი", "კლუბი", "სასტუმრო", "ჰოსტელი", "კაზინო", "ტოტალიზატორი", "სილამაზის სალონი", "საპარიკმახერო",
-        "სტომატოლოგიური კლინიკა", "პოლიციის განყოფილება", "სახანძრო", "მერია", "პარლამენტი", "სასამართლო", "ციხე", "ეკლესია", "მონასტერი", "სინაგოგა",
-        "მეჩეთი", "სასაფლაო", "მთის მწვერვალი", "გამოქვაბული", "კუნძული", "შუქურა", "ობსერვატორია", "პლანეტარიუმი", "აკვარიუმი", "ატრაქციონების პარკი"
-    ]
+    "mix": ["ფეხბურთი", "თეატრი", "კომპიუტერი", "სახლი", "ტელეფონი", "საქართველო", "კუ", "ძაღლი", "საიდუმლო", "ყვავილი", "წიგნი", "ჩანთა", "მთა", "საათი", "ნაყინი", "ფანარი", "წყალი", "ფანჯარა", "კატა", "კარადა", "სკამი", "ტყე", "ხე", "ცხენი"],
+    "objects": ["მიკროტალღური ღუმელი", "ჩანთა", "რუკა", "ქუდი", "ქურთუკი", "გამათბობელი", "რკინა", "ზმეიკა", "მანქანა", "ჰუდი", "კლავიატურა", "საათი", "ელექტრო ჩაიდანი", "საბუთების უჯრა", "ცეცხლმაქრი", "პლასტმასის ბორბალი", "თხევადი საპონი", "ყავის ფინჯანი", "კომპიუტერის თაგვი", "რბილი დივანი", "ციფრული კამერა", "სკამის საზურგე", "ტელევიზორის ანტენა"],
+    "nature": ["ამაზონის ჯუნგლები", "იაგუარი", "შავი პანტერა", "თეთრი ღრუბელი", "ცისფერი პეპელა", "შავი ზღვა", "მწვანე ბალახი", "წყნარი ტბა", "ხის მასალა", "მზის ამოსვლა", "ზაფხულის სეზონი", "ზამთრის პერიოდი", "გაზაფხულის წვიმა", "ოქროს თევზი", "დედამიწის ღერძი", "მბზინავი ქვა"],
+    "places": ["დიდი კედელი", "საფოსტო ყუთი", "სამედიცინო ცენტრი", "საფეხმავლო ბილიკი", "სპორტული დარბაზი", "გარდერობის კარი", "ქარის ტურბინა", "პოლიციის მანქანა"]
 };
 
 const categoryNames = {
@@ -102,46 +129,95 @@ const categoryNames = {
     "places": "ადგილები"
 };
 
-// --- DATA PERSISTENCE (ONLY PLAYERS & CONFIG) ---
-function savePersistentData() {
-    const dataToSave = {
+// --- DATA PERSISTENCE ---
+function saveGameState() {
+    const activeSection = document.querySelector('.section.active')?.id || 'playerInput';
+    const gameState = {
         players,
+        roles,
+        chosenWord,
+        currentIndex,
+        timeLeft,
+        isDetectiveMode,
+        isPointsEnabled,
         configState,
+        activeSection,
         timestamp: Date.now()
     };
-    localStorage.setItem('spyPersistentData', JSON.stringify(dataToSave));
+    localStorage.setItem('spyGameState', JSON.stringify(gameState));
 }
 
-function loadPersistentData() {
-    const saved = localStorage.getItem('spyPersistentData');
-    if (!saved) return;
+function loadGameState() {
+    const saved = localStorage.getItem('spyGameState');
+    if (!saved) return false;
 
     try {
         const state = JSON.parse(saved);
+        if (Date.now() - state.timestamp > 24 * 60 * 60 * 1000) {
+            localStorage.removeItem('spyGameState');
+            return false;
+        }
+
         players = state.players || [];
+        roles = state.roles || [];
+        chosenWord = state.chosenWord || "";
+        currentIndex = state.currentIndex || 0;
+        timeLeft = state.timeLeft || 0;
+        isDetectiveMode = state.isDetectiveMode;
+        isPointsEnabled = state.isPointsEnabled;
         configState = state.configState || configState;
 
         updatePlayerList();
+        
+        if (state.activeSection === 'gameSection') {
+            document.getElementById("timer").textContent = formatTime(timeLeft);
+        }
+        if (state.activeSection === 'roleSection') {
+            updateTurnDisplay();
+        }
+        if (state.activeSection === 'resultSection') {
+             revealSpies();
+        }
+
+        const readyScreen = document.getElementById("readyScreen");
+        const mainContent = document.getElementById("mainContent");
+        readyScreen.style.display = "none";
+        mainContent.style.display = "block";
+        mainContent.style.opacity = "1";
+        
+        setActiveSection(state.activeSection);
         
         document.getElementById('spyCount').value = configState.spyCount;
         document.getElementById('detectiveCount').value = configState.detectiveCount;
         document.getElementById('playerOrder').value = configState.playerOrder;
         document.getElementById('pointsSystem').value = configState.pointsSystem;
-        
+
+        return true;
     } catch (e) {
-        console.error("Error loading data:", e);
+        console.error("Error loading game state:", e);
+        return false;
     }
+}
+
+function clearGameState() {
+    localStorage.removeItem('spyGameState');
 }
 
 // --- SCREEN MANAGEMENT ---
 function showReadyScreen() {
+    if (loadGameState()) {
+        const loadingScreen = document.getElementById("loadingScreen");
+        loadingScreen.style.display = "none";
+        return;
+    }
+
     const loadingScreen = document.getElementById("loadingScreen");
     const readyScreen = document.getElementById("readyScreen");
     loadingScreen.style.opacity = "0";
     setTimeout(() => {
         loadingScreen.style.display = "none";
         readyScreen.style.display = "flex";
-        setTimeout(() => readyScreen.style.opacity = "1", 50);
+        setTimeout(() => { readyScreen.style.opacity = "1"; }, 50);
     }, 500);
 }
 
@@ -149,11 +225,13 @@ function showMainPage() {
     const readyScreen = document.getElementById("readyScreen");
     const mainContent = document.getElementById("mainContent");
     const transitionScreen = document.getElementById("transitionScreen");
+
     readyScreen.style.opacity = "0";
     setTimeout(() => {
         readyScreen.style.display = "none";
         transitionScreen.style.display = "flex";
-        setTimeout(() => transitionScreen.style.opacity = "1", 50);
+        setTimeout(() => { transitionScreen.style.opacity = "1"; }, 50);
+
         setTimeout(() => {
             transitionScreen.style.opacity = "0";
             setTimeout(() => {
@@ -161,7 +239,7 @@ function showMainPage() {
                 mainContent.style.display = "block";
                 setTimeout(() => {
                     mainContent.style.opacity = "1";
-                    showPlayerInput(); 
+                    showPlayerInput();
                 }, 50);
             }, 500);
         }, 1500);
@@ -185,6 +263,8 @@ function setActiveSection(activeId) {
             section.classList.remove("active");
         }
     });
+
+    if(players.length > 0) saveGameState();
 }
 
 function showPlayerInput() {
@@ -203,7 +283,7 @@ function showConfig() {
         checkbox.type = "checkbox";
         checkbox.value = key;
         checkbox.id = `cat_${key}`;
-        if (configState.selectedCategories.includes(key)) checkbox.checked = true;
+        if (configState.selectedCategories.includes(key)) { checkbox.checked = true; }
         const label = document.createElement("label");
         label.htmlFor = `cat_${key}`;
         label.textContent = categoryNames[key];
@@ -226,13 +306,16 @@ function saveConfig() {
     const checkboxes = document.querySelectorAll("#categoriesContainer input[type='checkbox']");
     const selected = [];
     checkboxes.forEach(cb => { if (cb.checked) selected.push(cb.value); });
+    
     if (selected.length === 0) { alert("აირჩიეთ მინიმუმ ერთი კატეგორია!"); return; }
+    
     configState.selectedCategories = selected;
     alert("კონფიგურაცია შენახულია!");
-    savePersistentData();
+    saveGameState();
     showPlayerInput();
 }
 
+// --- SHOP LOGIC (განახლებული) ---
 function showShop() {
     setActiveSection('shopSection');
     const select = document.getElementById("shopPlayerSelect");
@@ -257,6 +340,7 @@ function renderShopItems() {
     const playerIndex = document.getElementById("shopPlayerSelect").value;
     const player = players[playerIndex];
     const grid = document.getElementById("shopItemsGrid");
+    
     if (!player) return;
 
     document.getElementById("shopBalance").textContent = player.coins;
@@ -269,7 +353,21 @@ function renderShopItems() {
         card.onclick = function() { this.classList.toggle('show-desc'); };
         
         const ownsItem = player.inventory.some(i => i.id === item.id);
-        const canBuy = player.coins >= item.price && !ownsItem;
+        
+        // ლოგიკა: instant ტიპის ნივთების (ყავა, ქრთამი) ყიდვა სულ შეიძლება
+        let canBuy = false;
+        if (item.type === 'instant') {
+            canBuy = player.coins >= item.price;
+        } else {
+            canBuy = player.coins >= item.price && !ownsItem;
+        }
+        
+        let btnText = 'ყიდვა';
+        if (item.type !== 'instant' && ownsItem) {
+            btnText = 'ნაყიდია';
+        } else if (player.coins < item.price) {
+            btnText = 'არასაკმარისი ქოინი';
+        }
         
         card.innerHTML = `
             <div class="shop-info-icon"><i class="fas fa-info"></i></div>
@@ -278,7 +376,7 @@ function renderShopItems() {
             <div class="shop-item-title">${item.name}</div>
             <div class="shop-item-price">${item.price} <i class="fas fa-coins coin-gold"></i></div>
             <button class="btn btn-buy" ${canBuy ? '' : 'disabled'} onclick="event.stopPropagation(); buyItem('${item.id}', ${playerIndex})">
-                ${ownsItem ? 'ნაყიდია' : (player.coins < item.price ? 'არასაკმარისი ქოინი' : 'ყიდვა')}
+                ${btnText}
             </button>
         `;
         grid.appendChild(card);
@@ -288,15 +386,25 @@ function renderShopItems() {
 function buyItem(itemId, playerIndex) {
     const player = players[playerIndex];
     const item = shopItems.find(i => i.id === itemId);
+    
     if (player.coins >= item.price) {
         player.coins -= item.price;
-        player.inventory.push(item);
+        
+        // თუ მყისიერია (მაგ: ყავა), პირდაპირ ქულას ვუმატებთ
+        if (item.type === 'instant') {
+            player.points += item.effectValue;
+            alert(`${player.name}-მა მიიღო +${item.effectValue} ქულა!`);
+        } else {
+            player.inventory.push(item);
+        }
+        
         if (navigator.vibrate) navigator.vibrate(50);
         renderShopItems();
-        savePersistentData();
+        saveGameState();
     }
 }
 
+// --- GAME LOGIC (სტანდარტული) ---
 function loadConfigFromUI() {
     configState.spyCount = parseInt(document.getElementById("spyCount").value);
     configState.detectiveCount = parseInt(document.getElementById("detectiveCount").value);
@@ -310,7 +418,7 @@ function addPlayer() {
         players.push({ name: name, points: 0, coins: 0, inventory: [] });
         updatePlayerList();
         document.getElementById("playerName").value = "";
-        savePersistentData();
+        saveGameState();
     } else if (players.some((p) => p.name === name)) {
         alert("მოთამაშე ამ სახელით უკვე დამატებულია!");
     }
@@ -350,7 +458,7 @@ function updatePlayerList() {
         let removeBtn = document.createElement("button");
         removeBtn.classList.add("remove-btn");
         removeBtn.innerHTML = '<i class="fas fa-times"></i>';
-        removeBtn.onclick = function () { players.splice(index, 1); updatePlayerList(); savePersistentData(); };
+        removeBtn.onclick = function () { players.splice(index, 1); updatePlayerList(); saveGameState(); };
         item.appendChild(playerInfo);
         item.appendChild(removeBtn);
         list.appendChild(item);
@@ -407,7 +515,7 @@ function startGame() {
     currentIndex = 0;
     setActiveSection('roleSection');
     updateTurnDisplay();
-    // არ ვინახავთ მიმდინარე თამაშის მდგომარეობას, რომ განახლებისას თავიდან დაიწყოს
+    saveGameState();
 }
 
 function updateTurnDisplay() {
@@ -437,12 +545,13 @@ function revealRole() {
 
 function nextPlayer() {
     currentIndex++;
-    if (currentIndex < players.length) { updateTurnDisplay(); } 
+    if (currentIndex < players.length) { updateTurnDisplay(); saveGameState(); } 
     else {
         setActiveSection('gameSection');
         if (isPointsEnabled) { document.getElementById("pointsDisplay").style.display = "block"; updatePointsDisplay(); } 
         else { document.getElementById("pointsDisplay").style.display = "none"; }
         document.getElementById("startTimerBtn").style.display = "block";
+        saveGameState();
     }
 }
 
@@ -455,6 +564,7 @@ function startTimer() {
         timeLeft--;
         updateTimerDisplay(timeLeft);
         if (timeLeft <= 0) { clearInterval(timerInterval); showTimerEndSignal(); }
+        if(timeLeft % 5 === 0) saveGameState(); 
     }, 1000);
 }
 
@@ -486,7 +596,7 @@ function updatePointsDisplay() {
 function endGame() { clearInterval(timerInterval); showFindSpySection(); }
 
 function showFindSpySection() {
-    setActiveSection('findSpySection');
+    setActiveSection('findSpySection'); saveGameState();
     let select = document.getElementById("findSpySelect"); select.innerHTML = "";
     let defaultOption = document.createElement("option");
     defaultOption.value = ""; defaultOption.textContent = "აირჩიეთ"; defaultOption.selected = true; defaultOption.disabled = true;
@@ -596,7 +706,7 @@ function revealSpies() {
     `;
     document.getElementById("wordDisplay").textContent = `საიდუმლო სიტყვა: ${chosenWord}`;
     setActiveSection('resultSection');
-    savePersistentData(); // ვინახავთ მხოლოდ ქულების ცვლილებას
+    saveGameState(); 
 }
 
 function showFinalPoints() {
@@ -620,12 +730,13 @@ function closeModal(id) { document.getElementById(id).style.display = "none"; }
 function restartGame(sameConfig) {
     clearInterval(timerInterval);
     document.getElementById("timer").textContent = "02:00";
+    clearGameState();
     if (sameConfig) {
         if (configState.playerOrder === "sequential" && players.length > 0) {
             let firstPlayer = players.shift(); players.push(firstPlayer);
         }
         startGame();
-    } else { showPlayerInput(); }
+    } else { showPlayerInput(); saveGameState(); }
 }
 
 if ('serviceWorker' in navigator) {
@@ -633,6 +744,8 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js').then(r => console.log('SW Reg')).catch(e => console.log('SW Fail', e));
     });
 }
+
+// --- WAKE LOCK (ეკრანის არ ჩაქრობა) ---
 function preventScreenOff() {
     if ('wakeLock' in navigator) {
         let wakeLock = null;
@@ -641,11 +754,13 @@ function preventScreenOff() {
         document.addEventListener('visibilitychange', async () => { if (document.visibilityState === 'visible' && wakeLock === null) { requestWakeLock(); } });
     }
 }
+
 window.onload = function () { 
     createParticles(); 
-    loadPersistentData(); // აღადგენს მხოლოდ მოთამაშეებს
-    preventScreenOff(); 
+    loadGameState(); // აღვადგენთ სეივს
+    preventScreenOff(); // ვრთავთ ეკრანის დაცვას
     setTimeout(showReadyScreen, 1000); 
 };
+
 document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('selectstart', e => e.preventDefault());
