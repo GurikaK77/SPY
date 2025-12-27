@@ -10,13 +10,13 @@
   "categories": ["games", "social", "entertainment"],
   "icons": [
     {
-      "src": "icons/icon-192x192.png",
+      "src": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvC3mnXkzAiNW0DlOvHPt8luqNI9c010FotA&s",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "icons/icon-512x512.png",
+      "src": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvC3mnXkzAiNW0DlOvHPt8luqNI9c010FotA&s",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
