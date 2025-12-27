@@ -8,6 +8,7 @@
     --neon-pink: #ff0055;
     --gold: #ffd700;
     --gold-glow: #ffaa00;
+    --hacker-green: #0f0;
     --text-main: #ffffff;
     --text-muted: #a0a0c0;
     --glass-border: 1px solid rgba(255, 255, 255, 0.1);
@@ -18,10 +19,20 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
+/* Force Portrait logic visually if JS fails */
+@media screen and (orientation: landscape) {
+  body::after {
+    content: "გთხოვთ შეაბრუნოთ ტელეფონი";
+    position: fixed; inset: 0; background: #000; z-index: 99999;
+    display: flex; justify-content: center; align-items: center; color: white; font-size: 2rem; text-align: center;
+  }
+}
+
 body {
     background-color: var(--bg-dark);
     background-image: radial-gradient(circle at 10% 20%, rgba(188, 19, 254, 0.15) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(0, 243, 255, 0.15) 0%, transparent 40%);
     color: var(--text-main); font-family: 'Rajdhani', sans-serif; font-size: 16px; min-height: 100vh; overflow-x: hidden; line-height: 1.6;
+    overscroll-behavior-y: none;
 }
 
 /* --- Particles --- */
@@ -31,25 +42,68 @@ body {
 
 h1, h2, h3, .result-title, .timer { font-family: 'Cinzel', serif; text-transform: uppercase; letter-spacing: 2px; }
 
-/* --- Loading --- */
+/* --- Loading & Toast --- */
 #loadingScreen, #transitionScreen { position: fixed; inset: 0; background: var(--bg-dark); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10000; backdrop-filter: blur(10px); }
 .spinner { width: 60px; height: 60px; border: 3px solid transparent; border-top-color: var(--neon-purple); border-bottom-color: var(--neon-blue); border-radius: 50%; animation: spin 1s ease-in-out infinite; filter: drop-shadow(0 0 10px var(--neon-purple)); }
 @keyframes spin { to { transform: rotate(360deg); } }
 .loading-text { margin-top: 20px; font-family: 'Orbitron', sans-serif; color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); animation: pulse 1.5s infinite; text-align: center; }
 
+/* Toast Notification */
+.toast-message {
+    position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(50px);
+    background: rgba(0, 243, 255, 0.15); border: 1px solid var(--neon-blue); color: #fff;
+    padding: 15px 30px; border-radius: 50px; backdrop-filter: blur(10px);
+    z-index: 11000; opacity: 0; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    font-family: 'Orbitron', sans-serif; box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+    display: flex; align-items: center; gap: 10px; pointer-events: none; width: max-content;
+}
+.toast-message.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
 /* --- Layout --- */
-.container { max-width: 800px; margin: 0 auto; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; }
+.container { max-width: 800px; margin: 0 auto; padding: 20px; padding-bottom: 100px; min-height: 100vh; display: flex; flex-direction: column; }
 .logo-area { text-align: center; margin-bottom: 40px; padding: 20px 0; animation: fadeInDown 1s ease; }
 .logo h1 { font-size: 4.5rem; font-weight: 800; background: linear-gradient(to right, var(--neon-purple), var(--text-main), var(--neon-blue)); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; color: transparent; animation: gradientFlow 3s linear infinite; text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); margin-bottom: 20px; }
 @keyframes gradientFlow { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
 .menu-buttons { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
 
 /* --- Sections --- */
-.section { background: var(--bg-panel); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: var(--glass-border); border-radius: var(--radius); padding: 30px; margin-bottom: 30px; box-shadow: var(--glass-shadow); animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); display: none; }
+.section { 
+    background: var(--bg-panel); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); 
+    border: var(--glass-border); border-radius: var(--radius); padding: 30px; margin-bottom: 30px; 
+    box-shadow: var(--glass-shadow); 
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; /* forwards keeps the end state */
+    display: none; 
+    /* Extra padding at bottom so content isn't hidden behind sticky bar */
+    padding-bottom: 100px; 
+}
 .section.active { display: block; }
-#roleSection.active, #gameSection.active, #findSpySection.active, #resultSection.active { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center; }
+
+#roleSection.active, #gameSection.active, #findSpySection.active, #resultSection.active { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center; padding-bottom: 30px; }
 #roleSection.active ~ #logoArea, #gameSection.active ~ #logoArea, #findSpySection.active ~ #logoArea, #resultSection.active ~ #logoArea { display: none !important; }
-@keyframes slideUp { from { opacity: 0; transform: translateY(40px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+/* CRITICAL FIX FOR STICKY BAR: transform: none at the end */
+@keyframes slideUp { 
+    from { opacity: 0; transform: translateY(40px) scale(0.95); } 
+    to { opacity: 1; transform: none; } 
+}
+
+/* Sticky Action Bar for Shop and Config */
+.sticky-action-bar {
+    position: fixed; 
+    bottom: 0; 
+    left: 0; 
+    width: 100%;
+    background: rgba(5, 5, 16, 0.95); 
+    backdrop-filter: blur(20px); 
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding: 15px 20px; 
+    display: flex; 
+    justify-content: center; 
+    z-index: 9999; /* Ensure it's on top of everything */
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
+}
+.sticky-action-bar .btn { width: 100%; max-width: 400px; margin: 0; }
 
 /* --- Buttons --- */
 .btn { position: relative; padding: 14px 30px; font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 1rem; color: var(--text-main); background: transparent; border: 2px solid var(--neon-purple); border-radius: 50px; cursor: pointer; overflow: hidden; transition: var(--transition); text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 0 10px rgba(188, 19, 254, 0.2); display: inline-flex; align-items: center; justify-content: center; gap: 10px; }
@@ -60,12 +114,22 @@ h1, h2, h3, .result-title, .timer { font-family: 'Cinzel', serif; text-transform
 .btn-config { border-color: var(--neon-blue); } .btn-config:hover { background: var(--neon-blue); box-shadow: 0 0 25px var(--neon-blue); }
 .btn-shop { border-color: var(--gold); color: var(--gold); } .btn-shop:hover { background: var(--gold); color: #000; box-shadow: 0 0 25px var(--gold); }
 .btn-danger { border-color: var(--neon-pink); color: var(--neon-pink); } .btn-danger:hover { background: var(--neon-pink); color: #fff; box-shadow: 0 0 25px var(--neon-pink); }
+.btn-hacker { border-color: var(--hacker-green); color: var(--hacker-green); } .btn-hacker:hover { background: var(--hacker-green); color: #000; box-shadow: 0 0 25px var(--hacker-green); }
 
 /* --- Inputs --- */
 .input-with-button { display: flex; gap: 15px; margin-bottom: 20px; }
 input, select { width: 100%; padding: 15px 20px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px; color: var(--text-main); font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; transition: var(--transition); }
 input:focus, select:focus { outline: none; border-color: var(--neon-blue); box-shadow: 0 0 15px rgba(0, 243, 255, 0.3); background: rgba(0, 0, 0, 0.5); }
 .input-group { margin-bottom: 25px; } .form-label { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; color: var(--neon-blue); font-weight: 600; text-transform: uppercase; }
+
+/* Checkbox Toggle Switch */
+.toggle-container { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; }
+.toggle-switch { position: relative; width: 60px; height: 34px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background-color: #333; transition: .4s; border-radius: 34px; border: 1px solid #555; }
+.slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+input:checked + .slider { background-color: var(--neon-purple); border-color: var(--neon-purple); }
+input:checked + .slider:before { transform: translateX(26px); }
 
 .categories-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; }
 .category-option { padding: 10px; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: var(--transition); border: 1px solid transparent; }
@@ -100,28 +164,37 @@ input:focus, select:focus { outline: none; border-color: var(--neon-blue); box-s
 .spy-text { color: var(--neon-pink); .role-icon { color: var(--neon-pink); } } .detektivi { color: var(--neon-blue); .role-icon { color: var(--neon-blue); } } .sityva { color: var(--gold); display: block; font-size: 2.2rem; margin-top: 10px; text-shadow: 0 0 10px var(--gold); }
 @keyframes bounceIn { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.2); } 100% { transform: scale(1); opacity: 1; } }
 
-/* --- Timer --- */
+/* --- Timer & Helper Question --- */
 .timer-container { position: relative; width: 250px; height: 250px; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin: 20px auto; background: radial-gradient(circle, rgba(20,20,40,1) 0%, rgba(0,0,0,0) 70%); border: 2px solid rgba(255,255,255,0.05); box-shadow: 0 0 50px rgba(0,0,0,0.5); }
 .timer { font-size: 4rem; color: var(--text-main); text-shadow: 0 0 20px var(--neon-blue); z-index: 2; }
 .timer-container::before { content: ''; position: absolute; inset: -5px; border-radius: 50%; border: 2px solid transparent; border-top-color: var(--neon-purple); border-right-color: var(--neon-blue); animation: spin 3s linear infinite; }
+
+.helper-box { margin-top: 20px; width: 100%; text-align: center; }
+.helper-text { font-size: 1.2rem; color: var(--neon-blue); margin-top: 15px; font-weight: bold; min-height: 30px; animation: fadeInDown 0.5s; text-shadow: 0 0 10px rgba(0, 243, 255, 0.4); }
 
 /* --- Shop --- */
 #shopSection { border-color: rgba(255, 215, 0, 0.2); }
 .shop-header p { color: var(--gold); font-size: 1.1rem; margin-bottom: 20px; }
 .shop-player-select { background: rgba(0,0,0,0.4); padding: 20px; border-radius: 15px; border: 1px solid var(--gold); margin-bottom: 30px; }
 .current-balance { font-size: 1.8rem; color: var(--gold); text-shadow: 0 0 10px rgba(255, 215, 0, 0.4); margin-top: 10px; font-family: 'Orbitron', sans-serif; }
-.shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
-.shop-item-card { position: relative; background: linear-gradient(145deg, rgba(30,30,30,0.9), rgba(10,10,10,0.95)); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 15px; padding: 20px; text-align: center; transition: var(--transition); overflow: hidden; }
-.shop-item-card:hover { transform: translateY(-10px); border-color: var(--gold); box-shadow: 0 10px 30px rgba(255, 215, 0, 0.15); }
-.shop-info-icon { position: absolute; top: 10px; right: 10px; color: var(--neon-blue); font-size: 1.2rem; cursor: pointer; z-index: 10; padding: 5px; background: rgba(0,0,0,0.5); border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
-.shop-info-icon:hover { color: #fff; background: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); }
-.shop-item-desc-overlay { position: absolute; inset: 0; background: rgba(5, 5, 16, 0.95); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; padding: 20px; color: var(--text-main); font-size: 1rem; text-align: center; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.3s ease; z-index: 5; }
+.shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; padding-bottom: 20px; }
+.shop-item-card { position: relative; background: linear-gradient(145deg, rgba(30,30,30,0.9), rgba(10,10,10,0.95)); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 15px; padding: 15px; text-align: center; transition: var(--transition); overflow: hidden; }
+.shop-item-card.hacker-item { border-color: var(--hacker-green); background: linear-gradient(145deg, rgba(0,20,0,0.9), rgba(0,10,0,0.95)); }
+.shop-item-card:hover { transform: translateY(-5px); border-color: var(--gold); box-shadow: 0 10px 30px rgba(255, 215, 0, 0.15); }
+.shop-item-card.hacker-item:hover { border-color: var(--hacker-green); box-shadow: 0 10px 30px rgba(0, 255, 0, 0.2); }
+
+.shop-info-icon { position: absolute; top: 5px; right: 5px; color: var(--neon-blue); font-size: 1rem; cursor: pointer; z-index: 10; padding: 5px; background: rgba(0,0,0,0.5); border-radius: 50%; width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+.shop-item-desc-overlay { position: absolute; inset: 0; background: rgba(5, 5, 16, 0.95); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; padding: 10px; color: var(--text-main); font-size: 0.9rem; text-align: center; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.3s ease; z-index: 5; }
 .shop-item-card.show-desc .shop-item-desc-overlay, .shop-item-card:hover .shop-item-desc-overlay { opacity: 1; visibility: visible; transform: translateY(0); }
-.shop-item-icon { font-size: 3.5rem; margin-bottom: 15px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.3)); }
-.shop-item-title { color: var(--gold); font-family: 'Cinzel', serif; font-size: 1.1rem; font-weight: 700; }
-.shop-item-price { font-size: 1.4rem; color: #fff; margin: 10px 0; font-weight: bold; }
-.btn-buy { background: transparent; border: 1px solid var(--gold); color: var(--gold); width: 100%; padding: 8px; font-size: 0.9rem; position: relative; z-index: 6; }
+.shop-item-icon { font-size: 2.5rem; margin-bottom: 10px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.3)); }
+.hacker-item .shop-item-icon { filter: drop-shadow(0 0 10px var(--hacker-green)); color: var(--hacker-green); }
+.shop-item-title { color: var(--gold); font-family: 'Cinzel', serif; font-size: 1rem; font-weight: 700; margin-bottom: 5px; min-height: 40px; display: flex; align-items: center; justify-content: center; }
+.hacker-item .shop-item-title { color: var(--hacker-green); }
+.shop-item-price { font-size: 1.2rem; color: #fff; margin: 5px 0; font-weight: bold; }
+.btn-buy { background: transparent; border: 1px solid var(--gold); color: var(--gold); width: 100%; padding: 5px; font-size: 0.8rem; position: relative; z-index: 6; }
+.hacker-item .btn-buy { border-color: var(--hacker-green); color: var(--hacker-green); }
 .btn-buy:hover:not(:disabled) { background: var(--gold); color: #000; box-shadow: 0 0 15px var(--gold); }
+.hacker-item .btn-buy:hover:not(:disabled) { background: var(--hacker-green); color: #000; box-shadow: 0 0 15px var(--hacker-green); }
 .btn-buy:disabled { border-color: #555; color: #555; cursor: not-allowed; }
 
 /* --- Results --- */
@@ -146,10 +219,12 @@ input:focus, select:focus { outline: none; border-color: var(--neon-blue); box-s
 .timer-end-content { font-size: 4rem; font-weight: 800; text-transform: uppercase; }
 @keyframes flash { 0%, 100% { background: rgba(255, 0, 85, 0.8); } 50% { background: rgba(0, 0, 0, 0.9); } }
 @keyframes pulse { 0% { opacity: 0.7; transform: scale(0.98); } 50% { opacity: 1; transform: scale(1.02); } 100% { opacity: 0.7; transform: scale(0.98); } }
+@keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
 
 @media (max-width: 600px) {
-    .logo h1 { font-size: 3rem; } .btn { width: 100%; margin-bottom: 10px; } .input-with-button { flex-direction: column; } .shop-grid { grid-template-columns: 1fr; }
+    .logo h1 { font-size: 3rem; } .btn { width: 100%; margin-bottom: 10px; } .input-with-button { flex-direction: column; } .shop-grid { grid-template-columns: 1fr 1fr; }
     .role-card { width: 100%; height: 350px; } .timer { font-size: 3rem; } .timer-container { width: 200px; height: 200px; } .menu-buttons { flex-direction: column; gap: 10px; }
     .spy-name-big { font-size: 3.5rem; } .player-turn { font-size: 2.5rem; }
     .section, .modal-content, .role-card-front, .role-card-back { backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); }
+    .container { padding-bottom: 120px; }
 }
