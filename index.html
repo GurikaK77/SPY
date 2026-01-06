@@ -95,7 +95,12 @@
         </div>
         
         <div id="shopSection" class="section">
-            <h3 class="config-title"><i class="fas fa-store"></i> კიბერ მაღაზია</h3>
+            <div class="section-header">
+                <h3 class="config-title"><i class="fas fa-store"></i> კიბერ მაღაზია</h3>
+                <button class="btn btn-sm" onclick="showPlayerInput()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
             
             <div class="shop-player-select">
                 <label>აირჩიე მოთამაშე:</label>
@@ -115,7 +120,12 @@
         </div>
 
         <div id="configSection" class="section">
-            <h3 class="config-title"><i class="fas fa-cogs"></i> პარამეტრები</h3>
+            <div class="section-header">
+                <h3 class="config-title"><i class="fas fa-cogs"></i> პარამეტრები</h3>
+                <button class="btn btn-sm" onclick="saveConfig()">
+                    <i class="fas fa-save"></i>
+                </button>
+            </div>
             
             <div class="toggle-container">
                 <label style="color:var(--text-main); font-weight:bold;">მოთამაშის ხელით დამატება</label>
@@ -202,9 +212,6 @@
             </div>
 
             <div class="controls" style="margin-top:20px;">
-                <button class="btn" id="startTimerBtn" onclick="startTimer()">
-                    <i class="fas fa-hourglass-start"></i> დროის ჩართვა
-                </button>
                 <button class="btn btn-danger" id="revealBtn" onclick="endGame()">
                     <i class="fas fa-flag"></i> დასრულება
                 </button>
