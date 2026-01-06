@@ -71,17 +71,25 @@ h1, h2, h3, .result-title, .timer { font-family: 'Cinzel', serif; text-transform
     background: var(--bg-panel); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); 
     border: var(--glass-border); border-radius: var(--radius); padding: 30px; margin-bottom: 30px; 
     box-shadow: var(--glass-shadow); 
-    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; /* forwards keeps the end state */
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
     display: none; 
-    /* Extra padding at bottom so content isn't hidden behind sticky bar */
     padding-bottom: 100px; 
 }
 .section.active { display: block; }
 
+/* Header with Buttons for Shop/Config */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+.section-header .config-title { margin: 0; }
+.btn-sm { padding: 10px 15px; min-width: auto; font-size: 1.2rem; margin: 0; }
+
 #roleSection.active, #gameSection.active, #findSpySection.active, #resultSection.active { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center; padding-bottom: 30px; }
 #roleSection.active ~ #logoArea, #gameSection.active ~ #logoArea, #findSpySection.active ~ #logoArea, #resultSection.active ~ #logoArea { display: none !important; }
 
-/* CRITICAL FIX FOR STICKY BAR: transform: none at the end */
 @keyframes slideUp { 
     from { opacity: 0; transform: translateY(40px) scale(0.95); } 
     to { opacity: 1; transform: none; } 
@@ -100,7 +108,7 @@ h1, h2, h3, .result-title, .timer { font-family: 'Cinzel', serif; text-transform
     padding: 15px 20px; 
     display: flex; 
     justify-content: center; 
-    z-index: 9999; /* Ensure it's on top of everything */
+    z-index: 9999; 
     box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
 }
 .sticky-action-bar .btn { width: 100%; max-width: 400px; margin: 0; }
