@@ -62,6 +62,15 @@
                     <button class="btn btn-shop" id="shopButton" onclick="showShop()">
                         <i class="fas fa-shopping-cart"></i> მაღაზია
                     </button>
+                    <button class="btn btn-stats" id="statsButton" onclick="showStats()">
+                        <i class="fas fa-chart-bar"></i> სტატისტიკა
+                    </button>
+                    <button class="btn btn-challenges" id="challengesButton" onclick="showChallenges()">
+                        <i class="fas fa-tasks"></i> დავალებები
+                    </button>
+                    <button class="btn btn-audio" onclick="toggleSound()">
+                        <i class="fas fa-volume-up" id="soundToggleIcon"></i>
+                    </button>
                 </div>
             </div>
         </div>
@@ -85,7 +94,7 @@
                     <input type="number" id="totalPlayersCount" min="3" max="20" value="5" />
                 </div>
                 <p style="text-align:center; color:var(--text-muted); margin-bottom:20px;">
-                    სახელები ავტომატურად მიენიჭება (Player 1, Player 2...)
+                    სახელები ავტომატურად მიენიჭება (მოთამაშე 1, მოთამაშე 2...)
                 </p>
             </div>
 
@@ -174,9 +183,45 @@
                 </select>
             </div>
             
+            <div id="gameModeContainer"></div>
+            
             <div class="sticky-action-bar">
                 <button class="btn" onclick="saveConfig()">
                     <i class="fas fa-save"></i> შენახვა
+                </button>
+            </div>
+        </div>
+
+        <div id="statsSection" class="section">
+            <div class="section-header">
+                <h3 class="config-title"><i class="fas fa-chart-bar"></i> სტატისტიკა</h3>
+                <button class="btn btn-sm" onclick="showPlayerInput()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div id="statsContent" class="stats-content"></div>
+            
+            <div class="sticky-action-bar">
+                <button class="btn" onclick="showPlayerInput()">
+                    <i class="fas fa-arrow-left"></i> უკან დაბრუნება
+                </button>
+            </div>
+        </div>
+
+        <div id="challengesSection" class="section">
+            <div class="section-header">
+                <h3 class="config-title"><i class="fas fa-tasks"></i> დღის დავალებები</h3>
+                <button class="btn btn-sm" onclick="showPlayerInput()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="challenges-container" id="challengesContainer"></div>
+            
+            <div class="sticky-action-bar">
+                <button class="btn" onclick="showPlayerInput()">
+                    <i class="fas fa-arrow-left"></i> უკან დაბრუნება
                 </button>
             </div>
         </div>
@@ -262,10 +307,6 @@
             </button>
         </div>
     </div>
-
-    <audio id="alarmSound">
-        <source src="https://www.soundjay.com/buttons/sounds/beep-07.mp3" type="audio/mpeg" />
-    </audio>
 
     <script src="script.js"></script>
     <script>
