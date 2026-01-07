@@ -16,13 +16,16 @@
     <link rel="manifest" href="manifest.json">
 </head>
 <body>
+    <!-- Loading Screen -->
     <div id="loadingScreen">
         <div class="spinner"></div>
         <div class="loading-text">იტვირთება...</div>
     </div>
     
+    <!-- Toast Message -->
     <div id="toastMessage" class="toast-message"></div>
 
+    <!-- Ready Screen -->
     <div id="readyScreen" style="display:none;">
         <div class="ready-content">
             <div class="logo">
@@ -36,13 +39,16 @@
         </div>
     </div>
 
+    <!-- Transition Screen -->
     <div id="transitionScreen" style="display:none;">
         <div class="spinner"></div>
         <div class="loading-text">სისტემა იტვირთება...</div>
     </div>
 
+    <!-- Particles Background -->
     <div class="particles" id="particles"></div>
 
+    <!-- Timer End Signal -->
     <div id="timerEndSignal" class="timer-end-signal">
         <div class="timer-end-content">
             <i class="fas fa-exclamation-triangle"></i>
@@ -50,32 +56,131 @@
         </div>
     </div>
 
-    <div class="container" id="mainContent" style="display:none;">
+    <!-- Burger Menu Button -->
+    <div id="burgerMenuBtn" class="burger-menu-btn" onclick="toggleBurgerMenu()">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <!-- Burger Menu Overlay -->
+    <div id="burgerMenuOverlay" class="burger-overlay" onclick="toggleBurgerMenu()"></div>
+
+    <!-- Burger Menu Content -->
+    <div id="burgerMenuContent" class="burger-menu-content">
+        <div class="burger-header">
+            <div class="burger-logo">SPY</div>
+            <button class="burger-close-btn" onclick="toggleBurgerMenu()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
         
-        <div class="logo-area" id="logoArea">
-            <div class="logo">
-                <h1>SPY</h1>
-                <div class="menu-buttons">
-                    <button class="btn btn-config" id="configButton" onclick="showConfig()">
-                        <i class="fas fa-cogs"></i> პარამეტრები
-                    </button>
-                    <button class="btn btn-shop" id="shopButton" onclick="showShop()">
-                        <i class="fas fa-shopping-cart"></i> მაღაზია
-                    </button>
-                    <button class="btn btn-stats" id="statsButton" onclick="showStats()">
-                        <i class="fas fa-chart-bar"></i> სტატისტიკა
-                    </button>
-                    <button class="btn btn-challenges" id="challengesButton" onclick="showChallenges()">
-                        <i class="fas fa-tasks"></i> დავალებები
-                    </button>
-                    <button class="btn btn-audio" onclick="toggleSound()">
-                        <i class="fas fa-volume-up" id="soundToggleIcon"></i>
-                    </button>
+        <div class="burger-menu-items">
+            <!-- Main Game Section -->
+            <div class="burger-section">
+                <h4><i class="fas fa-gamepad"></i> მთავარი თამაში</h4>
+                <button class="burger-item" onclick="showPlayerInput(); toggleBurgerMenu()">
+                    <i class="fas fa-home"></i> მთავარი გვერდი
+                </button>
+                <button class="burger-item" onclick="startGame(); toggleBurgerMenu()">
+                    <i class="fas fa-play"></i> თამაშის დაწყება
+                </button>
+            </div>
+            
+            <!-- Players Section -->
+            <div class="burger-section">
+                <h4><i class="fas fa-users"></i> მოთამაშეები</h4>
+                <div class="burger-player-list" id="burgerPlayerList">
+                    <!-- Players loaded here -->
+                </div>
+                <button class="burger-item" onclick="addPlayerFromBurger(); toggleBurgerMenu()">
+                    <i class="fas fa-user-plus"></i> ახალი მოთამაშე
+                </button>
+            </div>
+            
+            <!-- Settings Section -->
+            <div class="burger-section">
+                <h4><i class="fas fa-cogs"></i> პარამეტრები</h4>
+                <button class="burger-item" onclick="showConfig(); toggleBurgerMenu()">
+                    <i class="fas fa-sliders-h"></i> თამაშის პარამეტრები
+                </button>
+                <button class="burger-item" onclick="showCategories(); toggleBurgerMenu()">
+                    <i class="fas fa-list"></i> კატეგორიების არჩევა
+                </button>
+                <button class="burger-item" onclick="showGameModes(); toggleBurgerMenu()">
+                    <i class="fas fa-gamepad"></i> თამაშის რეჟიმები
+                </button>
+            </div>
+            
+            <!-- Shop & Economy -->
+            <div class="burger-section">
+                <h4><i class="fas fa-store"></i> მაღაზია</h4>
+                <div class="burger-balance">
+                    <i class="fas fa-coins"></i> სულ მონეტები: <span id="burgerBalance">0</span>
+                </div>
+                <button class="burger-item" onclick="showShop(); toggleBurgerMenu()">
+                    <i class="fas fa-shopping-cart"></i> მაღაზია
+                </button>
+            </div>
+            
+            <!-- Statistics & Progress -->
+            <div class="burger-section">
+                <h4><i class="fas fa-chart-line"></i> სტატისტიკა</h4>
+                <button class="burger-item" onclick="showStats(); toggleBurgerMenu()">
+                    <i class="fas fa-chart-bar"></i> სტატისტიკა
+                </button>
+                <button class="burger-item" onclick="showChallenges(); toggleBurgerMenu()">
+                    <i class="fas fa-tasks"></i> დღის დავალებები
+                </button>
+            </div>
+            
+            <!-- Audio & Settings -->
+            <div class="burger-section">
+                <h4><i class="fas fa-volume-up"></i> ხმა</h4>
+                <div class="burger-toggle-item">
+                    <span>ხმის ეფექტები</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="burgerSoundToggle" checked onchange="toggleSound()">
+                        <span class="slider"></span>
+                    </label>
                 </div>
             </div>
+            
+            <!-- Info & Help -->
+            <div class="burger-section">
+                <h4><i class="fas fa-info-circle"></i> ინფორმაცია</h4>
+                <button class="burger-item" onclick="showInstructions(); toggleBurgerMenu()">
+                    <i class="fas fa-question-circle"></i> როგორ ვითამაშოთ
+                </button>
+                <button class="burger-item" onclick="showAbout(); toggleBurgerMenu()">
+                    <i class="fas fa-info-circle"></i> ჩვენ შესახებ
+                </button>
+            </div>
         </div>
+        
+        <!-- Footer Actions -->
+        <div class="burger-footer">
+            <button class="btn btn-sm" onclick="restartGame(false); toggleBurgerMenu()">
+                <i class="fas fa-redo"></i> ახალი თამაში
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="clearAllData(); toggleBurgerMenu()">
+                <i class="fas fa-trash"></i> მონაცემების წაშლა
+            </button>
+        </div>
+    </div>
 
-        <div id="playerInput" class="section">
+    <!-- Main Content Container -->
+    <div class="container" id="mainContent" style="display:none;">
+        
+        <!-- Player Input Section -->
+        <div id="playerInput" class="section active">
+            <div class="section-header-main">
+                <h1>SPY</h1>
+                <p class="section-subtitle">Cyber Noir Edition</p>
+                <p class="players-count-info" id="playersCountInfo">
+                    მოთამაშეები: <span>0</span> (მინიმუმ 3)
+                </p>
+            </div>
+            
+            <!-- Manual Input Mode -->
             <div id="manualInputContainer">
                 <div class="input-with-button">
                     <input type="text" id="playerName" placeholder="მოთამაშის სახელი" />
@@ -86,6 +191,7 @@
                 <div class="player-list" id="playerList"></div>
             </div>
 
+            <!-- Auto Input Mode -->
             <div id="autoInputContainer" style="display:none;">
                 <div class="input-group">
                     <label class="form-label">
@@ -93,22 +199,21 @@
                     </label>
                     <input type="number" id="totalPlayersCount" min="3" max="20" value="5" />
                 </div>
-                <p style="text-align:center; color:var(--text-muted); margin-bottom:20px;">
-                    სახელები ავტომატურად მიენიჭება (მოთამაშე 1, მოთამაშე 2...)
-                </p>
             </div>
 
-            <button class="btn" onclick="startGame()" style="width:100%; margin-top:20px;">
-                <i class="fas fa-play"></i> თამაშის დაწყება
-            </button>
+            <!-- Start Game Button -->
+            <div class="start-game-section">
+                <button class="btn btn-start-game" onclick="startGame()">
+                    <i class="fas fa-play"></i> თამაშის დაწყება
+                </button>
+            </div>
         </div>
         
+        <!-- Shop Section -->
         <div id="shopSection" class="section">
-            <div class="section-header">
-                <h3 class="config-title"><i class="fas fa-store"></i> კიბერ მაღაზია</h3>
-                <button class="btn btn-sm" onclick="showPlayerInput()">
-                    <i class="fas fa-times"></i>
-                </button>
+            <div class="section-header-main">
+                <h2><i class="fas fa-store"></i> კიბერ მაღაზია</h2>
+                <p class="section-subtitle">იყიდე სპეციალური ნივთები და გახდი უკეთესი!</p>
             </div>
             
             <div class="shop-player-select">
@@ -120,20 +225,13 @@
             </div>
 
             <div class="shop-grid" id="shopItemsGrid"></div>
-
-            <div class="sticky-action-bar">
-                <button class="btn" onclick="showPlayerInput()">
-                    <i class="fas fa-arrow-left"></i> უკან დაბრუნება
-                </button>
-            </div>
         </div>
 
+        <!-- Config Section -->
         <div id="configSection" class="section">
-            <div class="section-header">
-                <h3 class="config-title"><i class="fas fa-cogs"></i> პარამეტრები</h3>
-                <button class="btn btn-sm" onclick="saveConfig()">
-                    <i class="fas fa-save"></i>
-                </button>
+            <div class="section-header-main">
+                <h2><i class="fas fa-cogs"></i> პარამეტრები</h2>
+                <p class="section-subtitle">შეცვალე თამაშის პარამეტრები</p>
             </div>
             
             <div class="toggle-container">
@@ -142,11 +240,6 @@
                     <input type="checkbox" id="manualEntryToggle" checked>
                     <span class="slider"></span>
                 </label>
-            </div>
-
-            <div class="input-group">
-                <label class="form-label"><i class="fas fa-list"></i> კატეგორიები:</label>
-                <div class="categories-container" id="categoriesContainer"></div>
             </div>
 
             <div class="input-group">
@@ -182,50 +275,147 @@
                     <option value="disabled">გამორთვა</option>
                 </select>
             </div>
+        </div>
+
+        <!-- Categories Section -->
+        <div id="categoriesSection" class="section">
+            <div class="section-header-main">
+                <h2><i class="fas fa-list"></i> კატეგორიები</h2>
+                <p class="section-subtitle">აირჩიე სიტყვების კატეგორიები</p>
+            </div>
+
+            <div class="categories-container-full" id="categoriesContainerFull"></div>
+        </div>
+
+        <!-- Game Modes Section -->
+        <div id="gameModesSection" class="section">
+            <div class="section-header-main">
+                <h2><i class="fas fa-gamepad"></i> თამაშის რეჟიმები</h2>
+                <p class="section-subtitle">აირჩიე შენი სასურველი რეჟიმი</p>
+            </div>
             
-            <div id="gameModeContainer"></div>
-            
-            <div class="sticky-action-bar">
-                <button class="btn" onclick="saveConfig()">
-                    <i class="fas fa-save"></i> შენახვა
-                </button>
+            <div class="game-modes-grid">
+                <div class="game-mode-card" onclick="selectGameMode('normal')">
+                    <div class="game-mode-icon">🎮</div>
+                    <div class="game-mode-title">ნორმალური</div>
+                    <div class="game-mode-desc">2 წუთი, 1 ჯაშუში</div>
+                    <div class="game-mode-details">დაწყებითი დონე</div>
+                </div>
+                
+                <div class="game-mode-card" onclick="selectGameMode('blitz')">
+                    <div class="game-mode-icon">⚡</div>
+                    <div class="game-mode-title">ბლიცი</div>
+                    <div class="game-mode-desc">1 წუთი, 2 ჯაშუში</div>
+                    <div class="game-mode-details">სწრაფი თამაში</div>
+                </div>
+                
+                <div class="game-mode-card" onclick="selectGameMode('hardcore')">
+                    <div class="game-mode-icon">💀</div>
+                    <div class="game-mode-title">რთული</div>
+                    <div class="game-mode-desc">3 წუთი, 1 ჯაშუში + დეტექტივი</div>
+                    <div class="game-mode-details">ექსპერტებისთვის</div>
+                </div>
             </div>
         </div>
 
+        <!-- Statistics Section -->
         <div id="statsSection" class="section">
-            <div class="section-header">
-                <h3 class="config-title"><i class="fas fa-chart-bar"></i> სტატისტიკა</h3>
-                <button class="btn btn-sm" onclick="showPlayerInput()">
-                    <i class="fas fa-times"></i>
-                </button>
+            <div class="section-header-main">
+                <h2><i class="fas fa-chart-bar"></i> სტატისტიკა</h2>
+                <p class="section-subtitle">თქვენი მიღწევები და რეკორდები</p>
             </div>
             
             <div id="statsContent" class="stats-content"></div>
-            
-            <div class="sticky-action-bar">
-                <button class="btn" onclick="showPlayerInput()">
-                    <i class="fas fa-arrow-left"></i> უკან დაბრუნება
-                </button>
-            </div>
         </div>
 
+        <!-- Challenges Section -->
         <div id="challengesSection" class="section">
-            <div class="section-header">
-                <h3 class="config-title"><i class="fas fa-tasks"></i> დღის დავალებები</h3>
-                <button class="btn btn-sm" onclick="showPlayerInput()">
-                    <i class="fas fa-times"></i>
-                </button>
+            <div class="section-header-main">
+                <h2><i class="fas fa-tasks"></i> დღის დავალებები</h2>
+                <p class="section-subtitle">შეასრულე დავალებები და მიიღე ჯილდოები</p>
             </div>
             
             <div class="challenges-container" id="challengesContainer"></div>
+        </div>
+
+        <!-- Instructions Section -->
+        <div id="instructionsSection" class="section">
+            <div class="section-header-main">
+                <h2><i class="fas fa-question-circle"></i> როგორ ვითამაშოთ</h2>
+                <p class="section-subtitle">SPY თამაშის ინსტრუქცია</p>
+            </div>
             
-            <div class="sticky-action-bar">
-                <button class="btn" onclick="showPlayerInput()">
-                    <i class="fas fa-arrow-left"></i> უკან დაბრუნება
-                </button>
+            <div class="instructions-content">
+                <div class="instruction-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>დაამატე მოთამაშეები</h4>
+                        <p>დაამატე მინიმუმ 3 მოთამაშე საკუთარი სახელებით.</p>
+                    </div>
+                </div>
+                
+                <div class="instruction-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>აირჩიე რეჟიმი</h4>
+                        <p>აირჩიე ჯაშუშების რაოდენობა, დრო და სხვა პარამეტრები.</p>
+                    </div>
+                </div>
+                
+                <div class="instruction-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>გაიცანი შენი როლი</h4>
+                        <p>თითოეული მოთამაშე ნახავს თავის როლს (ჯაშუში, დეტექტივი ან მოქალაქე).</p>
+                    </div>
+                </div>
+                
+                <div class="instruction-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>კითხვები და პასუხები</h4>
+                        <p>დაუსვი დამხმარე კითხვები და შეეცადე გამოიცნო ვინ არის ჯაშუში.</p>
+                    </div>
+                </div>
+                
+                <div class="instruction-step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h4>გამოიცანი ჯაშუში</h4>
+                        <p>დროის დამთავრებამდე სცადე გამოიცნო ვინ არის ჯაშუში.</p>
+                    </div>
+                </div>
             </div>
         </div>
 
+        <!-- About Section -->
+        <div id="aboutSection" class="section">
+            <div class="section-header-main">
+                <h2><i class="fas fa-info-circle"></i> ჩვენ შესახებ</h2>
+                <p class="section-subtitle">SPY - Cyber Noir Edition</p>
+            </div>
+            
+            <div class="about-content">
+                <div class="about-logo">SPY</div>
+                <p>ეს არის ჯაშუშური თამაში Cyber Noir სტილში, რომელიც შექმნილია ქართულ ენაზე.</p>
+                
+                <h4>ფუნქციები:</h4>
+                <ul>
+                    <li>მრავალმოთამაშიანი რეჟიმი</li>
+                    <li>3 განსხვავებული თამაშის რეჟიმი</li>
+                    <li>მაღაზია სპეციალური ნივთებით</li>
+                    <li>სტატისტიკა და დღის დავალებები</li>
+                    <li>ხმის ეფექტები და ანიმაციები</li>
+                </ul>
+                
+                <div class="about-version">
+                    <p>ვერსია: 3.0</p>
+                    <p>© 2024 SPY თამაში. ყველა უფლება დაცულია.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Role Section -->
         <div id="roleSection" class="section">
             <div class="player-turn" id="playerTurn"></div>
             
@@ -239,82 +429,169 @@
             <div id="currentPlayer" class="current-player" style="margin-top:10px; color:var(--text-muted)"></div>
             
             <button class="btn next-player-btn" id="nextPlayerBtn" onclick="nextPlayer()" style="display:none; margin-top:20px;">
-                <i class="fas fa-arrow-right"></i> შემდეგი
-            </button>
+                <i class="fas fa-arrow-right"></i> შarrow-right"></i> შემდემდეგეგი მოთი მოთამაშე
+           ამაშე
+            </button </button>
+        </div>
         </div>
 
-        <div id="gameSection" class="section">
-            <div class="points-display" id="pointsDisplay"></div>
-            <div class="timer-container">
-                <div class="timer" id="timer">02:00</div>
+       >
+
+        <!-- Game Section -->
+        <!-- Game Section -->
+        <div id="gameSection" <div id="gameSection" class=" class="section">
+           section">
+            <div class <div class="points-display" id="points-display" id="points="pointsDisplay"></div>
+Display"></div>
+                       <div class="timer <div class="timer-container">
+                <div class="timer-container">
+                <div class="timer" id" id="timer">02:00="timer">02:00</div>
+                <div</div>
+                <div class="game-mode-indicator" class="game-mode-indicator" id="gameModeIndicator"></ id="gameModeIndicator"></div>
+div>
+            </div>
             </div>
             
-            <div class="helper-box">
-                <button class="btn btn-config" onclick="generateHelperQuestion()" style="font-size:0.9rem; padding:10px;">
-                    <i class="fas fa-question-circle"></i> დამხმარე კითხვა
+                       
+            <div class="helper-box <div class="helper-box">
+               ">
+                <button <button class="btn btn-helper" onclick=" class="btn btn-helper" onclick="generateHelpergenerateHelperQuestion()">
+                   Question()">
+                    <i <i class="fas fa-question class="fas fa-question-circle"></i> დამ-circle"></i> დამხმხმარე კითარე კითხვა
                 </button>
-                <div class="helper-text" id="helperText"></div>
+ხვა
+                </button>
+                               <div class="helper <div class="helper-text"-text" id="helperText"></div id="helperText"></div>
             </div>
 
-            <div class="controls" style="margin-top:20px;">
-                <button class="btn btn-danger" id="revealBtn" onclick="endGame()">
-                    <i class="fas fa-flag"></i> დასრულება
-                </button>
+           >
             </div>
-        </div>
 
-        <div id="findSpySection" class="section">
-            <div class="result-display">
-                <div class="result-title" id="findSpyTitle">ვინ არის ჯაშუში?</div>
-                <p id="findSpyDescription">დააფიქსირეთ თქვენი ეჭვი:</p>
-                <select id="findSpySelect"></select>
-            </div>
-            <div class="controls">
-                <button class="btn" onclick="makePlayerGuess()">
-                    <i class="fas fa-check-circle"></i> არჩევა
+            <div <div class="game class="game-controls-controls">
+                <button class="">
+                <button class="btn btnbtn btn-danger"-danger" onclick="endGame onclick="endGame()">
+                    <i class()">
+                    <i class="fas="fas fa-flag"></ fa-flag"></i>i> თამაშ თამაშის დის დასრულებაასრულება
+               
                 </button>
-            </div>
-        </div>
-
-        <div id="resultSection" class="section">
-            <div class="result-display">
-                <div class="result-title">თამაში დასრულდა</div>
-                <div id="resultText"></div>
-                <div id="itemEffectText" class="item-effect-text"></div>
-                <div id="resultDisplay"></div>
-                <div id="wordDisplay" class="word-reveal"></div>
-            </div>
-            <div class="controls result-buttons">
-                <button class="btn btn-secondary" onclick="restartGame(true)">
-                    <i class="fas fa-redo"></i> ახალი რაუნდი
-                </button>
-                <button class="btn" id="showPointsBtn" onclick="showFinalPoints()">
-                    <i class="fas fa-trophy"></i> ქულები
-                </button>
-                <button class="btn" onclick="restartGame(false)">
-                    <i class="fas fa-home"></i> მთავარი
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div id="finalPointsModal" class="modal">
-        <div class="modal-content">
-            <h3>შედეგები</h3>
-            <div id="finalPointsContent"></div>
-            <button class="btn" onclick="closeModal('finalPointsModal')" style="margin-top:20px">
-                <i class="fas fa-times-circle"></i> დახურვა
             </button>
+            </div </div>
         </div>
+
+       >
+        </div>
+
+        <!-- Find <!-- Find Spy Section -->
+        Spy Section -->
+        <div <div id="findSpySection id="findSpySection" class" class="section">
+           ="section">
+            <div <div class="result-dis class="result-display">
+play">
+                <div class="result                <div class="result-title"-title" id="findSp id="findSpyTitleyTitle">ვინ არის">ვინ არის ჯ ჯაშუშიაშუში?</div?</div>
+               >
+                <p id=" <p id="findSpyDescription">დfindSpyDescription">დაააფიქსაფიქსირირეთ თქვენეთ თქვენი ეი ეჭვიჭვი:</p:</p>
+                <select id=">
+                <select id="findSpfindSpySelect"></selectySelect"></select>
+           >
+            </div>
+            <div </div>
+            <div class=" class="controls">
+               controls">
+                <button class <button class="btn" onclick="="btn" onclick="makemakePlayerGuess()">
+                   PlayerGuess()">
+                    <i class <i class="fas fa-check="fas fa-check-circle"></-circle"></i> არჩi> არჩევა
+                </ევა
+                </button>
+button>
+            </div>
+        </            </div>
+        </div>
+
+div>
+
+        <!-- Result Section        <!-- Result Section -->
+        -->
+        <div id="resultSection <div id="resultSection" class="section">
+           " class="section">
+            <div <div class="result-display">
+ class="result-display">
+                <div class="result                <div class="result-title">-title">თამაშითამაში დას დასრულდა</რულდა</div>
+div>
+                <div id                <div id="result="resultText"></div>
+Text"></div>
+                <div id="resultDisplay"></                <div id="resultDisplay"></div>
+div>
+                <div id="word                <div id="wordDisplay" class="word-reDisplay" class="word-revealveal"></div>
+            </div"></div>
+            </div>
+            <div class=">
+            <div class="controls resultcontrols result-buttons">
+-buttons">
+                               <button class="btn btn-secondary <button class="btn btn-secondary" onclick" onclick="restartGame="restartGame(true)">
+(true)">
+                    <i class="fas                    <i class="fas fa-red fa-redo"></i>o"></i> ახ ახალი რაუნალი რაუნდიდი
+                </button
+                </button>
+               >
+                <button class="btn" <button class="btn" id="showPointsBtn" id="showPointsBtn" onclick=" onclick="showFinalPoints()showFinalPoints()">
+                   ">
+                    <i class="fas fa <i class="fas fa-trophy"></i>-trophy"></i> ქ ქულები
+                </buttonულები
+                </button>
+               >
+                <button class=" <button class="btn"btn" onclick="showPlayerInput() onclick="showPlayerInput()">
+                   ">
+                    <i class=" <i class="fas fafas fa-home"></i>-home"></i> მთ მთავარი გვავარი გვერდიერდი
+                </button
+                </button>
+           >
+            </div>
+        </div </div>
+        </div>
+   >
     </div>
 
-    <script src="script.js"></script>
+    </div>
+
+    <!-- Final <!-- Final Points Modal -->
+    <div Points Modal -->
+    <div id=" id="finalPointsModal"finalPointsModal" class=" class="modal">
+       modal">
+        <div class <div class="modal-content">
+           ="modal-content">
+            <h3 <h3>შ>შედედეგები</hეგები</h3>
+           3>
+            <div id="final <div id="finalPointsContentPointsContent"></div>
+            <button"></div>
+            <button class=" class="btn" onclick="btn" onclick="closeModalcloseModal('finalPointsModal')">
+('finalPointsModal')">
+                               <i class="fas <i class="fas fa-times-circle"></i> fa-times-circle"></i> დ დახურვა
+ახურვა
+            </            </button>
+        </button>
+        </div>
+div>
+    </div>
+
+       </div>
+
+    <script src <script src="script.js"></="script.js"></script>
+script>
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js');
+        if    <script>
+        if ('serviceWorker' in navig ('serviceWorker' in navigator)ator) {
+            window.addEventListener {
+            window.addEventListener('load', ()('load', () => {
+                navig => {
+                navigator.serviceWorker.register('/swator.serviceWorker.register('/sw.js');
+.js');
             });
         }
+    </            });
+        }
     </script>
+script>
 </body>
+</</body>
 </html>
+html>
