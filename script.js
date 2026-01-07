@@ -133,7 +133,7 @@ const wordData = {
         "სამხატვრო გალერეა", "ღამის კლუბი", "სოფლის ორღობე", "პოლიციის განყოფილება", "სახანძრო სადგური",
         "საავადმყოფო", "სკოლა", "უნივერსიტეტი", "ბაღი", "ბანკი", "აფთიაქი", "თონე", "ბაზარი",
         "ეკლესია", "სასაფლაო", "კინოთეატრი", "ცირკი", "ზოოპარკი", "პლაჟი", "მთა", "ტყე", "უდაბნო",
-        "ციხე", "პარლამენტი", "მერია", "სასამართლო", "ბიბლიოთეკა", "სასტუმრო", "რესტორანი", "კაფე",
+        "ციხე", "პარლამენტი", "მერია", "სასაფლასი", "ბიბლიოთეკა", "სასტუმრო", "რესტორანი", "კაფე",
         "საუნა", "ავტოფარეხი", "სხვენი", "სარდაფი", "ლიფტი", "ტუალეტი", "სამზარეულო"
     ]
 };
@@ -343,7 +343,7 @@ function loadConfigFromUI() {
 function addPlayer() {
     let name = document.getElementById("playerName").value.trim();
     if (name && !players.some((p) => p.name === name)) {
-        players.push({ name: name, points: 0, coins: 0, inventory: [] });
+        players.push({ name: name, points: 0, coins: 10, inventory: [] }); // Start with 10 coins
         updatePlayerList();
         document.getElementById("playerName").value = "";
         saveGameState();
@@ -450,7 +450,9 @@ function buyItem(itemId, playerIndex) {
             player.inventory.push(item);
             showToast(`${item.name} ნაყიდია!`);
         }
-        renderShopItems(); saveGameState();
+        renderShopItems(); 
+        updatePlayerList();
+        saveGameState();
     }
 }
 
@@ -474,7 +476,7 @@ function startGame() {
         if (count < 3) { alert("მინიმუმ 3 მოთამაშე!"); return; }
         players = [];
         for (let i = 1; i <= count; i++) {
-            players.push({ name: `Player ${i}`, points: 0, coins: 0, inventory: [] });
+            players.push({ name: `Player ${i}`, points: 0, coins: 10, inventory: [] });
         }
     } else {
         if (players.length < 3) { alert("მინიმუმ 3 მოთამაშე უნდა იყოს!"); return; }
@@ -548,9 +550,8 @@ function nextPlayer() {
         updateTurnDisplay(); 
         saveGameState(); 
     } else {
-        // ყველა მოთამაშემ ნახა როლი, ავტომატურად გადავდივართ და ვრთავთ დროს
         setActiveSection('gameSection');
-        document.getElementById("helperText").textContent = ""; // Reset helper
+        document.getElementById("helperText").textContent = "";
         if (isPointsEnabled) { 
             document.getElementById("pointsDisplay").style.display = "block"; 
             updatePointsDisplay(); 
@@ -558,7 +559,7 @@ function nextPlayer() {
             document.getElementById("pointsDisplay").style.display = "none"; 
         }
         
-        // AUTO START TIMER HERE
+        // AUTO START TIMER
         startTimer();
         saveGameState();
     }
@@ -566,7 +567,6 @@ function nextPlayer() {
 
 // --- TIMER & HELPER ---
 function startTimer() {
-    // document.getElementById("startTimerBtn").style.display = "none"; // ღილაკი აღარაა
     timeLeft = 120;
     updateTimerDisplay(timeLeft);
     preventScreenOff(); // Lock screen on
@@ -603,10 +603,55 @@ function showTimerEndSignal() {
     setTimeout(() => { signal.style.display = "none"; endGame(); }, 3000);
 }
 
+// --- POINTS SYSTEM ---
+function calculatePoints(outcome) {
+    // outcome: 'civilian' or 'spy'
+    if (outcome === 'civilian') {
+        players.forEach((p, index) => {
+            if (roles[index] !== 'Spy') {
+                let points = 2; // Base points for civilians
+                
+                // Detective bonus
+                if (roles[index] === 'Detective') {
+                    const magnifier = p.inventory?.find(item => item.id === 'magnifier');
+                    if (magnifier) points += 3;
+                }
+                
+                p.points += points;
+            }
+        });
+    } else if (outcome === 'spy') {
+        players.forEach((p, index) => {
+            if (roles[index] === 'Spy') {
+                let points = 3; // Base points for spies
+                
+                // Spy mask bonus
+                const spyMask = p.inventory?.find(item => item.id === 'spy_mask');
+                if (spyMask) points += 3;
+                
+                // Backdoor double points
+                const backdoor = p.inventory?.find(item => item.id === 'backdoor');
+                if (backdoor) points *= 2;
+                
+                p.points += points;
+            }
+        });
+    }
+    
+    // Give coins for playing
+    players.forEach(p => {
+        p.coins += 2; // Each player gets 2 coins for playing
+    });
+    
+    updatePointsDisplay();
+}
+
 function updatePointsDisplay() {
+    if (!isPointsEnabled) return;
+    
     let pointsHtml = "";
     players.forEach((p) => {
-        let itemsHtml = p.inventory ? p.inventory.map(i => i.icon).join('') : '';
+        let itemsHtml = p.inventory ? p.inventory.map(i => i.icon).join(' ') : '';
         pointsHtml += `<span>${p.name}: ${p.points} ${itemsHtml}</span> | `;
     });
     document.getElementById("pointsDisplay").innerHTML = pointsHtml.slice(0, -2);
@@ -614,7 +659,6 @@ function updatePointsDisplay() {
 
 function endGame() { 
     clearInterval(timerInterval); 
-    // If points are disabled, skip voting/finding spy logic
     if (!isPointsEnabled) {
         revealSpies();
     } else {
@@ -622,23 +666,37 @@ function endGame() {
     }
 }
 
+// --- VOTING SYSTEM ---
 function showFindSpySection() {
-    setActiveSection('findSpySection'); saveGameState();
-    let select = document.getElementById("findSpySelect"); select.innerHTML = "";
-    let defaultOption = document.createElement("option");
-    defaultOption.value = ""; defaultOption.textContent = "აირჩიეთ"; defaultOption.selected = true; defaultOption.disabled = true;
-    select.appendChild(defaultOption);
+    setActiveSection('findSpySection'); 
+    saveGameState();
     
+    let select = document.getElementById("findSpySelect"); 
+    select.innerHTML = "";
+    
+    // Add players to select
+    players.forEach((p, i) => {
+        let option = document.createElement("option");
+        option.value = i;
+        option.textContent = p.name;
+        select.appendChild(option);
+    });
+    
+    // Set first option as disabled
+    let defaultOption = document.createElement("option");
+    defaultOption.value = "";
+    defaultOption.textContent = "აირჩიეთ";
+    defaultOption.selected = true;
+    defaultOption.disabled = true;
+    select.insertBefore(defaultOption, select.firstChild);
+    
+    // Update text based on game mode
     if (isDetectiveMode) {
-        let detectives = roles.map((r, i) => ({ role: r, index: i })).filter(p => p.role === "Detective");
-        if (detectives.length > 0) {
-            document.getElementById("findSpySelect").innerHTML = `<option value="" selected disabled>აირჩიეთ ჯაშუში</option>${players.map((p, i) => `<option value="${i}">${p.name}</option>`).join('')}`;
-            let detectiveNames = detectives.map(d => players[d.index].name).join(", ");
-            document.querySelector("#findSpySection .result-title").textContent = "დეტექტივი, ეძებე ჯაშუში!";
-            document.querySelector("#findSpySection p").innerHTML = `<strong>${detectiveNames}</strong> - დეტექტივმა აირჩიოს ჯაშუში:`;
-        }
+        const detectives = roles.map((r, i) => (r === "Detective" ? players[i].name : null)).filter(Boolean);
+        const detectiveNames = detectives.join(", ");
+        document.querySelector("#findSpySection .result-title").textContent = "დეტექტივი, ეძებე ჯაშუში!";
+        document.querySelector("#findSpySection p").innerHTML = `<strong>${detectiveNames}</strong> - დეტექტივმა აირჩიოს ჯაშუში:`;
     } else {
-        players.forEach((p, i) => { let option = document.createElement("option"); option.value = i; option.textContent = p.name; select.appendChild(option); });
         document.querySelector("#findSpySection .result-title").textContent = "მოთამაშეები ეძებენ ჯაშუშს";
         document.querySelector("#findSpySection p").textContent = "ვინ არის ჯაშუში?";
     }
@@ -647,24 +705,40 @@ function showFindSpySection() {
 function makePlayerGuess() {
     let guessIndex = parseInt(document.getElementById("findSpySelect").value);
     if (isNaN(guessIndex)) {
-        revealSpies(); return;
+        alert("გთხოვთ აირჩიოთ მოთამაშე!");
+        return;
     }
-    if (isDetectiveMode) handleDetectiveGuess(guessIndex); else handleRegularGuess(guessIndex);
+    
+    if (isDetectiveMode) {
+        handleDetectiveGuess(guessIndex);
+    } else {
+        handleRegularGuess(guessIndex);
+    }
 }
 
 function handleDetectiveGuess(guessIndex) {
-    let spies = roles.map((r, i) => ({ role: r, index: i })).filter(p => p.role === "Spy");
-    let isGuessCorrect = spies.some(spy => spy.index === guessIndex);
+    const isGuessCorrect = roles[guessIndex] === "Spy";
     let resultText = isGuessCorrect ? "დეტექტივმა მოიგო!" : "ჯაშუშებმა მოიგეს!";
     document.getElementById("resultText").textContent = resultText;
+    
+    // Calculate points
+    if (isPointsEnabled) {
+        calculatePoints(isGuessCorrect ? 'civilian' : 'spy');
+    }
+    
     revealSpies();
 }
 
 function handleRegularGuess(guessIndex) {
-    let spies = roles.map((r, i) => ({ role: r, index: i })).filter(p => p.role === "Spy");
-    let isGuessCorrect = spies.some(spy => spy.index === guessIndex);
-    let resultText = isGuessCorrect ? "წააგო ჯაშუშმა" : "მოიგო ჯაშუშმა!";
+    const isGuessCorrect = roles[guessIndex] === "Spy";
+    let resultText = isGuessCorrect ? "წააგო ჯაშუშმა!" : "მოიგო ჯაშუშმა!";
     document.getElementById("resultText").textContent = resultText;
+    
+    // Calculate points
+    if (isPointsEnabled) {
+        calculatePoints(isGuessCorrect ? 'civilian' : 'spy');
+    }
+    
     revealSpies();
 }
 
@@ -684,10 +758,9 @@ function revealSpies() {
     `;
     document.getElementById("wordDisplay").textContent = `საიდუმლო სიტყვა: ${chosenWord}`;
     
-    // Hide Voting related texts if points off
+    // Show/hide points related elements
     if(!isPointsEnabled) {
         document.getElementById("resultText").style.display = 'none';
-        document.getElementById("itemEffectText").style.display = 'none';
         document.getElementById("showPointsBtn").style.display = 'none';
     } else {
         document.getElementById("resultText").style.display = 'block';
@@ -703,44 +776,84 @@ function showFinalPoints() {
     let modal = document.getElementById("finalPointsModal");
     let content = document.getElementById("finalPointsContent");
     content.innerHTML = "";
+    
+    // Sort players by points
     const sortedPlayers = [...players].sort((a, b) => b.points - a.points);
-    sortedPlayers.forEach((p) => {
+    
+    sortedPlayers.forEach((p, index) => {
         let item = document.createElement("div");
         item.classList.add("player-score-item");
+        
+        // Add position indicator
+        let position = "";
+        if (index === 0) position = "🥇 ";
+        else if (index === 1) position = "🥈 ";
+        else if (index === 2) position = "🥉 ";
+        
         let invIcons = p.inventory ? p.inventory.map(i => i.icon).join(' ') : '';
-        item.innerHTML = `<span class="name">${p.name} ${invIcons}:</span> <div><span style="margin-right:10px; color:var(--neon-blue)">${p.points} ქულა</span></div>`;
+        item.innerHTML = `
+            <span class="name">${position}${p.name} ${invIcons}</span> 
+            <div>
+                <span style="margin-right:10px; color:var(--neon-blue)">${p.points} ქულა</span>
+                <span style="color:var(--gold)">${p.coins} <i class="fas fa-coins"></i></span>
+            </div>
+        `;
         content.appendChild(item);
     });
+    
     modal.style.display = "flex";
 }
 
-function closeModal(id) { document.getElementById(id).style.display = "none"; }
+function closeModal(id) { 
+    document.getElementById(id).style.display = "none"; 
+}
 
 function restartGame(sameConfig) {
     clearInterval(timerInterval);
     document.getElementById("timer").textContent = "02:00";
-    clearGameState();
+    
     if (sameConfig) {
+        // Keep players and config, rotate order if sequential
         if (configState.playerOrder === "sequential" && players.length > 0) {
-            let firstPlayer = players.shift(); players.push(firstPlayer);
+            let firstPlayer = players.shift(); 
+            players.push(firstPlayer);
         }
+        clearGameState();
         startGame();
-    } else { showPlayerInput(); saveGameState(); }
+    } else {
+        // Go to main menu
+        clearGameState();
+        showPlayerInput(); 
+    }
 }
 
 // --- WAKE LOCK ---
 function preventScreenOff() {
     if ('wakeLock' in navigator) {
         let wakeLock = null;
-        const requestWakeLock = async () => { try { wakeLock = await navigator.wakeLock.request('screen'); } catch (err) {} };
+        const requestWakeLock = async () => { 
+            try { 
+                wakeLock = await navigator.wakeLock.request('screen'); 
+            } catch (err) {
+                console.log("Wake Lock not supported");
+            } 
+        };
         requestWakeLock();
-        document.addEventListener('visibilitychange', async () => { if (document.visibilityState === 'visible' && wakeLock === null) { requestWakeLock(); } });
+        
+        document.addEventListener('visibilitychange', async () => { 
+            if (document.visibilityState === 'visible' && wakeLock === null) { 
+                requestWakeLock(); 
+            } 
+        });
     }
 }
 
+// --- INITIALIZATION ---
 window.onload = function () { 
     createParticles(); 
     loadGameState(); 
     setTimeout(showReadyScreen, 1000); 
 };
+
+// Disable right-click context menu
 document.addEventListener('contextmenu', e => e.preventDefault());
