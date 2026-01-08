@@ -25,6 +25,103 @@ function createParticles() {
     }
 }
 
+// Burger Menu Functions
+function toggleBurgerMenu() {
+    const menuContent = document.getElementById("burgerMenuContent");
+    const overlay = document.getElementById("burgerMenuOverlay");
+    const menuBtn = document.getElementById("burgerMenuBtn");
+    
+    menuContent.classList.toggle("show");
+    overlay.classList.toggle("show");
+    
+    // Update burger menu content
+    updateBurgerMenu();
+}
+
+function updateBurgerMenu() {
+    // Update player list in burger menu
+    const burgerPlayerList = document.getElementById("burgerPlayerList");
+    burgerPlayerList.innerHTML = '';
+    
+    players.forEach((player, index) => {
+        const playerDiv = document.createElement("div");
+        playerDiv.className = "burger-player-item";
+        playerDiv.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span>${player.name}</span>
+                <div style="display: flex; gap: 5px;">
+                    <span style="color: var(--neon-blue); font-size: 0.8rem;">${player.points}ქ</span>
+                    <span style="color: var(--gold); font-size: 0.8rem;">${player.coins}🪙</span>
+                </div>
+            </div>
+        `;
+        burgerPlayerList.appendChild(playerDiv);
+    });
+    
+    // Update total balance
+    const totalBalance = players.reduce((sum, player) => sum + player.coins, 0);
+    document.getElementById("burgerBalance").textContent = totalBalance;
+    
+    // Update sound toggle
+    document.getElementById("burgerSoundToggle").checked = soundEnabled;
+}
+
+function addPlayerFromBurger() {
+    toggleBurgerMenu();
+    
+    // Create a modal for adding player from burger menu
+    setTimeout(() => {
+        const name = prompt("შეიყვანეთ მოთამაშის სახელი:");
+        if (name && name.trim()) {
+            if (!players.some((p) => p.name === name.trim())) {
+                players.push({ 
+                    name: name.trim(), 
+                    points: 0, 
+                    coins: 10, 
+                    inventory: [],
+                    level: 1,
+                    xp: 0,
+                    cosmetics: []
+                });
+                updatePlayerList();
+                saveGameState();
+                showToast(`✅ ${name} დაემატა!`);
+            } else {
+                alert("მოთამაშე ამ სახელით უკვე არსებობს!");
+            }
+        }
+    }, 300);
+}
+
+// Clear all data function
+function clearAllData() {
+    if (confirm("დარწმუნებული ხართ, რომ გსურთ ყველა მონაცემის წაშლა? ეს ქმედება შექცევადი არ არის.")) {
+        localStorage.clear();
+        players = [];
+        roles = [];
+        chosenWord = "";
+        currentIndex = 0;
+        timeLeft = 0;
+        usedWords = [];
+        dailyChallenges = [];
+        gameStats = {
+            totalGames: 0,
+            spyWins: 0,
+            civilianWins: 0,
+            totalPoints: 0,
+            favoriteWords: {}
+        };
+        
+        document.getElementById("playerList").innerHTML = "";
+        updatePlayerList();
+        showToast("🧹 ყველა მონაცემი წაიშალა");
+        
+        setTimeout(() => {
+            window.location.reload();
+        }, 1000);
+    }
+}
+
 // Global State
 let players = [];
 let roles = [];
@@ -347,6 +444,7 @@ function loadGameState() {
         document.getElementById('playerOrder').value = configState.playerOrder;
         document.getElementById('pointsSystem').value = configState.pointsSystem;
         document.getElementById('manualEntryToggle').checked = configState.manualEntry;
+        document.getElementById('manualEntryToggleConfig').checked = configState.manualEntry;
 
         return true;
     } catch (e) { console.error(e); return false; }
@@ -401,9 +499,12 @@ function showMainPage() {
 function setActiveSection(activeId) {
     const sections = ['playerInput', 'configSection', 'shopSection', 'roleSection', 
                      'gameSection', 'findSpySection', 'resultSection', 'statsSection',
-                     'challengesSection'];
+                     'challengesSection', 'instructionsSection', 'aboutSection',
+                     'categoriesSection', 'gameModesSection'];
     const logoArea = document.getElementById('logoArea');
-    const showLogo = ['playerInput', 'configSection', 'shopSection', 'statsSection', 'challengesSection'].includes(activeId);
+    const showLogo = ['playerInput', 'shopSection', 'statsSection', 'challengesSection', 
+                     'instructionsSection', 'aboutSection', 'configSection',
+                     'categoriesSection', 'gameModesSection'].includes(activeId);
     logoArea.style.display = showLogo ? 'block' : 'none';
 
     sections.forEach(id => {
@@ -419,6 +520,9 @@ function setActiveSection(activeId) {
     
     if (activeId === 'statsSection') updateStatsDisplay();
     if (activeId === 'challengesSection') updateChallengesDisplay();
+    if (activeId === 'shopSection') showShop();
+    if (activeId === 'categoriesSection') showCategories();
+    if (activeId === 'gameModesSection') showGameModes();
     
     if(players.length > 0) saveGameState();
 }
@@ -428,19 +532,18 @@ function showPlayerInput() {
     setActiveSection('playerInput');
     updateInputMode();
     loadConfigFromUI();
-    
-    const shopBtn = document.getElementById("shopButton");
-    const statsBtn = document.getElementById("statsButton");
-    const challengesBtn = document.getElementById("challengesButton");
-    
-    if(!configState.manualEntry) {
-        shopBtn.style.display = 'none';
-        statsBtn.style.display = 'none';
-        challengesBtn.style.display = 'none';
-    } else {
-        shopBtn.style.display = 'flex';
-        statsBtn.style.display = 'flex';
-        challengesBtn.style.display = 'flex';
+    updatePlayerCountInfo();
+}
+
+function updatePlayerCountInfo() {
+    const countInfo = document.getElementById("playersCountInfo");
+    if (countInfo) {
+        const count = players.length;
+        const span = countInfo.querySelector("span");
+        if (span) {
+            span.textContent = count;
+            span.style.color = count >= 3 ? "var(--success)" : "var(--neon-pink)";
+        }
     }
 }
 
@@ -448,28 +551,50 @@ function updateInputMode() {
     const manualContainer = document.getElementById("manualInputContainer");
     const autoContainer = document.getElementById("autoInputContainer");
     const manualToggle = document.getElementById("manualEntryToggle");
+    const manualToggleConfig = document.getElementById("manualEntryToggleConfig");
     const pointsSelect = document.getElementById("pointsSystem");
     
-    configState.manualEntry = manualToggle.checked;
+    const isManual = manualToggle ? manualToggle.checked : true;
+    configState.manualEntry = isManual;
+    
+    if (manualToggleConfig) {
+        manualToggleConfig.checked = isManual;
+    }
 
     if (configState.manualEntry) {
-        manualContainer.style.display = "block";
-        autoContainer.style.display = "none";
-        pointsSelect.disabled = false;
+        if (manualContainer) manualContainer.style.display = "block";
+        if (autoContainer) autoContainer.style.display = "none";
+        if (pointsSelect) pointsSelect.disabled = false;
         updatePlayerList();
     } else {
-        manualContainer.style.display = "none";
-        autoContainer.style.display = "block";
-        pointsSelect.value = "disabled";
-        pointsSelect.disabled = true;
+        if (manualContainer) manualContainer.style.display = "none";
+        if (autoContainer) autoContainer.style.display = "block";
+        if (pointsSelect) {
+            pointsSelect.value = "disabled";
+            pointsSelect.disabled = true;
+        }
         configState.pointsSystem = "disabled";
     }
+    updatePlayerCountInfo();
 }
 
 function showConfig() {
     audioSystem.playSound('click');
+    document.getElementById('spyCountConfig').value = configState.spyCount;
+    document.getElementById('detectiveCount').value = configState.detectiveCount;
+    document.getElementById('playerOrder').value = configState.playerOrder;
+    document.getElementById('pointsSystem').value = configState.pointsSystem;
+    document.getElementById('manualEntryToggleConfig').checked = configState.manualEntry;
+    
+    updateInputMode();
+    setActiveSection('configSection');
+}
+
+function showCategories() {
+    audioSystem.playSound('click');
     const container = document.getElementById("categoriesContainer");
     container.innerHTML = "";
+    
     Object.keys(wordData).forEach(key => {
         const div = document.createElement("div");
         div.classList.add("category-option");
@@ -477,7 +602,9 @@ function showConfig() {
         checkbox.type = "checkbox";
         checkbox.value = key;
         checkbox.id = `cat_${key}`;
-        if (configState.selectedCategories.includes(key)) { checkbox.checked = true; }
+        if (configState.selectedCategories.includes(key)) { 
+            checkbox.checked = true; 
+        }
         const label = document.createElement("label");
         label.htmlFor = `cat_${key}`;
         label.textContent = categoryNames[key];
@@ -486,64 +613,86 @@ function showConfig() {
         container.appendChild(div);
     });
     
-    // Add game mode selection
-    const gameModeContainer = document.getElementById("gameModeContainer");
-    if (!gameModeContainer) {
-        const inputGroup = document.createElement("div");
-        inputGroup.className = "input-group";
-        inputGroup.innerHTML = `
-            <label class="form-label"><i class="fas fa-gamepad"></i> თამაშის რეჟიმი:</label>
-            <select id="gameModeSelect">
-                <option value="normal">ნორმალური (2 წთ, 1 ჯაშუში)</option>
-                <option value="blitz">ბლიცი (1 წთ, 2 ჯაშუში)</option>
-                <option value="hardcore">რთული (3 წთ, 1 ჯაშუში + 1 დეტექტივი)</option>
-            </select>
-        `;
-        document.querySelector('#configSection .input-group:last-child').after(inputGroup);
+    setActiveSection('categoriesSection');
+}
+
+function showGameModes() {
+    audioSystem.playSound('click');
+    // Remove active class from all mode cards
+    document.querySelectorAll('.game-mode-card').forEach(card => {
+        card.classList.remove('active');
+    });
+    
+    // Add active class to current mode
+    const currentModeCard = document.querySelector(`.game-mode-card:nth-child(${currentGameMode === 'normal' ? 1 : currentGameMode === 'blitz' ? 2 : 3})`);
+    if (currentModeCard) {
+        currentModeCard.classList.add('active');
     }
     
-    document.getElementById('spyCount').value = configState.spyCount;
-    document.getElementById('detectiveCount').value = configState.detectiveCount;
-    document.getElementById('playerOrder').value = configState.playerOrder;
-    document.getElementById('pointsSystem').value = configState.pointsSystem;
-    document.getElementById('manualEntryToggle').checked = configState.manualEntry;
-    document.getElementById('gameModeSelect').value = configState.gameMode || "normal";
-    
-    updateInputMode();
-    setActiveSection('configSection');
+    setActiveSection('gameModesSection');
 }
 
 function saveConfig() {
     audioSystem.playSound('click');
-    configState.spyCount = parseInt(document.getElementById("spyCount").value);
+    configState.spyCount = parseInt(document.getElementById("spyCountConfig").value);
     configState.detectiveCount = parseInt(document.getElementById("detectiveCount").value);
     configState.playerOrder = document.getElementById("playerOrder").value;
-    configState.manualEntry = document.getElementById("manualEntryToggle").checked;
-    configState.gameMode = document.getElementById("gameModeSelect").value;
-    currentGameMode = configState.gameMode;
+    configState.manualEntry = document.getElementById("manualEntryToggleConfig").checked;
     
     if(!configState.manualEntry) {
         configState.pointsSystem = "disabled";
     } else {
         configState.pointsSystem = document.getElementById("pointsSystem").value;
     }
+    
+    updateInputMode();
+    saveGameState();
+    showToast("✅ კონფიგურაცია შენახულია");
+    setTimeout(() => showPlayerInput(), 300);
+}
 
+function saveCategories() {
+    audioSystem.playSound('click');
     const checkboxes = document.querySelectorAll("#categoriesContainer input[type='checkbox']");
     const selected = [];
     checkboxes.forEach(cb => { if (cb.checked) selected.push(cb.value); });
     
-    if (selected.length === 0) { alert("აირჩიეთ მინიმუმ ერთი კატეგორია!"); return; }
-    configState.selectedCategories = selected;
+    if (selected.length === 0) { 
+        alert("აირჩიეთ მინიმუმ ერთი კატეგორია!"); 
+        return; 
+    }
     
+    configState.selectedCategories = selected;
     saveGameState();
-    showToast("კონფიგურაცია შენახულია");
+    showToast("✅ კატეგორიები შენახულია");
+    setTimeout(() => showPlayerInput(), 300);
+}
+
+function selectGameMode(mode) {
+    audioSystem.playSound('click');
+    currentGameMode = mode;
+    
+    // Update UI
+    document.querySelectorAll('.game-mode-card').forEach(card => {
+        card.classList.remove('active');
+    });
+    
+    const selectedCard = document.querySelector(`.game-mode-card:nth-child(${mode === 'normal' ? 1 : mode === 'blitz' ? 2 : 3})`);
+    if (selectedCard) {
+        selectedCard.classList.add('active');
+    }
+}
+
+function saveGameMode() {
+    audioSystem.playSound('click');
+    configState.gameMode = currentGameMode;
+    saveGameState();
+    showToast(`✅ რეჟიმი შენახულია: ${GAME_MODES[currentGameMode].name}`);
     setTimeout(() => showPlayerInput(), 300);
 }
 
 function loadConfigFromUI() {
     configState.spyCount = parseInt(document.getElementById("spyCount").value);
-    configState.detectiveCount = parseInt(document.getElementById("detectiveCount").value);
-    configState.playerOrder = document.getElementById("playerOrder").value;
 }
 
 function addPlayer() {
@@ -561,7 +710,9 @@ function addPlayer() {
         });
         updatePlayerList();
         document.getElementById("playerName").value = "";
+        updatePlayerCountInfo();
         saveGameState();
+        showToast(`✅ ${name} დაემატა`);
     } else if (players.some((p) => p.name === name)) {
         alert("მოთამაშე ამ სახელით უკვე არსებობს!");
     }
@@ -631,6 +782,7 @@ function updatePlayerList() {
             audioSystem.playSound('click');
             players.splice(index, 1); 
             updatePlayerList(); 
+            updatePlayerCountInfo();
             saveGameState(); 
         };
         item.appendChild(playerInfo);
@@ -1263,13 +1415,20 @@ function restartGame(sameConfig) {
     }
 }
 
+// --- INSTRUCTIONS & ABOUT ---
+function showInstructions() {
+    audioSystem.playSound('click');
+    setActiveSection('instructionsSection');
+}
+
+function showAbout() {
+    audioSystem.playSound('click');
+    setActiveSection('aboutSection');
+}
+
 // --- AUDIO CONTROLS ---
 function toggleSound() {
     const enabled = audioSystem.toggleSound();
-    const icon = document.getElementById('soundToggleIcon');
-    if (icon) {
-        icon.className = enabled ? 'fas fa-volume-up' : 'fas fa-volume-mute';
-    }
     showToast(enabled ? "🔊 ხმა ჩართულია" : "🔇 ხმა გამორთულია");
     saveGameState();
 }
