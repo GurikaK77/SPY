@@ -181,49 +181,34 @@ body {
     transform: translateX(5px);
 }
 
-.burger-player-list {
-    max-height: 200px;
-    overflow-y: auto;
-    margin-bottom: 15px;
-    padding-right: 5px;
-}
-
-.burger-player-list::-webkit-scrollbar {
-    width: 4px;
-}
-
-.burger-player-list::-webkit-scrollbar-thumb {
-    background: var(--neon-purple);
-    border-radius: 10px;
-}
-
-.burger-player-item {
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.03);
-    margin-bottom: 5px;
-    border-radius: 8px;
-    border-left: 3px solid var(--neon-blue);
-}
-
-.burger-balance {
-    background: rgba(255, 215, 0, 0.1);
-    border: 1px solid var(--gold);
-    border-radius: 10px;
-    padding: 10px;
-    margin-bottom: 15px;
-    text-align: center;
-    font-weight: bold;
-    color: var(--gold);
-}
-
 .burger-toggle-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 15px;
+    padding: 12px 0;
     background: rgba(255, 255, 255, 0.05);
     border-radius: 10px;
     margin-bottom: 10px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.burger-toggle-item select {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: var(--text-main);
+    padding: 8px 12px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.9rem;
+    width: 100%;
+    margin-top: 5px;
+}
+
+.burger-toggle-item select:focus {
+    outline: none;
+    border-color: var(--neon-blue);
 }
 
 .burger-footer {
@@ -385,36 +370,12 @@ input:focus, select:focus { outline: none; border-color: var(--neon-blue); box-s
 .input-group { margin-bottom: 20px; } 
 .form-label { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; color: var(--neon-blue); font-weight: 600; text-transform: uppercase; font-size: 0.9rem; }
 
-/* Quick Settings */
-.quick-settings {
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 15px;
-    padding: 20px;
-    margin: 20px 0;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.quick-settings h3 {
-    color: var(--neon-blue);
-    margin-bottom: 15px;
-    font-size: 1.2rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.quick-settings-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-}
-
 /* Checkbox Toggle Switch */
 .toggle-container { 
     display: flex; 
     align-items: center; 
     justify-content: space-between; 
-    margin-bottom: 20px; 
+    margin-bottom: 30px; 
     background: rgba(255,255,255,0.05); 
     padding: 15px; 
     border-radius: 10px; 
@@ -508,6 +469,18 @@ input:checked + .slider:before { transform: translateX(26px); }
 .hacker-item .btn-buy:hover:not(:disabled) { background: var(--hacker-green); color: #000; box-shadow: 0 0 15px var(--hacker-green); }
 .cosmetic-item .btn-buy:hover:not(:disabled) { background: var(--neon-purple); color: #fff; box-shadow: 0 0 15px var(--neon-purple); }
 .btn-buy:disabled { border-color: #555; color: #555; cursor: not-allowed; }
+
+/* დამატებული სტილები მაღაზიისთვის */
+.empty-shop-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    background: rgba(255,255,255,0.05);
+    border-radius: 15px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
 
 /* Game Modes */
 .game-modes-grid {
@@ -684,6 +657,16 @@ input:checked + .slider:before { transform: translateX(26px); }
     font-size: 0.9rem;
 }
 
+/* მთავარი გვერდის გამართვა */
+.toggle-container {
+    margin-top: 20px;
+    margin-bottom: 30px;
+}
+
+.start-game-section {
+    margin-top: 40px;
+}
+
 @media (max-width: 600px) {
     .logo h1 { font-size: 2.5rem; } 
     .burger-menu-content { width: 85%; right: -85%; }
@@ -691,7 +674,6 @@ input:checked + .slider:before { transform: translateX(26px); }
     .input-with-button { flex-direction: column; } 
     .shop-grid { grid-template-columns: 1fr 1fr; }
     .stats-grid { grid-template-columns: 1fr 1fr; }
-    .quick-settings-grid { grid-template-columns: 1fr; }
     .role-card { width: 100%; max-width: 280px; height: 350px; } 
     .timer { font-size: 3rem; } 
     .timer-container { width: 200px; height: 200px; } 
