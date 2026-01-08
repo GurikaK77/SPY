@@ -62,13 +62,13 @@
     </div>
 
     <!-- Burger Menu Overlay -->
-    <div id="burgerMenuOverlay" class="burger-overlay" onclick="toggleBurgerMenu()"></div>
+    <div id="burgerMenuOverlay" class="burger-overlay" onclick="closeBurgerMenu()"></div>
 
     <!-- Burger Menu Content -->
     <div id="burgerMenuContent" class="burger-menu-content">
         <div class="burger-header">
             <div class="burger-logo">SPY</div>
-            <button class="burger-close-btn" onclick="toggleBurgerMenu()">
+            <button class="burger-close-btn" onclick="closeBurgerMenu()">
                 <i class="fas fa-times"></i>
             </button>
         </div>
@@ -77,48 +77,102 @@
             <!-- Main Game Section -->
             <div class="burger-section">
                 <h4><i class="fas fa-gamepad"></i> მთავარი თამაში</h4>
-                <button class="burger-item" onclick="showPlayerInput(); toggleBurgerMenu()">
+                <button class="burger-item" onclick="closeBurgerMenu(); showPlayerInput();">
                     <i class="fas fa-home"></i> მთავარი გვერდი
                 </button>
-                <button class="burger-item" onclick="startGame(); toggleBurgerMenu()">
+                <button class="burger-item" onclick="closeBurgerMenu(); startGame();">
                     <i class="fas fa-play"></i> თამაშის დაწყება
                 </button>
-                <button class="burger-item" onclick="restartGame(false); toggleBurgerMenu()">
+                <button class="burger-item" onclick="closeBurgerMenu(); restartGame(false);">
                     <i class="fas fa-redo"></i> ახალი თამაში
                 </button>
             </div>
             
-            <!-- Quick Settings -->
+            <!-- Settings - UPDATED -->
             <div class="burger-section">
-                <h4><i class="fas fa-cog"></i> სწრაფი პარამეტრები</h4>
-                <div class="burger-toggle-item">
-                    <span>ჯაშუშები</span>
-                    <select id="burgerSpyCount" onchange="updateQuickSettings()">
-                        <option value="1">1 ჯაშუში</option>
-                        <option value="2">2 ჯაშუში</option>
-                        <option value="3">3 ჯაშუში</option>
-                    </select>
-                </div>
-                <div class="burger-toggle-item">
-                    <span>დრო</span>
-                    <select id="burgerTime" onchange="updateQuickSettings()">
-                        <option value="60">1 წუთი</option>
-                        <option value="120" selected>2 წუთი</option>
-                        <option value="180">3 წუთი</option>
-                    </select>
-                </div>
+                <details class="burger-settings-details">
+                    <summary><i class="fas fa-cog"></i> პარამეტრები</summary>
+                    <div class="burger-settings-content">
+                        <!-- Spy Count -->
+                        <div class="burger-toggle-item">
+                            <span>ჯაშუშები:</span>
+                            <select id="burgerSpyCount" onchange="updateQuickSettings()">
+                                <option value="1">1 ჯაშუში</option>
+                                <option value="2">2 ჯაშუში</option>
+                                <option value="3">3 ჯაშუში</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Detective Mode -->
+                        <div class="burger-toggle-item">
+                            <span>დეტექტივი:</span>
+                            <select id="burgerDetectiveCount" onchange="updateQuickSettings()">
+                                <option value="0">გამორთვა</option>
+                                <option value="1">1 დეტექტივი</option>
+                                <option value="2">2 დეტექტივი</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Timer Time -->
+                        <div class="burger-toggle-item">
+                            <span>დრო:</span>
+                            <select id="burgerTime" onchange="updateQuickSettings()">
+                                <option value="60">1 წუთი</option>
+                                <option value="120">2 წუთი</option>
+                                <option value="180">3 წუთი</option>
+                                <option value="300">5 წუთი</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Points System -->
+                        <div class="burger-toggle-item">
+                            <span>ქულების სისტემა:</span>
+                            <select id="burgerPointsSystem" onchange="updateQuickSettings()">
+                                <option value="enabled">ჩართვა</option>
+                                <option value="disabled">გამორთვა</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Player Order -->
+                        <div class="burger-toggle-item">
+                            <span>რიგი:</span>
+                            <select id="burgerPlayerOrder" onchange="updateQuickSettings()">
+                                <option value="sequential">თანმიმდევრობით</option>
+                                <option value="random">შემთხვევითი</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Game Mode -->
+                        <div class="burger-toggle-item">
+                            <span>თამაშის რეჟიმი:</span>
+                            <select id="burgerGameMode" onchange="updateQuickSettings()">
+                                <option value="normal">ნორმალური</option>
+                                <option value="blitz">ბლიცი</option>
+                                <option value="hardcore">რთული</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Categories -->
+                        <div class="burger-toggle-item">
+                            <span>კატეგორიები:</span>
+                            <div id="burgerCategories" class="burger-categories-list">
+                                <!-- Categories will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </details>
             </div>
             
             <!-- Settings Section -->
             <div class="burger-section">
-                <h4><i class="fas fa-cogs"></i> პარამეტრები</h4>
-                <button class="burger-item" onclick="showConfig(); toggleBurgerMenu()">
+                <h4><i class="fas fa-cogs"></i> სისტემა</h4>
+                <button class="burger-item" onclick="closeBurgerMenu(); showConfig();">
                     <i class="fas fa-sliders-h"></i> დეტალური პარამეტრები
                 </button>
-                <button class="burger-item" onclick="showCategories(); toggleBurgerMenu()">
+                <button class="burger-item" onclick="closeBurgerMenu(); showCategories();">
                     <i class="fas fa-list"></i> კატეგორიების არჩევა
                 </button>
-                <button class="burger-item" onclick="showGameModes(); toggleBurgerMenu()">
+                <button class="burger-item" onclick="closeBurgerMenu(); showGameModes();">
                     <i class="fas fa-gamepad"></i> თამაშის რეჟიმები
                 </button>
             </div>
@@ -126,7 +180,7 @@
             <!-- Shop & Economy -->
             <div class="burger-section">
                 <h4><i class="fas fa-store"></i> მაღაზია</h4>
-                <button class="burger-item" onclick="showShop(); toggleBurgerMenu()">
+                <button class="burger-item" onclick="closeBurgerMenu(); showShop();">
                     <i class="fas fa-shopping-cart"></i> მაღაზია
                 </button>
             </div>
@@ -134,10 +188,10 @@
             <!-- Statistics & Progress -->
             <div class="burger-section">
                 <h4><i class="fas fa-chart-line"></i> სტატისტიკა</h4>
-                <button class="burger-item" onclick="showStats(); toggleBurgerMenu()">
+                <button class="burger-item" onclick="closeBurgerMenu(); showStats();">
                     <i class="fas fa-chart-bar"></i> სტატისტიკა
                 </button>
-                <button class="burger-item" onclick="showChallenges(); toggleBurgerMenu()">
+                <button class="burger-item" onclick="closeBurgerMenu(); showChallenges();">
                     <i class="fas fa-tasks"></i> დღის დავალებები
                 </button>
             </div>
@@ -157,10 +211,10 @@
             <!-- Info & Help -->
             <div class="burger-section">
                 <h4><i class="fas fa-info-circle"></i> ინფორმაცია</h4>
-                <button class="burger-item" onclick="showInstructions(); toggleBurgerMenu()">
+                <button class="burger-item" onclick="closeBurgerMenu(); showInstructions();">
                     <i class="fas fa-question-circle"></i> როგორ ვითამაშოთ
                 </button>
-                <button class="burger-item" onclick="showAbout(); toggleBurgerMenu()">
+                <button class="burger-item" onclick="closeBurgerMenu(); showAbout();">
                     <i class="fas fa-info-circle"></i> ჩვენ შესახებ
                 </button>
             </div>
@@ -168,7 +222,7 @@
         
         <!-- Footer Actions -->
         <div class="burger-footer">
-            <button class="btn btn-sm btn-danger" onclick="clearAllData(); toggleBurgerMenu()">
+            <button class="btn btn-sm btn-danger" onclick="closeBurgerMenu(); clearAllData();">
                 <i class="fas fa-trash"></i> მონაცემების წაშლა
             </button>
         </div>
@@ -280,6 +334,11 @@
                     <option value="1">1 დეტექტივი</option>
                     <option value="2">2 დეტექტივი</option>
                 </select>
+            </div>
+
+            <div class="input-group">
+                <label class="form-label"><i class="fas fa-clock"></i> დრო (წამები):</label>
+                <input type="number" id="timeConfig" min="30" max="600" value="120">
             </div>
 
             <div class="input-group">
