@@ -217,6 +217,130 @@ body {
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* დამატებული სტილები ბურგერ მენიუსთვის */
+.burger-settings-details {
+    margin-bottom: 15px;
+}
+
+.burger-settings-details summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 12px 15px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+    font-weight: 600;
+    color: var(--neon-blue);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: var(--transition);
+}
+
+.burger-settings-details summary:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: var(--neon-purple);
+}
+
+.burger-settings-details summary::-webkit-details-marker {
+    display: none;
+}
+
+.burger-settings-details summary:after {
+    content: '▶';
+    margin-left: auto;
+    transition: transform 0.3s;
+}
+
+.burger-settings-details[open] summary:after {
+    transform: rotate(90deg);
+}
+
+.burger-settings-content {
+    padding: 15px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    margin-top: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.burger-settings-content .burger-toggle-item {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+}
+
+.burger-settings-content .burger-toggle-item:last-child {
+    margin-bottom: 0;
+}
+
+.burger-settings-content .burger-toggle-item span {
+    color: var(--text-main);
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.burger-settings-content select {
+    width: 100%;
+    padding: 8px 12px;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    color: var(--text-main);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.9rem;
+}
+
+.burger-settings-content select:focus {
+    outline: none;
+    border-color: var(--neon-blue);
+}
+
+.burger-categories-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 150px;
+    overflow-y: auto;
+    padding: 10px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+}
+
+.burger-categories-list label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-main);
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.burger-categories-list input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--neon-purple);
+}
+
+/* მობილური ეკრანისთვის */
+@media (max-width: 600px) {
+    .burger-settings-content {
+        padding: 10px;
+    }
+    
+    .burger-settings-content .burger-toggle-item {
+        padding: 8px;
+    }
+    
+    .burger-categories-list {
+        max-height: 120px;
+    }
+}
+
 /* --- Particles --- */
 .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
 .particle { position: absolute; background: var(--text-main); border-radius: 50%; opacity: 0.3; animation: floatUp linear infinite; will-change: transform, opacity; }
