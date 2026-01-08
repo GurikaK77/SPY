@@ -29,68 +29,121 @@ function createParticles() {
 function toggleBurgerMenu() {
     const menuContent = document.getElementById("burgerMenuContent");
     const overlay = document.getElementById("burgerMenuOverlay");
-    const menuBtn = document.getElementById("burgerMenuBtn");
     
     menuContent.classList.toggle("show");
     overlay.classList.toggle("show");
     
-    // Update burger menu content
-    updateBurgerMenu();
+    // Update burger menu content only when opening
+    if (menuContent.classList.contains("show")) {
+        updateBurgerMenu();
+    }
 }
 
+// Close burger menu function
+function closeBurgerMenu() {
+    const menuContent = document.getElementById("burgerMenuContent");
+    const overlay = document.getElementById("burgerMenuOverlay");
+    
+    menuContent.classList.remove("show");
+    overlay.classList.remove("show");
+}
+
+// Update burger menu to sync settings
 function updateBurgerMenu() {
-    // Update player list in burger menu
-    const burgerPlayerList = document.getElementById("burgerPlayerList");
-    burgerPlayerList.innerHTML = '';
+    // Update settings in burger menu
+    const burgerSpyCount = document.getElementById("burgerSpyCount");
+    const burgerTime = document.getElementById("burgerTime");
+    const burgerDetectiveCount = document.getElementById("burgerDetectiveCount");
+    const burgerPlayerOrder = document.getElementById("burgerPlayerOrder");
+    const burgerPointsSystem = document.getElementById("burgerPointsSystem");
+    const burgerGameMode = document.getElementById("burgerGameMode");
     
-    players.forEach((player, index) => {
-        const playerDiv = document.createElement("div");
-        playerDiv.className = "burger-player-item";
-        playerDiv.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span>${player.name}</span>
-                <div style="display: flex; gap: 5px;">
-                    <span style="color: var(--neon-blue); font-size: 0.8rem;">${player.points}ქ</span>
-                    <span style="color: var(--gold); font-size: 0.8rem;">${player.coins}🪙</span>
-                </div>
-            </div>
-        `;
-        burgerPlayerList.appendChild(playerDiv);
-    });
+    if (burgerSpyCount) burgerSpyCount.value = configState.spyCount;
+    if (burgerTime) burgerTime.value = configState.timePerRound || 120;
+    if (burgerDetectiveCount) burgerDetectiveCount.value = configState.detectiveCount || 0;
+    if (burgerPlayerOrder) burgerPlayerOrder.value = configState.playerOrder;
+    if (burgerPointsSystem) burgerPointsSystem.value = configState.pointsSystem;
+    if (burgerGameMode) burgerGameMode.value = currentGameMode;
     
-    // Update total balance
-    const totalBalance = players.reduce((sum, player) => sum + player.coins, 0);
-    document.getElementById("burgerBalance").textContent = totalBalance;
+    // Update categories checkboxes
+    updateBurgerCategories();
     
     // Update sound toggle
-    document.getElementById("burgerSoundToggle").checked = soundEnabled;
+    const burgerSoundToggle = document.getElementById("burgerSoundToggle");
+    if (burgerSoundToggle) {
+        burgerSoundToggle.checked = soundEnabled;
+    }
 }
 
-function addPlayerFromBurger() {
-    toggleBurgerMenu();
+// Update categories in burger menu
+function updateBurgerCategories() {
+    const burgerCategories = document.getElementById("burgerCategories");
+    if (!burgerCategories) return;
     
-    // Create a modal for adding player from burger menu
-    setTimeout(() => {
-        const name = prompt("შეიყვანეთ მოთამაშის სახელი:");
-        if (name && name.trim()) {
-            if (!players.some((p) => p.name === name.trim())) {
-                players.push({ 
-                    name: name.trim(), 
-                    points: 0, 
-                    coins: 10, 
-                    inventory: [],
-                    level: 1,
-                    xp: 0,
-                    cosmetics: []
-                });
-                updatePlayerList();
-                saveGameState();
-                showToast(`✅ ${name} დაემატა!`);
-            } else {
-                alert("მოთამაშე ამ სახელით უკვე არსებობს!");
+    // Clear existing checkboxes
+    burgerCategories.innerHTML = '';
+    
+    Object.keys(wordData).forEach(key => {
+        const label = document.createElement("label");
+        label.style.display = "block";
+        label.style.marginBottom = "5px";
+        
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.value = key;
+        checkbox.checked = configState.selectedCategories.includes(key);
+        checkbox.onchange = updateQuickSettings;
+        
+        const text = document.createTextNode(` ${categoryNames[key]}`);
+        
+        label.appendChild(checkbox);
+        label.appendChild(text);
+        burgerCategories.appendChild(label);
+    });
+}
+
+// Update quick settings from burger menu
+function updateQuickSettings() {
+    // Get values from burger menu
+    const burgerSpyCount = document.getElementById("burgerSpyCount");
+    const burgerTime = document.getElementById("burgerTime");
+    const burgerDetectiveCount = document.getElementById("burgerDetectiveCount");
+    const burgerPlayerOrder = document.getElementById("burgerPlayerOrder");
+    const burgerPointsSystem = document.getElementById("burgerPointsSystem");
+    const burgerGameMode = document.getElementById("burgerGameMode");
+    
+    if (burgerSpyCount && burgerTime && burgerDetectiveCount && burgerPlayerOrder && burgerPointsSystem && burgerGameMode) {
+        const spyCount = parseInt(burgerSpyCount.value);
+        const timePerRound = parseInt(burgerTime.value);
+        const detectiveCount = parseInt(burgerDetectiveCount.value);
+        const playerOrder = burgerPlayerOrder.value;
+        const pointsSystem = burgerPointsSystem.value;
+        const gameMode = burgerGameMode.value;
+        
+        // Update configState
+        configState.spyCount = spyCount;
+        configState.timePerRound = timePerRound;
+        configState.detectiveCount = detectiveCount;
+        configState.playerOrder = playerOrder;
+        configState.pointsSystem = pointsSystem;
+        
+        // Update game mode
+        currentGameMode = gameMode;
+        
+        // Update categories
+        const burgerCategories = document.getElementById("burgerCategories");
+        if (burgerCategories) {
+            const checkboxes = burgerCategories.querySelectorAll("input[type='checkbox']:checked");
+            configState.selectedCategories = Array.from(checkboxes).map(cb => cb.value);
+            if (configState.selectedCategories.length === 0) {
+                configState.selectedCategories = ["mix"];
             }
         }
-    }, 300);
+        
+        // Save and show notification
+        saveGameState();
+        showToast("⚙️ პარამეტრები განახლდა");
+    }
 }
 
 // Clear all data function
@@ -333,7 +386,8 @@ let configState = {
     pointsSystem: "enabled",
     manualEntry: true, 
     selectedCategories: ["mix"],
-    gameMode: "normal"
+    gameMode: "normal",
+    timePerRound: 120
 };
 
 // Word Data (გაფართოებული)
@@ -439,12 +493,23 @@ function loadGameState() {
         
         setActiveSection(state.activeSection);
         
-        document.getElementById('spyCount').value = configState.spyCount;
-        document.getElementById('detectiveCount').value = configState.detectiveCount;
-        document.getElementById('playerOrder').value = configState.playerOrder;
-        document.getElementById('pointsSystem').value = configState.pointsSystem;
-        document.getElementById('manualEntryToggle').checked = configState.manualEntry;
-        document.getElementById('manualEntryToggleConfig').checked = configState.manualEntry;
+        const spyCount = document.getElementById('spyCount');
+        if (spyCount) spyCount.value = configState.spyCount;
+        
+        const detectiveCount = document.getElementById('detectiveCount');
+        if (detectiveCount) detectiveCount.value = configState.detectiveCount;
+        
+        const playerOrder = document.getElementById('playerOrder');
+        if (playerOrder) playerOrder.value = configState.playerOrder;
+        
+        const pointsSystem = document.getElementById('pointsSystem');
+        if (pointsSystem) pointsSystem.value = configState.pointsSystem;
+        
+        const manualEntryToggle = document.getElementById('manualEntryToggle');
+        if (manualEntryToggle) manualEntryToggle.checked = configState.manualEntry;
+        
+        const manualEntryToggleConfig = document.getElementById('manualEntryToggleConfig');
+        if (manualEntryToggleConfig) manualEntryToggleConfig.checked = configState.manualEntry;
 
         return true;
     } catch (e) { console.error(e); return false; }
@@ -455,10 +520,12 @@ function clearGameState() { localStorage.removeItem('spyGameState'); }
 // --- SCREEN & TOAST ---
 function showToast(message) {
     const toast = document.getElementById("toastMessage");
-    toast.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
-    toast.classList.add("show");
-    if(navigator.vibrate) navigator.vibrate(50);
-    setTimeout(() => { toast.classList.remove("show"); }, 2000);
+    if (toast) {
+        toast.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+        toast.classList.add("show");
+        if(navigator.vibrate) navigator.vibrate(50);
+        setTimeout(() => { toast.classList.remove("show"); }, 2000);
+    }
 }
 
 function showReadyScreen() {
@@ -467,33 +534,48 @@ function showReadyScreen() {
         document.getElementById("loadingScreen").style.display = "none"; 
         return; 
     }
-    document.getElementById("loadingScreen").style.opacity = "0";
-    setTimeout(() => {
-        document.getElementById("loadingScreen").style.display = "none";
-        document.getElementById("readyScreen").style.display = "flex";
-        setTimeout(() => { document.getElementById("readyScreen").style.opacity = "1"; }, 50);
-    }, 500);
+    const loadingScreen = document.getElementById("loadingScreen");
+    if (loadingScreen) {
+        loadingScreen.style.opacity = "0";
+        setTimeout(() => {
+            loadingScreen.style.display = "none";
+            const readyScreen = document.getElementById("readyScreen");
+            if (readyScreen) {
+                readyScreen.style.display = "flex";
+                setTimeout(() => { readyScreen.style.opacity = "1"; }, 50);
+            }
+        }, 500);
+    }
 }
 
 function showMainPage() {
     audioSystem.playSound('click');
-    document.getElementById("readyScreen").style.opacity = "0";
-    setTimeout(() => {
-        document.getElementById("readyScreen").style.display = "none";
-        document.getElementById("transitionScreen").style.display = "flex";
-        setTimeout(() => { document.getElementById("transitionScreen").style.opacity = "1"; }, 50);
+    const readyScreen = document.getElementById("readyScreen");
+    if (readyScreen) {
+        readyScreen.style.opacity = "0";
         setTimeout(() => {
-            document.getElementById("transitionScreen").style.opacity = "0";
-            setTimeout(() => {
-                document.getElementById("transitionScreen").style.display = "none";
-                document.getElementById("mainContent").style.display = "block";
-                setTimeout(() => { 
-                    document.getElementById("mainContent").style.opacity = "1"; 
-                    showPlayerInput(); 
-                }, 50);
-            }, 500);
-        }, 1000);
-    }, 500);
+            readyScreen.style.display = "none";
+            const transitionScreen = document.getElementById("transitionScreen");
+            if (transitionScreen) {
+                transitionScreen.style.display = "flex";
+                setTimeout(() => { transitionScreen.style.opacity = "1"; }, 50);
+                setTimeout(() => {
+                    transitionScreen.style.opacity = "0";
+                    setTimeout(() => {
+                        transitionScreen.style.display = "none";
+                        const mainContent = document.getElementById("mainContent");
+                        if (mainContent) {
+                            mainContent.style.display = "block";
+                            setTimeout(() => { 
+                                mainContent.style.opacity = "1"; 
+                                showPlayerInput(); 
+                            }, 50);
+                        }
+                    }, 500);
+                }, 1000);
+            }
+        }, 500);
+    }
 }
 
 function setActiveSection(activeId) {
@@ -505,16 +587,20 @@ function setActiveSection(activeId) {
     const showLogo = ['playerInput', 'shopSection', 'statsSection', 'challengesSection', 
                      'instructionsSection', 'aboutSection', 'configSection',
                      'categoriesSection', 'gameModesSection'].includes(activeId);
-    logoArea.style.display = showLogo ? 'block' : 'none';
+    if (logoArea) {
+        logoArea.style.display = showLogo ? 'block' : 'none';
+    }
 
     sections.forEach(id => {
         const section = document.getElementById(id);
-        if (id === activeId) { 
-            section.style.display = "block"; 
-            section.classList.add("active"); 
-        } else { 
-            section.style.display = "none"; 
-            section.classList.remove("active"); 
+        if (section) {
+            if (id === activeId) { 
+                section.style.display = "block"; 
+                section.classList.add("active"); 
+            } else { 
+                section.style.display = "none"; 
+                section.classList.remove("active"); 
+            }
         }
     });
     
@@ -580,11 +666,23 @@ function updateInputMode() {
 
 function showConfig() {
     audioSystem.playSound('click');
-    document.getElementById('spyCountConfig').value = configState.spyCount;
-    document.getElementById('detectiveCount').value = configState.detectiveCount;
-    document.getElementById('playerOrder').value = configState.playerOrder;
-    document.getElementById('pointsSystem').value = configState.pointsSystem;
-    document.getElementById('manualEntryToggleConfig').checked = configState.manualEntry;
+    const spyCountConfig = document.getElementById('spyCountConfig');
+    if (spyCountConfig) spyCountConfig.value = configState.spyCount;
+    
+    const detectiveCount = document.getElementById('detectiveCount');
+    if (detectiveCount) detectiveCount.value = configState.detectiveCount;
+    
+    const playerOrder = document.getElementById('playerOrder');
+    if (playerOrder) playerOrder.value = configState.playerOrder;
+    
+    const pointsSystem = document.getElementById('pointsSystem');
+    if (pointsSystem) pointsSystem.value = configState.pointsSystem;
+    
+    const manualEntryToggleConfig = document.getElementById('manualEntryToggleConfig');
+    if (manualEntryToggleConfig) manualEntryToggleConfig.checked = configState.manualEntry;
+    
+    const timeConfig = document.getElementById('timeConfig');
+    if (timeConfig) timeConfig.value = configState.timePerRound || 120;
     
     updateInputMode();
     setActiveSection('configSection');
@@ -593,6 +691,8 @@ function showConfig() {
 function showCategories() {
     audioSystem.playSound('click');
     const container = document.getElementById("categoriesContainer");
+    if (!container) return;
+    
     container.innerHTML = "";
     
     Object.keys(wordData).forEach(key => {
@@ -624,7 +724,8 @@ function showGameModes() {
     });
     
     // Add active class to current mode
-    const currentModeCard = document.querySelector(`.game-mode-card:nth-child(${currentGameMode === 'normal' ? 1 : currentGameMode === 'blitz' ? 2 : 3})`);
+    const modeIndex = currentGameMode === 'normal' ? 1 : currentGameMode === 'blitz' ? 2 : 3;
+    const currentModeCard = document.querySelector(`.game-mode-card:nth-child(${modeIndex})`);
     if (currentModeCard) {
         currentModeCard.classList.add('active');
     }
@@ -634,15 +735,26 @@ function showGameModes() {
 
 function saveConfig() {
     audioSystem.playSound('click');
-    configState.spyCount = parseInt(document.getElementById("spyCountConfig").value);
-    configState.detectiveCount = parseInt(document.getElementById("detectiveCount").value);
-    configState.playerOrder = document.getElementById("playerOrder").value;
-    configState.manualEntry = document.getElementById("manualEntryToggleConfig").checked;
+    const spyCountConfig = document.getElementById("spyCountConfig");
+    if (spyCountConfig) configState.spyCount = parseInt(spyCountConfig.value);
+    
+    const detectiveCount = document.getElementById("detectiveCount");
+    if (detectiveCount) configState.detectiveCount = parseInt(detectiveCount.value);
+    
+    const playerOrder = document.getElementById("playerOrder");
+    if (playerOrder) configState.playerOrder = playerOrder.value;
+    
+    const manualEntryToggleConfig = document.getElementById("manualEntryToggleConfig");
+    if (manualEntryToggleConfig) configState.manualEntry = manualEntryToggleConfig.checked;
+    
+    const timeConfig = document.getElementById("timeConfig");
+    if (timeConfig) configState.timePerRound = parseInt(timeConfig.value) || 120;
     
     if(!configState.manualEntry) {
         configState.pointsSystem = "disabled";
     } else {
-        configState.pointsSystem = document.getElementById("pointsSystem").value;
+        const pointsSystem = document.getElementById("pointsSystem");
+        if (pointsSystem) configState.pointsSystem = pointsSystem.value;
     }
     
     updateInputMode();
@@ -677,7 +789,8 @@ function selectGameMode(mode) {
         card.classList.remove('active');
     });
     
-    const selectedCard = document.querySelector(`.game-mode-card:nth-child(${mode === 'normal' ? 1 : mode === 'blitz' ? 2 : 3})`);
+    const modeIndex = mode === 'normal' ? 1 : mode === 'blitz' ? 2 : 3;
+    const selectedCard = document.querySelector(`.game-mode-card:nth-child(${modeIndex})`);
     if (selectedCard) {
         selectedCard.classList.add('active');
     }
@@ -692,12 +805,16 @@ function saveGameMode() {
 }
 
 function loadConfigFromUI() {
-    configState.spyCount = parseInt(document.getElementById("spyCount").value);
+    const spyCount = document.getElementById("spyCount");
+    if (spyCount) configState.spyCount = parseInt(spyCount.value);
 }
 
 function addPlayer() {
     audioSystem.playSound('click');
-    let name = document.getElementById("playerName").value.trim();
+    const playerNameInput = document.getElementById("playerName");
+    if (!playerNameInput) return;
+    
+    let name = playerNameInput.value.trim();
     if (name && !players.some((p) => p.name === name)) {
         players.push({ 
             name: name, 
@@ -709,7 +826,7 @@ function addPlayer() {
             cosmetics: []
         });
         updatePlayerList();
-        document.getElementById("playerName").value = "";
+        playerNameInput.value = "";
         updatePlayerCountInfo();
         saveGameState();
         showToast(`✅ ${name} დაემატა`);
@@ -895,12 +1012,15 @@ function showShop() {
     audioSystem.playSound('click');
     setActiveSection('shopSection');
     const select = document.getElementById("shopPlayerSelect");
+    if (!select) return;
+    
     select.innerHTML = "";
     if (players.length === 0) {
         let opt = document.createElement("option"); 
         opt.textContent = "ჯერ დაამატეთ მოთამაშეები"; 
         select.appendChild(opt);
-        document.getElementById("shopItemsGrid").innerHTML = ""; 
+        const shopItemsGrid = document.getElementById("shopItemsGrid");
+        if (shopItemsGrid) shopItemsGrid.innerHTML = ""; 
         return;
     }
     players.forEach((p, index) => {
@@ -909,6 +1029,9 @@ function showShop() {
         opt.textContent = p.name; 
         select.appendChild(opt);
     });
+    
+    // Select first player by default
+    select.selectedIndex = 0;
     renderShopItems();
 }
 
@@ -917,8 +1040,11 @@ function renderShopItems() {
     const player = players[playerIndex];
     const grid = document.getElementById("shopItemsGrid");
     
-    if (!player) return;
-    document.getElementById("shopBalance").textContent = player.coins;
+    if (!player || !grid) return;
+    
+    const shopBalance = document.getElementById("shopBalance");
+    if (shopBalance) shopBalance.textContent = player.coins;
+    
     grid.innerHTML = "";
 
     shopItems.forEach(item => {
@@ -954,7 +1080,7 @@ function buyItem(itemId, playerIndex) {
     audioSystem.playSound('purchase');
     const player = players[playerIndex];
     const item = shopItems.find(i => i.id === itemId);
-    if (player.coins >= item.price) {
+    if (player && item && player.coins >= item.price) {
         player.coins -= item.price;
         if (item.type === 'instant') {
             player.points += item.effectValue;
@@ -1001,7 +1127,10 @@ function startGame() {
     
     // Handling Auto Mode
     if (!configState.manualEntry) {
-        const count = parseInt(document.getElementById("totalPlayersCount").value);
+        const totalPlayersCount = document.getElementById("totalPlayersCount");
+        if (!totalPlayersCount) return;
+        
+        const count = parseInt(totalPlayersCount.value);
         if (count < 3) { alert("მინიმუმ 3 მოთამაშე!"); return; }
         players = [];
         for (let i = 1; i <= count; i++) {
@@ -1019,10 +1148,9 @@ function startGame() {
         if (players.length < 3) { alert("მინიმუმ 3 მოთამაშე უნდა იყოს!"); return; }
     }
 
-    // Get game mode settings
-    const mode = GAME_MODES[currentGameMode];
-    let spyCount = mode.spies;
-    let detectiveCount = mode.detectives;
+    // Use settings from configState
+    let spyCount = configState.spyCount;
+    let detectiveCount = configState.detectiveCount;
     isDetectiveMode = detectiveCount > 0;
     isPointsEnabled = configState.pointsSystem === "enabled";
     
@@ -1047,6 +1175,7 @@ function startGame() {
         spyIndices.push(randomIndex);
         roles[randomIndex] = "Spy";
     }
+    
     if (isDetectiveMode) {
         let availableIndices = indices.filter(idx => !spyIndices.includes(idx));
         for (let i = 0; i < detectiveCount; i++) {
@@ -1069,15 +1198,34 @@ function startGame() {
 }
 
 function updateTurnDisplay() {
-    document.getElementById("playerTurn").textContent = `${players[currentIndex].name}`;
-    document.getElementById("currentPlayer").textContent = `${currentIndex + 1} / ${players.length}`;
+    const playerTurn = document.getElementById("playerTurn");
+    const currentPlayer = document.getElementById("currentPlayer");
     const roleCard = document.getElementById("roleCard");
-    roleCard.classList.remove("flipped");
-    document.getElementById("nextPlayerBtn").style.display = "none";
-    document.getElementById("roleCardFront").innerHTML = `
-        <div class="role-icon"><i class="fas fa-fingerprint"></i></div>
-        <div class="role-text" style="font-size:1rem; margin-top:10px">დააჭირე როლის სანახავად</div>
-    `;
+    const nextPlayerBtn = document.getElementById("nextPlayerBtn");
+    const roleCardFront = document.getElementById("roleCardFront");
+    
+    if (playerTurn && players[currentIndex]) {
+        playerTurn.textContent = `${players[currentIndex].name}`;
+    }
+    
+    if (currentPlayer) {
+        currentPlayer.textContent = `${currentIndex + 1} / ${players.length}`;
+    }
+    
+    if (roleCard) {
+        roleCard.classList.remove("flipped");
+    }
+    
+    if (nextPlayerBtn) {
+        nextPlayerBtn.style.display = "none";
+    }
+    
+    if (roleCardFront) {
+        roleCardFront.innerHTML = `
+            <div class="role-icon"><i class="fas fa-fingerprint"></i></div>
+            <div class="role-text" style="font-size:1rem; margin-top:10px">დააჭირე როლის სანახავად</div>
+        `;
+    }
 }
 
 function revealRole() {
@@ -1088,25 +1236,35 @@ function revealRole() {
         if (role === "Spy") navigator.vibrate([100, 50, 100, 50, 500]); 
         else navigator.vibrate(50); 
     }
-    roleCard.classList.add("flipped");
-    const roleCardBack = document.getElementById("roleCardBack");
-    if (role === "Spy") {
-        roleCardBack.innerHTML = `
-            <div class="role-icon"><i class="fas fa-user-secret"></i></div>
-            <div class="role-text spy-text">ჯაშუში</div>
-        `;
-    } else if (role === "Detective") {
-        roleCardBack.innerHTML = `
-            <div class="role-icon"><i class="fas fa-search"></i></div>
-            <div class="role-text detektivi">დეტექტივი</div>
-        `;
-    } else {
-        roleCardBack.innerHTML = `
-            <div class="role-icon"><i class="fas fa-user"></i></div>
-            <div class="role-text">სიტყვა: <span class="sityva">${chosenWord}</span></div>
-        `;
+    
+    if (roleCard) {
+        roleCard.classList.add("flipped");
     }
-    document.getElementById("nextPlayerBtn").style.display = "block";
+    
+    const roleCardBack = document.getElementById("roleCardBack");
+    if (roleCardBack) {
+        if (role === "Spy") {
+            roleCardBack.innerHTML = `
+                <div class="role-icon"><i class="fas fa-user-secret"></i></div>
+                <div class="role-text spy-text">ჯაშუში</div>
+            `;
+        } else if (role === "Detective") {
+            roleCardBack.innerHTML = `
+                <div class="role-icon"><i class="fas fa-search"></i></div>
+                <div class="role-text detektivi">დეტექტივი</div>
+            `;
+        } else {
+            roleCardBack.innerHTML = `
+                <div class="role-icon"><i class="fas fa-user"></i></div>
+                <div class="role-text">სიტყვა: <span class="sityva">${chosenWord}</span></div>
+            `;
+        }
+    }
+    
+    const nextPlayerBtn = document.getElementById("nextPlayerBtn");
+    if (nextPlayerBtn) {
+        nextPlayerBtn.style.display = "block";
+    }
 }
 
 function nextPlayer() {
@@ -1117,17 +1275,21 @@ function nextPlayer() {
         saveGameState(); 
     } else {
         setActiveSection('gameSection');
-        document.getElementById("helperText").textContent = "";
-        if (isPointsEnabled) { 
-            document.getElementById("pointsDisplay").style.display = "block"; 
-            updatePointsDisplay(); 
-        } else { 
-            document.getElementById("pointsDisplay").style.display = "none"; 
+        const helperText = document.getElementById("helperText");
+        if (helperText) helperText.textContent = "";
+        
+        const pointsDisplay = document.getElementById("pointsDisplay");
+        if (pointsDisplay) {
+            if (isPointsEnabled) { 
+                pointsDisplay.style.display = "block"; 
+                updatePointsDisplay(); 
+            } else { 
+                pointsDisplay.style.display = "none"; 
+            }
         }
         
-        // Set timer based on game mode
-        const mode = GAME_MODES[currentGameMode];
-        timeLeft = mode.time;
+        // Set timer based on configState
+        timeLeft = configState.timePerRound || 120;
         startTimer();
         saveGameState();
     }
@@ -1135,7 +1297,7 @@ function nextPlayer() {
 
 // --- TIMER & HELPER ---
 function startTimer() {
-    timeLeft = GAME_MODES[currentGameMode].time;
+    timeLeft = configState.timePerRound || 120;
     updateTimerDisplay(timeLeft);
     preventScreenOff();
     
@@ -1156,11 +1318,13 @@ function generateHelperQuestion() {
     updateChallenge(CHALLENGE_TYPES.USE_HELPER);
     const q = helperQuestions[Math.floor(Math.random() * helperQuestions.length)];
     const textEl = document.getElementById("helperText");
-    textEl.style.opacity = 0;
-    setTimeout(() => { 
-        textEl.textContent = q; 
-        textEl.style.opacity = 1; 
-    }, 200);
+    if (textEl) {
+        textEl.style.opacity = 0;
+        setTimeout(() => { 
+            textEl.textContent = q; 
+            textEl.style.opacity = 1; 
+        }, 200);
+    }
 }
 
 function formatTime(time) {
@@ -1170,18 +1334,21 @@ function formatTime(time) {
 }
 
 function updateTimerDisplay(time) { 
-    document.getElementById("timer").textContent = formatTime(time); 
+    const timer = document.getElementById("timer");
+    if (timer) timer.textContent = formatTime(time); 
 }
 
 function showTimerEndSignal() {
     audioSystem.playSound('timerEnd');
     const signal = document.getElementById("timerEndSignal");
-    signal.style.display = "flex";
-    if (navigator.vibrate) navigator.vibrate([500, 200, 500]);
-    setTimeout(() => { 
-        signal.style.display = "none"; 
-        endGame(); 
-    }, 3000);
+    if (signal) {
+        signal.style.display = "flex";
+        if (navigator.vibrate) navigator.vibrate([500, 200, 500]);
+        setTimeout(() => { 
+            signal.style.display = "none"; 
+            endGame(); 
+        }, 3000);
+    }
 }
 
 // --- POINTS SYSTEM ---
@@ -1241,12 +1408,15 @@ function calculatePoints(outcome) {
 function updatePointsDisplay() {
     if (!isPointsEnabled) return;
     
+    const pointsDisplay = document.getElementById("pointsDisplay");
+    if (!pointsDisplay) return;
+    
     let pointsHtml = "";
     players.forEach((p) => {
         let itemsHtml = p.inventory ? p.inventory.map(i => i.icon).join(' ') : '';
         pointsHtml += `<span>${p.name}: ${p.points} ${itemsHtml}</span> | `;
     });
-    document.getElementById("pointsDisplay").innerHTML = pointsHtml.slice(0, -2);
+    pointsDisplay.innerHTML = pointsHtml.slice(0, -2);
 }
 
 function endGame() { 
@@ -1265,6 +1435,8 @@ function showFindSpySection() {
     saveGameState();
     
     let select = document.getElementById("findSpySelect"); 
+    if (!select) return;
+    
     select.innerHTML = "";
     
     players.forEach((p, i) => {
@@ -1284,17 +1456,26 @@ function showFindSpySection() {
     if (isDetectiveMode) {
         const detectives = roles.map((r, i) => (r === "Detective" ? players[i].name : null)).filter(Boolean);
         const detectiveNames = detectives.join(", ");
-        document.querySelector("#findSpySection .result-title").textContent = "დეტექტივი, ეძებე ჯაშუში!";
-        document.querySelector("#findSpySection p").innerHTML = `<strong>${detectiveNames}</strong> - დეტექტივმა აირჩიოს ჯაშუში:`;
+        const findSpyTitle = document.querySelector("#findSpySection .result-title");
+        const findSpyDescription = document.querySelector("#findSpySection p");
+        
+        if (findSpyTitle) findSpyTitle.textContent = "დეტექტივი, ეძებე ჯაშუში!";
+        if (findSpyDescription) findSpyDescription.innerHTML = `<strong>${detectiveNames}</strong> - დეტექტივმა აირჩიოს ჯაშუში:`;
     } else {
-        document.querySelector("#findSpySection .result-title").textContent = "მოთამაშეები ეძებენ ჯაშუშს";
-        document.querySelector("#findSpySection p").textContent = "ვინ არის ჯაშუში?";
+        const findSpyTitle = document.querySelector("#findSpySection .result-title");
+        const findSpyDescription = document.querySelector("#findSpySection p");
+        
+        if (findSpyTitle) findSpyTitle.textContent = "მოთამაშეები ეძებენ ჯაშუშს";
+        if (findSpyDescription) findSpyDescription.textContent = "ვინ არის ჯაშუში?";
     }
 }
 
 function makePlayerGuess() {
     audioSystem.playSound('click');
-    let guessIndex = parseInt(document.getElementById("findSpySelect").value);
+    const findSpySelect = document.getElementById("findSpySelect");
+    if (!findSpySelect) return;
+    
+    let guessIndex = parseInt(findSpySelect.value);
     if (isNaN(guessIndex)) {
         alert("გთხოვთ აირჩიოთ მოთამაშე!");
         return;
@@ -1310,7 +1491,8 @@ function makePlayerGuess() {
 function handleDetectiveGuess(guessIndex) {
     const isGuessCorrect = roles[guessIndex] === "Spy";
     let resultText = isGuessCorrect ? "დეტექტივმა მოიგო!" : "ჯაშუშებმა მოიგეს!";
-    document.getElementById("resultText").textContent = resultText;
+    const resultTextEl = document.getElementById("resultText");
+    if (resultTextEl) resultTextEl.textContent = resultText;
     
     if (isPointsEnabled) {
         calculatePoints(isGuessCorrect ? 'civilian' : 'spy');
@@ -1322,7 +1504,8 @@ function handleDetectiveGuess(guessIndex) {
 function handleRegularGuess(guessIndex) {
     const isGuessCorrect = roles[guessIndex] === "Spy";
     let resultText = isGuessCorrect ? "ჯაშუში გამოიცნეს! მოქალაქეებმა მოიგეს!" : "ჯაშუშმა მოიგო!";
-    document.getElementById("resultText").textContent = resultText;
+    const resultTextEl = document.getElementById("resultText");
+    if (resultTextEl) resultTextEl.textContent = resultText;
     
     if (isPointsEnabled) {
         calculatePoints(isGuessCorrect ? 'civilian' : 'spy');
@@ -1339,21 +1522,28 @@ function revealSpies() {
     let detectiveText = detectives.length > 0 ? ` (დეტექტივები: ${detectives.join(", ")})` : "";
 
     const resultDisplay = document.getElementById("resultDisplay");
-    resultDisplay.innerHTML = `
-        <div class="spy-reveal-container">
-            <div class="spy-label">ჯაშუში არის</div>
-            <div class="spy-name-big">${spiesText}</div>
-        </div>
-        ${detectives.length > 0 ? `<div style="margin-top:20px; color:#aaa">${detectiveText}</div>` : ''}
-    `;
-    document.getElementById("wordDisplay").textContent = `საიდუმლო სიტყვა: ${chosenWord}`;
+    if (resultDisplay) {
+        resultDisplay.innerHTML = `
+            <div class="spy-reveal-container">
+                <div class="spy-label">ჯაშუში არის</div>
+                <div class="spy-name-big">${spiesText}</div>
+            </div>
+            ${detectives.length > 0 ? `<div style="margin-top:20px; color:#aaa">${detectiveText}</div>` : ''}
+        `;
+    }
+    
+    const wordDisplay = document.getElementById("wordDisplay");
+    if (wordDisplay) wordDisplay.textContent = `საიდუმლო სიტყვა: ${chosenWord}`;
+    
+    const resultText = document.getElementById("resultText");
+    const showPointsBtn = document.getElementById("showPointsBtn");
     
     if(!isPointsEnabled) {
-        document.getElementById("resultText").style.display = 'none';
-        document.getElementById("showPointsBtn").style.display = 'none';
+        if (resultText) resultText.style.display = 'none';
+        if (showPointsBtn) showPointsBtn.style.display = 'none';
     } else {
-        document.getElementById("resultText").style.display = 'block';
-        document.getElementById("showPointsBtn").style.display = 'inline-flex';
+        if (resultText) resultText.style.display = 'block';
+        if (showPointsBtn) showPointsBtn.style.display = 'inline-flex';
     }
 
     setActiveSection('resultSection');
@@ -1365,6 +1555,8 @@ function showFinalPoints() {
     if (!isPointsEnabled) return;
     let modal = document.getElementById("finalPointsModal");
     let content = document.getElementById("finalPointsContent");
+    if (!modal || !content) return;
+    
     content.innerHTML = "";
     
     const sortedPlayers = [...players].sort((a, b) => b.points - a.points);
@@ -1394,13 +1586,16 @@ function showFinalPoints() {
 
 function closeModal(id) { 
     audioSystem.playSound('click');
-    document.getElementById(id).style.display = "none"; 
+    const modal = document.getElementById(id);
+    if (modal) modal.style.display = "none"; 
 }
 
 function restartGame(sameConfig) {
     audioSystem.playSound('click');
     clearInterval(timerInterval);
-    document.getElementById("timer").textContent = formatTime(GAME_MODES[currentGameMode].time);
+    
+    const timer = document.getElementById("timer");
+    if (timer) timer.textContent = formatTime(configState.timePerRound || 120);
     
     if (sameConfig) {
         if (configState.playerOrder === "sequential" && players.length > 0) {
