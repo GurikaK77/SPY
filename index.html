@@ -88,22 +88,32 @@
                 </button>
             </div>
             
-            <!-- Players Section -->
+            <!-- Quick Settings -->
             <div class="burger-section">
-                <h4><i class="fas fa-users"></i> მოთამაშეები</h4>
-                <div class="burger-player-list" id="burgerPlayerList">
-                    <!-- Players loaded here -->
+                <h4><i class="fas fa-cog"></i> სწრაფი პარამეტრები</h4>
+                <div class="burger-toggle-item">
+                    <span>ჯაშუშები</span>
+                    <select id="burgerSpyCount" onchange="updateQuickSettings()">
+                        <option value="1">1 ჯაშუში</option>
+                        <option value="2">2 ჯაშუში</option>
+                        <option value="3">3 ჯაშუში</option>
+                    </select>
                 </div>
-                <button class="burger-item" onclick="addPlayerFromBurger(); toggleBurgerMenu()">
-                    <i class="fas fa-user-plus"></i> ახალი მოთამაშე
-                </button>
+                <div class="burger-toggle-item">
+                    <span>დრო</span>
+                    <select id="burgerTime" onchange="updateQuickSettings()">
+                        <option value="60">1 წუთი</option>
+                        <option value="120" selected>2 წუთი</option>
+                        <option value="180">3 წუთი</option>
+                    </select>
+                </div>
             </div>
             
             <!-- Settings Section -->
             <div class="burger-section">
                 <h4><i class="fas fa-cogs"></i> პარამეტრები</h4>
                 <button class="burger-item" onclick="showConfig(); toggleBurgerMenu()">
-                    <i class="fas fa-sliders-h"></i> თამაშის პარამეტრები
+                    <i class="fas fa-sliders-h"></i> დეტალური პარამეტრები
                 </button>
                 <button class="burger-item" onclick="showCategories(); toggleBurgerMenu()">
                     <i class="fas fa-list"></i> კატეგორიების არჩევა
@@ -116,9 +126,6 @@
             <!-- Shop & Economy -->
             <div class="burger-section">
                 <h4><i class="fas fa-store"></i> მაღაზია</h4>
-                <div class="burger-balance">
-                    <i class="fas fa-coins"></i> სულ მონეტები: <span id="burgerBalance">0</span>
-                </div>
                 <button class="burger-item" onclick="showShop(); toggleBurgerMenu()">
                     <i class="fas fa-shopping-cart"></i> მაღაზია
                 </button>
@@ -180,13 +187,6 @@
         
         <!-- Player Input Section -->
         <div id="playerInput" class="section active">
-            <div class="section-header-main">
-                <h2><i class="fas fa-user-plus"></i> მოთამაშეების დამატება</h2>
-                <p class="players-count-info" id="playersCountInfo">
-                    მოთამაშეები: <span>0</span> (მინიმუმ 3)
-                </p>
-            </div>
-            
             <!-- Input Mode Toggle -->
             <div class="toggle-container">
                 <label>მოთამაშის ხელით დამატება</label>
@@ -214,29 +214,6 @@
                         <i class="fas fa-users"></i> მოთამაშეების რაოდენობა:
                     </label>
                     <input type="number" id="totalPlayersCount" min="3" max="20" value="5" />
-                </div>
-            </div>
-
-            <!-- Quick Settings -->
-            <div class="quick-settings">
-                <h3><i class="fas fa-cog"></i> სწრაფი პარამეტრები</h3>
-                <div class="quick-settings-grid">
-                    <div class="input-group">
-                        <label class="form-label"><i class="fas fa-user-secret"></i> ჯაშუშები:</label>
-                        <select id="spyCount">
-                            <option value="1">1 ჯაშუში</option>
-                            <option value="2">2 ჯაშუში</option>
-                            <option value="3">3 ჯაშუში</option>
-                        </select>
-                    </div>
-                    <div class="input-group">
-                        <label class="form-label"><i class="fas fa-clock"></i> დრო:</label>
-                        <select id="gameTime">
-                            <option value="120">2 წუთი</option>
-                            <option value="60">1 წუთი</option>
-                            <option value="180">3 წუთი</option>
-                        </select>
-                    </div>
                 </div>
             </div>
 
