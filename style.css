@@ -1,14 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap');
 
 :root {
+    /* Standard Theme (Cyber Noir) */
     --bg-dark: #050510;
     --bg-panel: rgba(20, 20, 35, 0.6);
     --neon-purple: #bc13fe;
     --neon-blue: #00f3ff;
     --neon-pink: #ff0055;
     --gold: #ffd700;
-    --gold-glow: #ffaa00;
-    --hacker-green: #0f0;
     --text-main: #ffffff;
     --text-muted: #a0a0c0;
     --glass-border: 1px solid rgba(255, 255, 255, 0.1);
@@ -17,6 +16,45 @@
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --success: #00ff88;
     --warning: #ffaa00;
+    --hacker-green: #0f0;
+}
+
+/* Halloween Theme */
+.theme-halloween {
+    --bg-dark: #120505;
+    --bg-panel: rgba(40, 10, 5, 0.6);
+    --neon-purple: #ff6600; /* Pumpkin Orange */
+    --neon-blue: #8800ff;   /* Purple */
+    --neon-pink: #ff0000;   /* Blood Red */
+    --text-muted: #c08080;
+}
+
+/* Christmas Theme */
+.theme-christmas {
+    --bg-dark: #021a0f;
+    --bg-panel: rgba(10, 40, 20, 0.6);
+    --neon-purple: #ff0000; /* Red */
+    --neon-blue: #00ff00;   /* Green */
+    --neon-pink: #ffffff;   /* Snow */
+    --gold: #ffcc00;
+}
+
+/* Cyberpunk Theme (More Intense) */
+.theme-cyberpunk {
+    --bg-dark: #000000;
+    --bg-panel: rgba(0, 20, 20, 0.8);
+    --neon-purple: #f0f;
+    --neon-blue: #0ff;
+    --neon-pink: #ffea00; /* Yellow */
+}
+
+/* Fantasy Theme */
+.theme-fantasy {
+    --bg-dark: #1a0f05;
+    --bg-panel: rgba(40, 30, 10, 0.6);
+    --neon-purple: #c0a040; /* Gold/Bronze */
+    --neon-blue: #4080ff;   /* Magic Blue */
+    --neon-pink: #aa40ff;   /* Arcane */
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -32,10 +70,16 @@
 
 body {
     background-color: var(--bg-dark);
+    /* Transition background for theme switching */
+    transition: background-color 0.5s ease;
     background-image: radial-gradient(circle at 10% 20%, rgba(188, 19, 254, 0.15) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(0, 243, 255, 0.15) 0%, transparent 40%);
     color: var(--text-main); font-family: 'Rajdhani', sans-serif; font-size: 16px; min-height: 100vh; overflow-x: hidden; line-height: 1.6;
     overscroll-behavior-y: none;
 }
+
+/* Theme Background Overrides */
+.theme-halloween body { background-image: radial-gradient(circle at 50% 50%, rgba(255, 100, 0, 0.1) 0%, transparent 60%); }
+.theme-christmas body { background-image: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.1) 0%, transparent 70%); }
 
 /* --- Burger Menu --- */
 .burger-menu-btn {
@@ -204,6 +248,22 @@ body {
 .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
 .particle { position: absolute; background: var(--text-main); border-radius: 50%; opacity: 0.3; animation: floatUp linear infinite; will-change: transform, opacity; }
 @keyframes floatUp { 0% { transform: translateY(100vh) scale(0); opacity: 0; } 50% { opacity: 0.5; } 100% { transform: translateY(-100px) scale(1.5); opacity: 0; } }
+
+/* Snow Particle for Christmas */
+.particle.snow {
+    background: white;
+    box-shadow: 0 0 5px white;
+    opacity: 0.8;
+}
+
+/* Ghostly Particle for Halloween */
+.particle.ghost-particle {
+    background: transparent;
+    box-shadow: 0 0 10px var(--neon-purple);
+    opacity: 0.4;
+    border-radius: 0;
+    width: 5px !important;
+}
 
 /* Rainbow animation for cosmetics */
 @keyframes rainbow {
@@ -551,3 +611,83 @@ input:checked + .slider:before { transform: translateX(26px); }
     .container { padding: 15px; padding-bottom: 120px; }
     .burger-menu-btn { top: 15px; right: 15px; width: 45px; height: 45px; }
 }
+
+
+/* --- Instructions Styling --- */
+.inst-step {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid var(--neon-blue);
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 1rem;
+}
+
+.inst-cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.inst-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform 0.2s;
+}
+
+.inst-card:hover {
+    transform: translateX(5px);
+}
+
+.inst-icon {
+    font-size: 1.8rem;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.inst-info h5 {
+    font-family: 'Orbitron', sans-serif;
+    margin-bottom: 5px;
+    font-size: 1rem;
+    text-transform: uppercase;
+}
+
+.inst-info p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+    margin: 0;
+}
+
+/* Specific Role Colors for Instructions */
+.detektivi-card { border-left: 3px solid var(--neon-blue); }
+.detektivi-card .inst-icon { color: var(--neon-blue); }
+.detektivi-card h5 { color: var(--neon-blue); }
+
+.joker-card { border-left: 3px solid var(--warning); }
+.joker-card .inst-icon { color: var(--warning); }
+.joker-card h5 { color: var(--warning); }
+
+.assassin-card { border-left: 3px solid var(--neon-pink); }
+.assassin-card .inst-icon { color: var(--neon-pink); }
+.assassin-card h5 { color: var(--neon-pink); }
+
+.doctor-card { border-left: 3px solid var(--success); }
+.doctor-card .inst-icon { color: var(--success); }
+.doctor-card h5 { color: var(--success); }
+
+.psychic-card { border-left: 3px solid #bf00ff; }
+.psychic-card .inst-icon { color: #bf00ff; }
+.psychic-card h5 { color: #bf00ff; }
