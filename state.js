@@ -1,4 +1,4 @@
-// /state.js
+// state.js
 
 const GAME_MODES = {
     normal: { name: "ნორმალური", time: 120, spies: 1, detectives: 0, pointsMultiplier: 1 },
@@ -23,8 +23,15 @@ const state = {
     config: {
         spyCount: 1,
         detectiveCount: 0,
+        assassinCount: 0,
+        doctorCount: 0,
+        psychicCount: 0,
+        jokerCount: 0,
+        
+        theme: "standard", // standard, halloween, christmas, cyberpunk, fantasy
+        
         playerOrder: "sequential", 
-        pointsSystem: "disabled", // Default disabled
+        pointsSystem: "disabled", 
         manualEntry: true, 
         selectedCategories: ["mix"],
         gameMode: "normal",
@@ -92,7 +99,7 @@ const state = {
             this.timeLeft = s.timeLeft || 0;
             this.isDetectiveMode = s.isDetectiveMode;
             this.isPointsEnabled = s.isPointsEnabled;
-            this.config = s.config || this.config;
+            this.config = { ...this.config, ...s.config }; 
             this.gameStats = s.gameStats || this.gameStats;
             this.dailyChallenges = s.dailyChallenges || [];
             this.currentGameMode = s.currentGameMode || "normal";
@@ -114,25 +121,28 @@ const state = {
 
     saveConfig() {
         this.audio.playSound('click');
-        const spyCount = document.getElementById("spyCountConfig");
-        if (spyCount) this.config.spyCount = parseInt(spyCount.value);
+        const getInt = (id) => parseInt(document.getElementById(id)?.value) || 0;
         
-        const detectiveCount = document.getElementById("detectiveCount");
-        if (detectiveCount) this.config.detectiveCount = parseInt(detectiveCount.value);
+        this.config.spyCount = getInt("spyCountConfig") || 1; 
+        this.config.detectiveCount = getInt("detectiveCount");
+        this.config.assassinCount = getInt("assassinCount");
+        this.config.doctorCount = getInt("doctorCount");
+        this.config.psychicCount = getInt("psychicCount");
+        this.config.jokerCount = getInt("jokerCount");
+        this.config.timePerRound = getInt("timeConfig") || 120;
         
         const playerOrder = document.getElementById("playerOrder");
         if (playerOrder) this.config.playerOrder = playerOrder.value;
-        
-        const timeConfig = document.getElementById("timeConfig");
-        if (timeConfig) this.config.timePerRound = parseInt(timeConfig.value) || 120;
         
         const pointsSystem = document.getElementById("pointsSystem");
         if (pointsSystem) this.config.pointsSystem = pointsSystem.value;
 
         const spyHintToggle = document.getElementById("spyHintToggle");
         if (spyHintToggle) this.config.spyHintEnabled = spyHintToggle.checked;
+        
+        const themeSelect = document.getElementById("themeSelect");
+        if (themeSelect) this.config.theme = themeSelect.value;
 
-        // Categories
         const checkboxes = document.querySelectorAll("#categoriesContainer input[type='checkbox']");
         const selected = [];
         checkboxes.forEach(cb => { if (cb.checked) selected.push(cb.value); });
@@ -140,6 +150,7 @@ const state = {
         this.config.selectedCategories = selected;
 
         this.saveGame();
+        ui.updateTheme(); // Apply visual theme immediately
         ui.showToast("✅ პარამეტრები შენახულია");
         setTimeout(() => ui.showPlayerInput(), 300);
     },
@@ -150,17 +161,15 @@ const state = {
         state.config.gameMode = mode;
         const conf = GAME_MODES[mode];
         
-        // Update values in config inputs
+        // Only update core values, don't reset special roles
         state.config.spyCount = conf.spies;
         state.config.detectiveCount = conf.detectives;
         state.config.timePerRound = conf.time;
         
-        // Update UI elements in settings
         document.getElementById("spyCountConfig").value = conf.spies;
         document.getElementById("detectiveCount").value = conf.detectives;
         document.getElementById("timeConfig").value = conf.time;
 
-        // Visual feedback
         document.querySelectorAll('.game-mode-card-mini').forEach(c => c.classList.remove('active'));
         const activeCard = document.getElementById(mode === 'normal' ? 'modeNormal' : mode === 'blitz' ? 'modeBlitz' : 'modeHardcore');
         if(activeCard) activeCard.classList.add('active');
