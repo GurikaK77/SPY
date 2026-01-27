@@ -1,4 +1,4 @@
-const CACHE_NAME = 'spy-full-v3';
+const CACHE_NAME = 'spy-full-v5';
 const urlsToCache = [
   '/',
   '/index.html',
