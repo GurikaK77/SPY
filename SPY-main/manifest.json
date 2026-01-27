@@ -1,0 +1,25 @@
+{
+  "name": "SPY - Cyber Noir Edition",
+  "short_name": "SPY",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#050510",
+  "theme_color": "#bc13fe",
+  "description": "Cyber Noir სტილის ჯაშუშური თამაში - ახალი ფუნქციებით",
+  "orientation": "portrait",
+  "categories": ["games", "social", "entertainment"],
+  "icons": [
+    {
+      "src": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvC3mnXkzAiNW0DlOvHPt8luqNI9c010FotA&s",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvC3mnXkzAiNW0DlOvHPt8luqNI9c010FotA&s",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
