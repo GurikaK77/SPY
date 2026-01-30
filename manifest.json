@@ -1,11 +1,11 @@
 {
   "name": "SPY - Cyber Noir Edition",
   "short_name": "SPY",
-  "start_url": "./index.html",
+  "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#050510",
   "theme_color": "#bc13fe",
-  "description": "Cyber Noir სტილის ჯაშუშური თამაში",
+  "description": "Cyber Noir სტილის ჯაშუშური თამაში - ახალი ფუნქციებით",
   "orientation": "portrait",
   "categories": ["games", "social", "entertainment"],
   "icons": [
