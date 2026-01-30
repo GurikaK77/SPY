@@ -1,19 +1,6 @@
+// game.js
+
 const game = {
-    async requestWakeLock() {
-        if ('wakeLock' in navigator) {
-            try {
-                state.wakeLock = await navigator.wakeLock.request('screen');
-            } catch (err) {}
-        }
-    },
-
-    async releaseWakeLock() {
-        if (state.wakeLock !== null) {
-            await state.wakeLock.release();
-            state.wakeLock = null;
-        }
-    },
-
     startValidation() {
         if (!state.config.manualEntry) {
             const count = parseInt(document.getElementById("totalPlayersCount").value);
@@ -24,8 +11,14 @@ const game = {
         }
         
         if (state.players.length < 3) { alert("მინიმუმ 3 მოთამაშე!"); return; }
-        if (state.config.spyCount + state.config.detectiveCount >= state.players.length) {
-            alert("ჯაშუშები + დეტექტივები მეტია მოთამაშეებზე!"); return;
+        
+        // Validate Role Counts
+        const totalRoles = state.config.spyCount + state.config.detectiveCount + 
+                           state.config.assassinCount + state.config.doctorCount + 
+                           state.config.psychicCount + state.config.jokerCount;
+        
+        if (totalRoles >= state.players.length) {
+            alert(`როლების რაოდენობა (${totalRoles}) მეტია ან ტოლია მოთამაშეების (${state.players.length})!`); return;
         }
         
         this.startGame();
@@ -34,10 +27,19 @@ const game = {
     startGame() {
         state.audio.playSound('click');
         
+        // Select Word based on Theme or Categories
         let pool = [];
-        state.config.selectedCategories.forEach(c => { if(wordData[c]) pool = pool.concat(wordData[c]); });
+        
+        // If specific theme is active (not standard), prefer those words
+        if(state.config.theme !== 'standard' && wordData[state.config.theme]) {
+             pool = wordData[state.config.theme];
+        } else {
+             state.config.selectedCategories.forEach(c => { if(wordData[c]) pool = pool.concat(wordData[c]); });
+        }
+        
         if(pool.length === 0) pool = wordData['mix'];
         
+        // Avoid used words
         let available = pool.filter(o => !state.usedWords.includes(o.w));
         if(available.length === 0) { state.usedWords = []; available = pool; }
         
@@ -45,27 +47,31 @@ const game = {
         state.chosenWordObj = selection;
         state.usedWords.push(selection.w);
         
+        // Roles Initialization
         state.roles = Array(state.players.length).fill("Civilian");
         let indices = [...Array(state.players.length).keys()];
         if(state.config.playerOrder === 'random') {
             state.players.sort(() => Math.random() - 0.5); 
         }
         
-        for(let i=0; i<state.config.spyCount; i++) {
-            let rnd = Math.floor(Math.random() * indices.length);
-            state.roles[indices[rnd]] = "Spy";
-            indices.splice(rnd, 1);
-        }
-        
-        if(state.config.detectiveCount > 0) {
-            for(let i=0; i<state.config.detectiveCount; i++) {
-                 if(indices.length > 0) {
+        // Helper to assign role
+        const assignRole = (roleName, count) => {
+            for(let i=0; i<count; i++) {
+                if(indices.length > 0) {
                     let rnd = Math.floor(Math.random() * indices.length);
-                    state.roles[indices[rnd]] = "Detective";
+                    state.roles[indices[rnd]] = roleName;
                     indices.splice(rnd, 1);
-                 }
+                }
             }
-        }
+        };
+
+        // Assign Special Roles
+        assignRole("Spy", state.config.spyCount);
+        assignRole("Detective", state.config.detectiveCount);
+        assignRole("Assassin", state.config.assassinCount);
+        assignRole("Doctor", state.config.doctorCount);
+        assignRole("Psychic", state.config.psychicCount);
+        assignRole("Joker", state.config.jokerCount);
         
         state.currentIndex = 0;
         state.isDetectiveMode = state.config.detectiveCount > 0;
@@ -91,6 +97,7 @@ const game = {
         ui.setActiveSection('gameSection');
         document.getElementById("helperText").textContent = "";
         
+        // Points Display
         const pd = document.getElementById("pointsDisplay");
         if(state.isPointsEnabled) {
             pd.style.display = "block";
@@ -103,7 +110,6 @@ const game = {
     },
 
     startTimer() {
-        this.requestWakeLock();
         clearInterval(state.timerInterval);
         state.timerInterval = setInterval(() => {
             state.timeLeft--;
@@ -132,7 +138,6 @@ const game = {
     endGame() {
         state.audio.playSound('click');
         clearInterval(state.timerInterval);
-        this.releaseWakeLock();
         
         if(state.isPointsEnabled) {
             this.showFindSpyVoting();
@@ -164,42 +169,63 @@ const game = {
 
     makePlayerGuess() {
         const idx = document.getElementById("findSpySelect").value;
-        
         if(idx === "") {
             this.revealSpies(false, true); 
             return;
         }
         
-        const isCorrect = state.roles[idx] === "Spy";
-        const resultText = isCorrect ? (state.isDetectiveMode ? "დეტექტივმა მოიგო!" : "ჯაშუში გამოიცნეს!") : "ჯაშუშმა მოიგო!";
+        const targetRole = state.roles[idx];
+        let resultText = "";
+        let civiliansWin = false;
+        let jokerWins = false;
+
+        if (targetRole === "Spy") {
+            resultText = state.isDetectiveMode ? "დეტექტივმა მოიგო!" : "ჯაშუში გამოიცნეს!";
+            civiliansWin = true;
+        } else if (targetRole === "Joker") {
+            resultText = "ჯოკერმა მოიგო! მას უნდოდა რომ აგერჩიათ.";
+            jokerWins = true;
+        } else {
+            resultText = "ჯაშუშმა მოიგო!"; 
+        }
         
         document.getElementById("resultText").textContent = resultText;
         
+        // Calculate Points
         const multiplier = GAME_MODES[state.currentGameMode].pointsMultiplier;
         
-        if (isCorrect) { 
-            state.gameStats.civilianWins++;
-            state.players.forEach((p, i) => {
-                if(state.roles[i] !== 'Spy') {
-                    let pts = 2 * multiplier;
-                    if(state.roles[i] === 'Detective' && p.inventory.some(x=>x.id==='magnifier')) pts += 3;
-                    p.points += Math.round(pts);
-                    state.gameStats.totalPoints += Math.round(pts);
+        state.players.forEach((p, i) => {
+            let pts = 0;
+            const role = state.roles[i];
+
+            if (jokerWins) {
+                if (role === "Joker") pts = 5 * multiplier; // Huge bonus for Joker
+            } else if (civiliansWin) {
+                // Civilians, Detectives, Doctors, Psychics win
+                // Assassin also gets points if they found spy (small consolation)
+                if (role !== "Spy" && role !== "Joker") {
+                    pts = 2 * multiplier;
+                    if (role === "Detective" && p.inventory.some(x=>x.id==='magnifier')) pts += 3;
+                    if (role === "Assassin") pts += 1; 
                 }
-            });
-        } else { 
-            state.gameStats.spyWins++;
-            state.players.forEach((p, i) => {
-                if(state.roles[i] === 'Spy') {
-                    let pts = 3 * multiplier;
-                    if(p.inventory.some(x=>x.id==='spy_mask')) pts += 3;
-                    if(p.inventory.some(x=>x.id==='backdoor')) pts *= 2;
-                    p.points += Math.round(pts);
-                    state.gameStats.totalPoints += Math.round(pts);
+            } else {
+                // Spy wins
+                if (role === "Spy") {
+                    pts = 3 * multiplier;
+                    if (p.inventory.some(x=>x.id==='spy_mask')) pts += 3;
+                    if (p.inventory.some(x=>x.id==='backdoor')) pts *= 2;
                 }
-            });
-        }
+                // Assassin wins with Spy
+                if (role === "Assassin") {
+                    pts = 3 * multiplier;
+                }
+            }
+            
+            p.points += Math.round(pts);
+            state.gameStats.totalPoints += Math.round(pts);
+        });
         
+        // Coins for everyone
         state.players.forEach(p => p.coins += 2);
         
         this.revealSpies(true);
@@ -207,14 +233,21 @@ const game = {
 
     revealSpies(calculated = false, forceNoText = false) {
         state.audio.playSound('reveal');
-        const spies = state.roles.map((r, i) => r === "Spy" ? state.players[i].name : null).filter(Boolean).join(", ");
         
-        document.getElementById("resultDisplay").innerHTML = `
+        const spies = state.roles.map((r, i) => r === "Spy" ? state.players[i].name : null).filter(Boolean).join(", ");
+        const jokers = state.roles.map((r, i) => r === "Joker" ? state.players[i].name : null).filter(Boolean).join(", ");
+        
+        let revealHtml = `
             <div class="spy-reveal-container">
                 <div class="spy-label">ჯაშუში არის</div>
                 <div class="spy-name-big">${spies}</div>
             </div>`;
         
+        if (jokers) {
+            revealHtml += `<div style="margin-top:10px; font-size:1rem; color:var(--warning);">🃏 ჯოკერი იყო: ${jokers}</div>`;
+        }
+        
+        document.getElementById("resultDisplay").innerHTML = revealHtml;
         document.getElementById("wordDisplay").textContent = `საიდუმლო სიტყვა: ${state.chosenWordObj.w}`;
         
         const rText = document.getElementById("resultText");
@@ -238,11 +271,10 @@ const game = {
 
     restartGame(sameConfig) {
         clearInterval(state.timerInterval);
-        this.releaseWakeLock();
         state.clearGameState();
         if(sameConfig) {
             if(state.config.playerOrder === 'sequential' && state.players.length > 0) {
-                 state.players.push(state.players.shift()); 
+                 state.players.push(state.players.shift()); // Rotate
             }
             this.startValidation();
         } else {
