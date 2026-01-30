@@ -1,5 +1,3 @@
-// game.js
-
 const game = {
     async requestWakeLock() {
         if ('wakeLock' in navigator) {
