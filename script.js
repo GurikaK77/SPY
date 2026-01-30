@@ -1,5 +1,3 @@
-// script.js
-
 function createParticles() {
     const particlesContainer = document.getElementById("particles");
     if(!particlesContainer) return;
