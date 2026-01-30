@@ -203,27 +203,8 @@
             </div>
             
             <div class="input-group">
-                <label class="form-label"><i class="fas fa-clock"></i> დრო (წამები):</label>
-                <input type="number" id="timeConfig" min="30" max="600" value="120">
-            </div>
-
-            <div class="input-group">
-                <label class="form-label"><i class="fas fa-palette"></i> თემა (Theme):</label>
-                <select id="themeSelect">
-                    <option value="standard" selected>სტანდარტული</option>
-                    <option value="halloween">🎃 Halloween</option>
-                    <option value="christmas">🎄 Christmas</option>
-                    <option value="cyberpunk">🤖 Cyberpunk</option>
-                    <option value="fantasy">🏰 Fantasy</option>
-                </select>
-            </div>
-            
-            <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin: 20px 0;">
-            <h4 style="color:var(--text-muted); margin-bottom:15px; text-align:center;">სპეციალური როლები</h4>
-
-            <div class="input-group">
-                <label class="form-label"><i class="fas fa-user-secret"></i> ჯაშუშები:</label>
-                <select id="spyCountConfig">
+                <label class="form-label"><i class="fas fa-user-secret"></i>ჯაშუშები:</label>
+                <select id="spyCountConfig" onchange="state.saveConfig()">
                     <option value="1">1 ჯაშუში</option>
                     <option value="2">2 ჯაშუში</option>
                     <option value="3">3 ჯაშუში</option>
@@ -231,50 +212,29 @@
             </div>
 
             <div class="input-group">
-                <label class="form-label"><i class="fas fa-search"></i> დეტექტივი (Counter-Intel):</label>
-                <select id="detectiveCount">
-                    <option value="0" selected>0 (გამორთვა)</option>
+                <label class="form-label"><i class="fas fa-search"></i> დეტექტივი:</label>
+                <select id="detectiveCount" onchange="state.saveConfig()">
+                    <option value="0" selected>გამორთვა</option>
                     <option value="1">1 დეტექტივი</option>
                     <option value="2">2 დეტექტივი</option>
                 </select>
             </div>
 
             <div class="input-group">
-                <label class="form-label"><i class="fas fa-skull-crossbones"></i> მკვლელი (Assassin):</label>
-                <select id="assassinCount">
-                    <option value="0" selected>0 (გამორთვა)</option>
-                    <option value="1">1 მკვლელი</option>
-                </select>
+                <label class="form-label"><i class="fas fa-clock"></i> დრო (წამები):</label>
+                <input type="number" id="timeConfig" min="30" max="600" value="120" oninput="state.saveConfig()">
             </div>
-
-            <div class="input-group">
-                <label class="form-label"><i class="fas fa-user-md"></i> ექიმი (Doctor):</label>
-                <select id="doctorCount">
-                    <option value="0" selected>0 (გამორთვა)</option>
-                    <option value="1">1 ექიმი</option>
-                </select>
-            </div>
-
-            <div class="input-group">
-                <label class="form-label"><i class="fas fa-eye"></i> ნათელმხილველი (Psychic):</label>
-                <select id="psychicCount">
-                    <option value="0" selected>0 (გამორთვა)</option>
-                    <option value="1">1 ნათელმხილველი</option>
-                </select>
-            </div>
-
-            <div class="input-group">
-                <label class="form-label"><i class="fas fa-theater-masks"></i> ჯოკერი (Joker):</label>
-                <select id="jokerCount">
-                    <option value="0" selected>0 (გამორთვა)</option>
-                    <option value="1">1 ჯოკერი</option>
-                </select>
+            
+             <div class="input-group">
+                <label class="form-label"><i class="fas fa-gamepad"></i> თამაშის რეჟიმი:</label>
+                <div class="game-modes-grid-mini">
+                    <div class="game-mode-card-mini active" id="modeNormal" onclick="state.setGameMode('normal')">ნორმალური</div>
+                    <div class="game-mode-card-mini" id="modeBlitz" onclick="state.setGameMode('blitz')">ბლიცი</div>
+                    <div class="game-mode-card-mini" id="modeHardcore" onclick="state.setGameMode('hardcore')">რთული</div>
+                </div>
             </div>
 
             <div class="sticky-action-bar">
-                <button class="btn" onclick="state.saveConfig()">
-                    <i class="fas fa-save"></i> შენახვა
-                </button>
                 <button class="btn btn-secondary" onclick="ui.showPlayerInput()">
                     <i class="fas fa-arrow-left"></i> უკან
                 </button>
@@ -286,26 +246,20 @@
                 <h2><i class="fas fa-cogs"></i> სისტემის პარამეტრები</h2>
             </div>
 
-             <div class="input-group">
-                <label class="form-label"><i class="fas fa-gamepad"></i> სირთულის რეჟიმი:</label>
-                <div class="game-modes-grid-mini">
-                    <div class="game-mode-card-mini active" id="modeNormal" onclick="state.setGameMode('normal')">ნორმალური</div>
-                    <div class="game-mode-card-mini" id="modeBlitz" onclick="state.setGameMode('blitz')">ბლიცი</div>
-                    <div class="game-mode-card-mini" id="modeHardcore" onclick="state.setGameMode('hardcore')">რთული</div>
-                </div>
-            </div>
-
             <div class="toggle-container">
                 <label><i class="fas fa-lightbulb"></i> ჯაშუშის მინიშნება</label>
                 <label class="toggle-switch">
-                    <input type="checkbox" id="spyHintToggle" checked>
+                    <input type="checkbox" id="spyHintToggle" checked onchange="state.saveConfig()">
                     <span class="slider"></span>
                 </label>
+                <div style="width:100%; font-size:0.8rem; color:var(--text-muted); margin-top:5px;">
+                    ჯაშუშს ექნება მცირე მინიშნება სიტყვაზე
+                </div>
             </div>
 
             <div class="input-group">
                 <label class="form-label"><i class="fas fa-star-half-alt"></i> ქულების სისტემა:</label>
-                <select id="pointsSystem">
+                <select id="pointsSystem" onchange="state.saveConfig()">
                     <option value="enabled">ჩართვა</option>
                     <option value="disabled" selected>გამორთვა</option>
                 </select>
@@ -313,21 +267,18 @@
             
             <div class="input-group">
                 <label class="form-label"><i class="fas fa-random"></i> რიგი:</label>
-                <select id="playerOrder">
+                <select id="playerOrder" onchange="state.saveConfig()">
                     <option value="sequential" selected>თანმიმდევრობით</option>
                     <option value="random">შემთხვევითი</option>
                 </select>
             </div>
             
             <div class="categories-wrapper" style="margin-top:20px;">
-                <label class="form-label"><i class="fas fa-list"></i> კატეგორიები (სტანდარტულ რეჟიმში):</label>
-                <div class="categories-container-full" id="categoriesContainer"></div>
+                <label class="form-label"><i class="fas fa-list"></i> კატეგორიები:</label>
+                <div class="categories-container-full" id="categoriesContainer" onchange="state.saveConfig()"></div>
             </div>
 
             <div class="sticky-action-bar">
-                <button class="btn" onclick="state.saveConfig()">
-                    <i class="fas fa-save"></i> შენახვა
-                </button>
                 <button class="btn btn-secondary" onclick="ui.showPlayerInput()">
                     <i class="fas fa-arrow-left"></i> უკან
                 </button>
@@ -360,61 +311,26 @@
 
         <div id="instructionsSection" class="section">
             <div class="section-header-main">
-                <h2><i class="fas fa-book-open"></i> წესები & როლები</h2>
+                <h2><i class="fas fa-question-circle"></i> ინსტრუქცია</h2>
             </div>
-            
             <div class="instructions-content">
-                 <div class="inst-step">
-                    <i class="fas fa-check"></i> <strong>მიზანი:</strong> იპოვეთ ჯაშუში, სანამ დრო ამოიწურება!
-                 </div>
-
-                 <h4 style="margin: 20px 0 10px; color:var(--text-muted); text-align:center;">სპეციალური როლები</h4>
-
-                 <div class="inst-cards-container">
-                    
-                    <div class="inst-card detektivi-card">
-                        <div class="inst-icon"><i class="fas fa-search"></i></div>
-                        <div class="inst-info">
-                            <h5>დეტექტივი (Counter-Intel)</h5>
-                            <p>თქვენ იცით საიდუმლო სიტყვა და <strong>ჯაშუშის მინიშნება</strong>. უსმინეთ, ვინ გამოიყენებს ამ მინიშნებას საუბარში!</p>
-                        </div>
-                    </div>
-
-                    <div class="inst-card joker-card">
-                        <div class="inst-icon"><i class="fas fa-theater-masks"></i></div>
-                        <div class="inst-info">
-                            <h5>ჯოკერი</h5>
-                            <p>თქვენ იცით სიტყვა, მაგრამ <strong>უნდა მოატყუოთ ყველა</strong>. თუ კენჭისყრაზე ჯაშუშის ნაცვლად თქვენ აგირჩევენ, მარტო იგებთ!</p>
-                        </div>
-                    </div>
-
-                    <div class="inst-card assassin-card">
-                        <div class="inst-icon"><i class="fas fa-skull-crossbones"></i></div>
-                        <div class="inst-info">
-                            <h5>მკვლელი</h5>
-                            <p>თქვენ <strong>ჯაშუშის მოკავშირე</strong> ხართ. ეცადეთ აურიოთ სიტუაცია. თუ ჯაშუში იგებს, თქვენც იგებთ.</p>
-                        </div>
-                    </div>
-
-                    <div class="inst-card doctor-card">
-                        <div class="inst-icon"><i class="fas fa-user-md"></i></div>
-                        <div class="inst-info">
-                            <h5>ექიმი</h5>
-                            <p>თქვენ <strong>უდანაშაულოებს იცავთ</strong>. დაეხმარეთ გუნდს, რომ არ შეცდნენ და ჯოკერი ან საკუთარიანი არ გააგდონ.</p>
-                        </div>
-                    </div>
-
-                    <div class="inst-card psychic-card">
-                        <div class="inst-icon"><i class="fas fa-eye"></i></div>
-                        <div class="inst-info">
-                            <h5>ნათელმხილველი</h5>
-                            <p>თქვენ იცით <strong>სიტყვის კატეგორია</strong> (მაგ: "ბუნება"). დააკვირდით, ვისი პასუხი არ ჯდება თემატიკაში.</p>
-                        </div>
-                    </div>
-
-                 </div>
+                 <p>1. დაამატე მოთამაშეები.<br>2. გაანაწილეთ როლები.<br>3. გამოიცანით ჯაშუში.</p>
             </div>
-            
+            <div class="sticky-action-bar">
+                <button class="btn" onclick="ui.showPlayerInput()">
+                    <i class="fas fa-home"></i> მთავარი
+                </button>
+            </div>
+        </div>
+
+        <div id="aboutSection" class="section">
+            <div class="section-header-main">
+                <h2><i class="fas fa-info-circle"></i> ჩვენ შესახებ</h2>
+            </div>
+            <div class="about-content">
+                <div class="about-logo">SPY</div>
+                <p>Cyber Noir Edition v3.5</p>
+            </div>
             <div class="sticky-action-bar">
                 <button class="btn" onclick="ui.showPlayerInput()">
                     <i class="fas fa-home"></i> მთავარი
@@ -501,10 +417,10 @@
         </div>
     </div>
 
-    <script src="data.js"></script>
-    <script src="state.js"></script>
-    <script src="ui.js"></script>
-    <script src="game.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/game.js"></script>
     <script src="script.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
