@@ -1,4 +1,4 @@
-// js/state.js
+// state.js
 
 const GAME_MODES = {
     normal: { name: "ნორმალური", time: 120, spies: 1, detectives: 0, pointsMultiplier: 1 },
@@ -113,7 +113,6 @@ const state = {
         }
     },
 
-    // განახლებული: ინახავს მომენტალურად, ხმისა და გადამისამართების გარეშე
     saveConfig() {
         const spyCount = document.getElementById("spyCountConfig");
         if (spyCount) this.config.spyCount = parseInt(spyCount.value);
@@ -133,14 +132,12 @@ const state = {
         const spyHintToggle = document.getElementById("spyHintToggle");
         if (spyHintToggle) this.config.spyHintEnabled = spyHintToggle.checked;
 
-        // Categories
         const checkboxes = document.querySelectorAll("#categoriesContainer input[type='checkbox']");
         const selected = [];
         checkboxes.forEach(cb => { if (cb.checked) selected.push(cb.value); });
         if (selected.length === 0) selected.push("mix");
         this.config.selectedCategories = selected;
 
-        // უბრალოდ ჩუმად ვინახავთ
         this.saveGame();
     },
     
@@ -162,7 +159,6 @@ const state = {
         const activeCard = document.getElementById(mode === 'normal' ? 'modeNormal' : mode === 'blitz' ? 'modeBlitz' : 'modeHardcore');
         if(activeCard) activeCard.classList.add('active');
         
-        // რეჟიმის შეცვლაც მომენტალურად ინახავს
         this.saveConfig();
         ui.showToast(`არჩეულია: ${conf.name}`);
     }
