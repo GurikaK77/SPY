@@ -19,7 +19,7 @@ const state = {
     currentGameMode: "normal",
     dailyChallenges: [],
     soundEnabled: true,
-    wakeLock: null, // <--- ახალი ცვლადი ეკრანისთვის
+    wakeLock: null,
     
     config: {
         spyCount: 1,
@@ -113,8 +113,8 @@ const state = {
         }
     },
 
+    // განახლებული: ინახავს მომენტალურად, ხმისა და გადამისამართების გარეშე
     saveConfig() {
-        this.audio.playSound('click');
         const spyCount = document.getElementById("spyCountConfig");
         if (spyCount) this.config.spyCount = parseInt(spyCount.value);
         
@@ -140,9 +140,8 @@ const state = {
         if (selected.length === 0) selected.push("mix");
         this.config.selectedCategories = selected;
 
+        // უბრალოდ ჩუმად ვინახავთ
         this.saveGame();
-        ui.showToast("✅ პარამეტრები შენახულია");
-        setTimeout(() => ui.showPlayerInput(), 300);
     },
     
     setGameMode(mode) {
@@ -163,6 +162,8 @@ const state = {
         const activeCard = document.getElementById(mode === 'normal' ? 'modeNormal' : mode === 'blitz' ? 'modeBlitz' : 'modeHardcore');
         if(activeCard) activeCard.classList.add('active');
         
-        ui.showToast(`არჩეულია რეჟიმი: ${conf.name}`);
+        // რეჟიმის შეცვლაც მომენტალურად ინახავს
+        this.saveConfig();
+        ui.showToast(`არჩეულია: ${conf.name}`);
     }
 };
