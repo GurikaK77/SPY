@@ -1,15 +1,11 @@
-// js/game.js
+// game.js
 
 const game = {
-    // --- WAKE LOCK LOGIC ---
     async requestWakeLock() {
         if ('wakeLock' in navigator) {
             try {
                 state.wakeLock = await navigator.wakeLock.request('screen');
-                // console.log('Screen Wake Lock active');
-            } catch (err) {
-                // console.error(`${err.name}, ${err.message}`);
-            }
+            } catch (err) {}
         }
     },
 
@@ -17,10 +13,8 @@ const game = {
         if (state.wakeLock !== null) {
             await state.wakeLock.release();
             state.wakeLock = null;
-            // console.log('Screen Wake Lock released');
         }
     },
-    // -----------------------
 
     startValidation() {
         if (!state.config.manualEntry) {
@@ -111,7 +105,7 @@ const game = {
     },
 
     startTimer() {
-        this.requestWakeLock(); // <--- ეკრანის ანთება
+        this.requestWakeLock();
         clearInterval(state.timerInterval);
         state.timerInterval = setInterval(() => {
             state.timeLeft--;
@@ -140,7 +134,7 @@ const game = {
     endGame() {
         state.audio.playSound('click');
         clearInterval(state.timerInterval);
-        this.releaseWakeLock(); // <--- ეკრანის გათავისუფლება
+        this.releaseWakeLock();
         
         if(state.isPointsEnabled) {
             this.showFindSpyVoting();
@@ -246,7 +240,7 @@ const game = {
 
     restartGame(sameConfig) {
         clearInterval(state.timerInterval);
-        this.releaseWakeLock(); // დარწმუნება რომ ჩაქრა
+        this.releaseWakeLock();
         state.clearGameState();
         if(sameConfig) {
             if(state.config.playerOrder === 'sequential' && state.players.length > 0) {
