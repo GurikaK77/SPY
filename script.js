@@ -1,17 +1,29 @@
+// script.js
+
+// Particles Generation based on Theme
 function createParticles() {
     const particlesContainer = document.getElementById("particles");
     if(!particlesContainer) return;
     
+    // Clean up existing particles if any
     particlesContainer.innerHTML = '';
     
     const isMobile = window.innerWidth < 600;
     const particleCount = isMobile ? 15 : 30;
     
+    // Determine shape/color based on theme
+    const theme = state.config.theme;
+    let particleClass = 'particle'; 
+    
     for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement("div");
-        particle.classList.add("particle");
+        particle.classList.add(particleClass);
+        
+        // Add specific classes for themes handled in CSS
+        if(theme === 'christmas') particle.classList.add('snow');
+        if(theme === 'halloween') particle.classList.add('ghost-particle');
 
-        const size = Math.random() * 3 + 1;
+        const size = Math.random() * 3 + 2; 
         const posX = Math.random() * 100;
         const delay = Math.random() * 15;
         const duration = 15 + Math.random() * 10;
@@ -43,31 +55,25 @@ function initDailyChallenges() {
     }
 }
 
-document.addEventListener('visibilitychange', async () => {
-    if (state.wakeLock !== null && document.visibilityState === 'visible') {
-        await game.requestWakeLock();
-    }
-});
-
 window.onload = function() {
-    createParticles();
     initDailyChallenges();
     const hasSavedGame = state.loadGame();
     
+    ui.updateTheme();
+    createParticles();
+    
     setTimeout(() => {
-        document.getElementById("loadingScreen").style.display = "none";
+        const loadingScreen = document.getElementById("loadingScreen");
+        if (loadingScreen) loadingScreen.style.display = "none";
         
         if (hasSavedGame) {
             document.getElementById("mainContent").style.display = "block";
             ui.updatePlayerList();
-            
             if (state.timeLeft > 0 && document.getElementById("gameSection").style.display === "block") {
                 game.startTimer();
             }
-
             ui.setActiveSection(state.activeSection || 'playerInput');
             ui.updateInputMode(false); 
-
         } else {
             document.getElementById("readyScreen").style.display = "flex";
         }
@@ -78,6 +84,6 @@ document.addEventListener('contextmenu', e => e.preventDefault());
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js').catch(err => console.log('SW failed', err));
+        navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW failed', err));
     });
 }
