@@ -1,10 +1,14 @@
-const CACHE_NAME = 'spy-full-v5';
+const CACHE_NAME = 'spy-full-v4';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/style.css', 
-  '/script.js',
-  '/manifest.json',
+  './',
+  './index.html',
+  './style.css', 
+  './script.js',
+  './data.js',
+  './game.js',
+  './state.js',
+  './ui.js',
+  './manifest.json',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
   'https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap',
   'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvC3mnXkzAiNW0DlOvHPt8luqNI9c010FotA&s',
@@ -19,13 +23,10 @@ self.addEventListener('install', e => {
   self.skipWaiting();
   e.waitUntil(
     caches.open(CACHE_NAME).then(async cache => {
-      console.log('[SW] Cache Opening & Preloading...');
       for (const url of urlsToCache) {
         try {
           await cache.add(url);
-        } catch (err) {
-          console.log('[SW] ვერ ჩაიწერა (არაუშავს):', url);
-        }
+        } catch (err) {}
       }
     })
   );
@@ -46,7 +47,6 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
-
   e.respondWith(
     caches.open(CACHE_NAME).then(cache => {
       return cache.match(e.request).then(cachedResponse => {
@@ -57,10 +57,7 @@ self.addEventListener('fetch', e => {
             }
             return networkResponse;
           })
-          .catch(() => {
-             console.log('Offline fetch failed, using cache only');
-          });
-
+          .catch(() => {});
         return cachedResponse || fetchPromise;
       });
     })
