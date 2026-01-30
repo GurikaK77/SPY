@@ -1,5 +1,3 @@
-// ui.js
-
 const ui = {
     showToast(message) {
         const toast = document.getElementById("toastMessage");
