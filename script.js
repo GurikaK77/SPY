@@ -1,6 +1,5 @@
 // script.js
 
-// Particles Generation
 function createParticles() {
     const particlesContainer = document.getElementById("particles");
     if(!particlesContainer) return;
@@ -29,7 +28,6 @@ function createParticles() {
     }
 }
 
-// Initialize Daily Challenges Logic
 function initDailyChallenges() {
     const today = new Date().toDateString();
     const storedDate = localStorage.getItem('challengeDate');
@@ -47,14 +45,12 @@ function initDailyChallenges() {
     }
 }
 
-// Wake Lock Re-acquire logic on visibility change
 document.addEventListener('visibilitychange', async () => {
     if (state.wakeLock !== null && document.visibilityState === 'visible') {
         await game.requestWakeLock();
     }
 });
 
-// Main Initialization
 window.onload = function() {
     createParticles();
     initDailyChallenges();
@@ -84,6 +80,6 @@ document.addEventListener('contextmenu', e => e.preventDefault());
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW failed', err));
+        navigator.serviceWorker.register('sw.js').catch(err => console.log('SW failed', err));
     });
 }
