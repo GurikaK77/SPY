@@ -43,9 +43,24 @@ const game = {
         let available = pool.filter(o => !state.usedWords.includes(o.w));
         if(available.length === 0) { state.usedWords = []; available = pool; }
         
+        // Choose Main Word (Civilians)
         const selection = available[Math.floor(Math.random() * available.length)];
         state.chosenWordObj = selection;
         state.usedWords.push(selection.w);
+        
+        // Choose Chameleon Word (Fake word for Spy) if mode is Chameleon
+        if (state.config.gameVariant === 'chameleon') {
+            let fakeOptions = pool.filter(o => o.w !== selection.w);
+            if (fakeOptions.length === 0) fakeOptions = wordData['mix'].filter(o => o.w !== selection.w); // Fallback
+            
+            if (fakeOptions.length > 0) {
+                state.chameleonWordObj = fakeOptions[Math.floor(Math.random() * fakeOptions.length)];
+            } else {
+                state.chameleonWordObj = { w: "???", h: "???" };
+            }
+        } else {
+            state.chameleonWordObj = { w: "", h: "" };
+        }
         
         // Roles Initialization
         state.roles = Array(state.players.length).fill("Civilian");
@@ -192,7 +207,7 @@ const game = {
         document.getElementById("resultText").textContent = resultText;
         
         // Calculate Points
-        const multiplier = GAME_MODES[state.currentGameMode].pointsMultiplier;
+        const multiplier = 1; 
         
         state.players.forEach((p, i) => {
             let pts = 0;
@@ -212,6 +227,7 @@ const game = {
                 // Spy wins
                 if (role === "Spy") {
                     pts = 3 * multiplier;
+                    if (state.config.gameVariant === 'chameleon') pts += 2; // Extra points for winning in Chameleon mode
                     if (p.inventory.some(x=>x.id==='spy_mask')) pts += 3;
                     if (p.inventory.some(x=>x.id==='backdoor')) pts *= 2;
                 }
@@ -247,8 +263,15 @@ const game = {
             revealHtml += `<div style="margin-top:10px; font-size:1rem; color:var(--warning);">🃏 ჯოკერი იყო: ${jokers}</div>`;
         }
         
+        // Show Chameleon word if relevant
+        if(state.config.gameVariant === 'chameleon') {
+             revealHtml += `<div style="margin-top:20px; font-size:1rem; color:var(--neon-pink);">
+                ჯაშუშის სიტყვა იყო: <strong>${state.chameleonWordObj.w}</strong>
+             </div>`;
+        }
+        
         document.getElementById("resultDisplay").innerHTML = revealHtml;
-        document.getElementById("wordDisplay").textContent = `საიდუმლო სიტყვა: ${state.chosenWordObj.w}`;
+        document.getElementById("wordDisplay").textContent = `ნამდვილი სიტყვა: ${state.chosenWordObj.w}`;
         
         const rText = document.getElementById("resultText");
         const ptsBtn = document.getElementById("showPointsBtn");
