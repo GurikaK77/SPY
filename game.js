@@ -1,6 +1,31 @@
 // game.js
 
 const game = {
+    // --- Screen Wake Lock Logic (ეკრანის არ-ჩაქრობა) ---
+    async requestScreenLock() {
+        try {
+            if ('wakeLock' in navigator) {
+                state.wakeLock = await navigator.wakeLock.request('screen');
+                console.log('Screen Wake Lock active');
+            }
+        } catch (err) {
+            console.log('Wake Lock error:', err);
+        }
+    },
+
+    async releaseScreenLock() {
+        if (state.wakeLock !== null) {
+            try {
+                await state.wakeLock.release();
+                state.wakeLock = null;
+                console.log('Screen Wake Lock released');
+            } catch (err) {
+                console.log('Wake Lock release error:', err);
+            }
+        }
+    },
+    // ----------------------------------------------------
+
     startValidation() {
         if (!state.config.manualEntry) {
             const count = parseInt(document.getElementById("totalPlayersCount").value);
@@ -12,7 +37,6 @@ const game = {
         
         if (state.players.length < 3) { alert("მინიმუმ 3 მოთამაშე!"); return; }
         
-        // Validate Role Counts
         const totalRoles = state.config.spyCount + state.config.detectiveCount + 
                            state.config.assassinCount + state.config.doctorCount + 
                            state.config.psychicCount + state.config.jokerCount;
@@ -27,10 +51,7 @@ const game = {
     startGame() {
         state.audio.playSound('click');
         
-        // Select Word based on Theme or Categories
         let pool = [];
-        
-        // If specific theme is active (not standard), prefer those words
         if(state.config.theme !== 'standard' && wordData[state.config.theme]) {
              pool = wordData[state.config.theme];
         } else {
@@ -39,19 +60,16 @@ const game = {
         
         if(pool.length === 0) pool = wordData['mix'];
         
-        // Avoid used words
         let available = pool.filter(o => !state.usedWords.includes(o.w));
         if(available.length === 0) { state.usedWords = []; available = pool; }
         
-        // Choose Main Word (Civilians)
         const selection = available[Math.floor(Math.random() * available.length)];
         state.chosenWordObj = selection;
         state.usedWords.push(selection.w);
         
-        // Choose Chameleon Word (Fake word for Spy) if mode is Chameleon
         if (state.config.gameVariant === 'chameleon') {
             let fakeOptions = pool.filter(o => o.w !== selection.w);
-            if (fakeOptions.length === 0) fakeOptions = wordData['mix'].filter(o => o.w !== selection.w); // Fallback
+            if (fakeOptions.length === 0) fakeOptions = wordData['mix'].filter(o => o.w !== selection.w);
             
             if (fakeOptions.length > 0) {
                 state.chameleonWordObj = fakeOptions[Math.floor(Math.random() * fakeOptions.length)];
@@ -62,14 +80,12 @@ const game = {
             state.chameleonWordObj = { w: "", h: "" };
         }
         
-        // Roles Initialization
         state.roles = Array(state.players.length).fill("Civilian");
         let indices = [...Array(state.players.length).keys()];
         if(state.config.playerOrder === 'random') {
             state.players.sort(() => Math.random() - 0.5); 
         }
         
-        // Helper to assign role
         const assignRole = (roleName, count) => {
             for(let i=0; i<count; i++) {
                 if(indices.length > 0) {
@@ -80,7 +96,6 @@ const game = {
             }
         };
 
-        // Assign Special Roles
         assignRole("Spy", state.config.spyCount);
         assignRole("Detective", state.config.detectiveCount);
         assignRole("Assassin", state.config.assassinCount);
@@ -112,7 +127,9 @@ const game = {
         ui.setActiveSection('gameSection');
         document.getElementById("helperText").textContent = "";
         
-        // Points Display
+        // ეკრანის ჩაქრობის აკრძალვა
+        this.requestScreenLock();
+        
         const pd = document.getElementById("pointsDisplay");
         if(state.isPointsEnabled) {
             pd.style.display = "block";
@@ -153,6 +170,9 @@ const game = {
     endGame() {
         state.audio.playSound('click');
         clearInterval(state.timerInterval);
+        
+        // ეკრანის ჩაქრობის დაშვება (თამაში მორჩა)
+        this.releaseScreenLock();
         
         if(state.isPointsEnabled) {
             this.showFindSpyVoting();
@@ -206,7 +226,6 @@ const game = {
         
         document.getElementById("resultText").textContent = resultText;
         
-        // Calculate Points
         const multiplier = 1; 
         
         state.players.forEach((p, i) => {
@@ -214,24 +233,20 @@ const game = {
             const role = state.roles[i];
 
             if (jokerWins) {
-                if (role === "Joker") pts = 5 * multiplier; // Huge bonus for Joker
+                if (role === "Joker") pts = 5 * multiplier; 
             } else if (civiliansWin) {
-                // Civilians, Detectives, Doctors, Psychics win
-                // Assassin also gets points if they found spy (small consolation)
                 if (role !== "Spy" && role !== "Joker") {
                     pts = 2 * multiplier;
                     if (role === "Detective" && p.inventory.some(x=>x.id==='magnifier')) pts += 3;
                     if (role === "Assassin") pts += 1; 
                 }
             } else {
-                // Spy wins
                 if (role === "Spy") {
                     pts = 3 * multiplier;
-                    if (state.config.gameVariant === 'chameleon') pts += 2; // Extra points for winning in Chameleon mode
+                    if (state.config.gameVariant === 'chameleon') pts += 2;
                     if (p.inventory.some(x=>x.id==='spy_mask')) pts += 3;
                     if (p.inventory.some(x=>x.id==='backdoor')) pts *= 2;
                 }
-                // Assassin wins with Spy
                 if (role === "Assassin") {
                     pts = 3 * multiplier;
                 }
@@ -241,7 +256,6 @@ const game = {
             state.gameStats.totalPoints += Math.round(pts);
         });
         
-        // Coins for everyone
         state.players.forEach(p => p.coins += 2);
         
         this.revealSpies(true);
@@ -263,7 +277,6 @@ const game = {
             revealHtml += `<div style="margin-top:10px; font-size:1rem; color:var(--warning);">🃏 ჯოკერი იყო: ${jokers}</div>`;
         }
         
-        // Show Chameleon word if relevant
         if(state.config.gameVariant === 'chameleon') {
              revealHtml += `<div style="margin-top:20px; font-size:1rem; color:var(--neon-pink);">
                 ჯაშუშის სიტყვა იყო: <strong>${state.chameleonWordObj.w}</strong>
@@ -294,10 +307,11 @@ const game = {
 
     restartGame(sameConfig) {
         clearInterval(state.timerInterval);
+        this.releaseScreenLock(); // Restart-ის დროსაც გავათავისუფლოთ
         state.clearGameState();
         if(sameConfig) {
             if(state.config.playerOrder === 'sequential' && state.players.length > 0) {
-                 state.players.push(state.players.shift()); // Rotate
+                 state.players.push(state.players.shift()); 
             }
             this.startValidation();
         } else {
