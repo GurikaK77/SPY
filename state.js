@@ -4,10 +4,11 @@ const state = {
     players: [],
     roles: [],
     chosenWordObj: { w: "", h: "" },
-    chameleonWordObj: { w: "", h: "" }, // Stores the fake word for Chameleon mode
+    chameleonWordObj: { w: "", h: "" }, 
     currentIndex: 0,
     timerInterval: null,
     timeLeft: 0,
+    wakeLock: null, // <-- დაემატა ეკრანის გასაკონტროლებლად
     isDetectiveMode: false,
     isPointsEnabled: false,
     usedWords: [],
@@ -28,7 +29,7 @@ const state = {
         pointsSystem: "disabled", 
         manualEntry: true, 
         selectedCategories: ["mix"],
-        gameVariant: "standard", // 'standard' or 'chameleon'
+        gameVariant: "standard", 
         timePerRound: 120,
         spyHintEnabled: true
     },
@@ -58,6 +59,7 @@ const state = {
 
     saveGame() {
         const activeSection = document.querySelector('.section.active')?.id || 'playerInput';
+        // არ ვინახავთ wakeLock-ს localStorage-ში, რადგან ის სესიის ნაწილია
         const gameState = {
             players: this.players,
             roles: this.roles,
@@ -114,21 +116,12 @@ const state = {
     },
 
     updateConfig(key, value) {
-        // Convert numbers
         if (['spyCount', 'detectiveCount', 'assassinCount', 'doctorCount', 'psychicCount', 'jokerCount', 'timePerRound'].includes(key)) {
             value = parseInt(value) || 0;
         }
-        
-        // Convert boolean
         if (key === 'spyHintEnabled') value = !!value;
-        
-        // Update checkbox categories specially if needed, but for single inputs:
         this.config[key] = value;
-        
-        // Special logic for Theme
-        if (key === 'theme') {
-            ui.updateTheme();
-        }
+        if (key === 'theme') { ui.updateTheme(); }
 
         this.saveGame();
         ui.showToast("✅ შენახულია");
