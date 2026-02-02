@@ -6,7 +6,9 @@ const ui = {
         if (toast) {
             toast.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
             toast.classList.add("show");
-            setTimeout(() => { toast.classList.remove("show"); }, 2000);
+            // Clear previous timeout if exists
+            if (this.toastTimeout) clearTimeout(this.toastTimeout);
+            this.toastTimeout = setTimeout(() => { toast.classList.remove("show"); }, 2000);
         }
     },
 
@@ -45,7 +47,7 @@ const ui = {
         const sections = ['playerInput', 'shopSection', 'roleSection', 'gameSection', 
                          'findSpySection', 'resultSection', 'statsSection',
                          'challengesSection', 'instructionsSection', 'aboutSection',
-                         'gameSettingsSection', 'systemSettingsSection'];
+                         'systemSettingsSection']; 
         
         const logoArea = document.getElementById('logoArea');
         const hideLogo = ['gameSection', 'roleSection', 'findSpySection', 'resultSection'].includes(activeId);
@@ -88,9 +90,13 @@ const ui = {
         const isManual = manualToggle ? manualToggle.checked : true;
         state.config.manualEntry = isManual;
 
-        if (triggeredByToggle && isManual) {
-            const count = parseInt(countInput.value) || 5;
-            if (state.players.length < count) {
+        if (triggeredByToggle) {
+            // FIX: Clear players list when switching to Manual to avoid auto-generated names remaining
+            if (isManual) {
+                state.players = [];
+            } else {
+                // Determine count from input if switching to Auto
+                const count = parseInt(countInput.value) || 5;
                 state.players = [];
                 for (let i = 1; i <= count; i++) {
                      state.players.push({ 
@@ -170,29 +176,29 @@ const ui = {
         }
     },
 
-    showGameSettings() {
+    showSystemSettings() {
         state.audio.playSound('click');
-        document.getElementById("spyCountConfig").value = state.config.spyCount;
-        document.getElementById("detectiveCount").value = state.config.detectiveCount;
-        document.getElementById("timeConfig").value = state.config.timePerRound;
-        document.getElementById("themeSelect").value = state.config.theme;
         
+        // Populate inputs
         const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
+        
+        setVal("spyCountConfig", state.config.spyCount);
+        setVal("detectiveCount", state.config.detectiveCount);
         setVal("assassinCount", state.config.assassinCount);
         setVal("doctorCount", state.config.doctorCount);
         setVal("psychicCount", state.config.psychicCount);
         setVal("jokerCount", state.config.jokerCount);
+        setVal("timeConfig", state.config.timePerRound);
+        setVal("pointsSystem", state.config.pointsSystem);
+        setVal("playerOrder", state.config.playerOrder);
+        setVal("themeSelect", state.config.theme);
 
-        this.setActiveSection('gameSettingsSection');
-    },
-
-    showSystemSettings() {
-        state.audio.playSound('click');
-        document.getElementById("pointsSystem").value = state.config.pointsSystem;
-        document.getElementById("playerOrder").value = state.config.playerOrder;
         document.getElementById("spyHintToggle").checked = state.config.spyHintEnabled;
-        state.setGameMode(state.config.gameMode);
         
+        // Set Game Variant UI
+        state.setGameVariant(state.config.gameVariant);
+        
+        // Categories
         const container = document.getElementById("categoriesContainer");
         container.innerHTML = "";
         
@@ -206,6 +212,15 @@ const ui = {
             chk.value = key;
             chk.id = `cat_${key}`;
             if(state.config.selectedCategories.includes(key)) chk.checked = true;
+            
+            // Add onchange for categories
+            chk.onchange = function() {
+                const checkboxes = document.querySelectorAll("#categoriesContainer input[type='checkbox']");
+                const selected = [];
+                checkboxes.forEach(cb => { if (cb.checked) selected.push(cb.value); });
+                if (selected.length === 0) selected.push("mix");
+                state.updateConfig('selectedCategories', selected);
+            };
             
             const lbl = document.createElement("label");
             lbl.htmlFor = `cat_${key}`;
@@ -328,15 +343,26 @@ const ui = {
         switch(role) {
             case "Spy":
                 navigator.vibrate?.([100, 50, 100]);
-                let hintHtml = "";
-                if (state.config.spyHintEnabled) {
-                    hintHtml = `<div style="font-size:0.9rem; color:#aaa; margin-top:10px;">მინიშნება: ${state.chosenWordObj.h}</div>`;
+                
+                // CHAMELEON LOGIC
+                if (state.config.gameVariant === 'chameleon') {
+                     // Show as Civilian with Fake Word
+                    contentHtml = `
+                        <div class="role-icon"><i class="fas fa-user"></i></div>
+                        <div class="role-text">სიტყვა:<br><span class="sityva">${state.chameleonWordObj.w}</span></div>
+                    `;
+                } else {
+                    // Standard Spy
+                    let hintHtml = "";
+                    if (state.config.spyHintEnabled) {
+                        hintHtml = `<div style="font-size:0.9rem; color:#aaa; margin-top:10px;">მინიშნება: ${state.chosenWordObj.h}</div>`;
+                    }
+                    contentHtml = `
+                        <div class="role-icon" style="color:var(--neon-pink)"><i class="fas fa-user-secret"></i></div>
+                        <div class="role-text spy-text">ჯაშუში</div>
+                        ${hintHtml}
+                    `;
                 }
-                contentHtml = `
-                    <div class="role-icon" style="color:var(--neon-pink)"><i class="fas fa-user-secret"></i></div>
-                    <div class="role-text spy-text">ჯაშუში</div>
-                    ${hintHtml}
-                `;
                 break;
             case "Detective":
                 contentHtml = `
@@ -352,8 +378,6 @@ const ui = {
                             "${state.chosenWordObj.h}"
                         </div>
                     </div>
-                    
-                    <div style="font-size:0.7rem; color:#888; margin-top:10px;">შენ იცი რა მინიშნება აქვს ჯაშუშს. უსმინე, ვინ გამოიყენებს მას!</div>
                 `;
                 break;
             case "Assassin":
@@ -361,7 +385,6 @@ const ui = {
                     <div class="role-icon" style="color:var(--neon-pink)"><i class="fas fa-skull-crossbones"></i></div>
                     <div class="role-text" style="color:var(--neon-pink)">მკვლელი</div>
                     <div style="font-size:0.8rem; margin-top:10px; color:#aaa;">სიტყვა:<br><span class="sityva" style="font-size:1.5rem">${state.chosenWordObj.w}</span></div>
-                    <div style="font-size:0.7rem; color:#888; margin-top:5px;">თუ ჯაშუში მოიგებს, შენც იგებ.</div>
                 `;
                 break;
             case "Doctor":
@@ -369,7 +392,6 @@ const ui = {
                     <div class="role-icon" style="color:#00ff88"><i class="fas fa-user-md"></i></div>
                     <div class="role-text" style="color:#00ff88">ექიმი</div>
                     <div style="font-size:0.8rem; margin-top:10px; color:#aaa;">სიტყვა:<br><span class="sityva" style="font-size:1.5rem">${state.chosenWordObj.w}</span></div>
-                    <div style="font-size:0.7rem; color:#888; margin-top:5px;">დაიცავი უდანაშაულოები.</div>
                 `;
                 break;
             case "Psychic":
@@ -392,7 +414,6 @@ const ui = {
                     <div class="role-icon" style="color:#ffaa00"><i class="fas fa-theater-masks"></i></div>
                     <div class="role-text" style="color:#ffaa00">ჯოკერი</div>
                     <div style="font-size:0.8rem; margin-top:10px; color:#aaa;">სიტყვა:<br><span class="sityva" style="font-size:1.5rem">${state.chosenWordObj.w}</span></div>
-                    <div style="font-size:0.7rem; color:#888; margin-top:5px;">შეცდომით აგარჩევინონ თავი!</div>
                 `;
                 break;
             default: // Civilian
