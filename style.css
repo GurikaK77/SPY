@@ -196,7 +196,8 @@ input:checked + .slider:before { transform: translateX(26px); }
 .category-option input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--neon-purple); margin: 0; }
 
 .game-modes-grid-mini { display: flex; gap: 10px; margin-top: 5px; }
-.game-mode-card-mini { flex: 1; text-align: center; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: var(--transition); }
+.game-mode-card-mini { flex: 1; text-align: center; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: var(--transition); display:flex; flex-direction: column; align-items: center; gap: 5px; }
+.game-mode-card-mini i { font-size: 1.2rem; margin-bottom: 2px; }
 .game-mode-card-mini:hover { background: rgba(255,255,255,0.1); border-color: var(--neon-purple); }
 .game-mode-card-mini.active { background: rgba(0, 243, 255, 0.2); border-color: var(--neon-blue); color: #fff; box-shadow: 0 0 10px rgba(0, 243, 255, 0.3); }
 
