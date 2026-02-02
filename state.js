@@ -1,22 +1,16 @@
 // state.js
 
-const GAME_MODES = {
-    normal: { name: "ნორმალური", time: 120, spies: 1, detectives: 0, pointsMultiplier: 1 },
-    blitz: { name: "ბლიცი", time: 60, spies: 2, detectives: 0, pointsMultiplier: 1.5 },
-    hardcore: { name: "რთული", time: 180, spies: 1, detectives: 1, pointsMultiplier: 2 }
-};
-
 const state = {
     players: [],
     roles: [],
     chosenWordObj: { w: "", h: "" },
+    chameleonWordObj: { w: "", h: "" }, // Stores the fake word for Chameleon mode
     currentIndex: 0,
     timerInterval: null,
     timeLeft: 0,
     isDetectiveMode: false,
     isPointsEnabled: false,
     usedWords: [],
-    currentGameMode: "normal",
     dailyChallenges: [],
     soundEnabled: true,
     
@@ -28,13 +22,13 @@ const state = {
         psychicCount: 0,
         jokerCount: 0,
         
-        theme: "standard", // standard, halloween, christmas, cyberpunk, fantasy
+        theme: "standard", 
         
         playerOrder: "sequential", 
         pointsSystem: "disabled", 
         manualEntry: true, 
         selectedCategories: ["mix"],
-        gameMode: "normal",
+        gameVariant: "standard", // 'standard' or 'chameleon'
         timePerRound: 120,
         spyHintEnabled: true
     },
@@ -68,6 +62,7 @@ const state = {
             players: this.players,
             roles: this.roles,
             chosenWordObj: this.chosenWordObj,
+            chameleonWordObj: this.chameleonWordObj,
             currentIndex: this.currentIndex,
             timeLeft: this.timeLeft,
             isDetectiveMode: this.isDetectiveMode,
@@ -76,7 +71,6 @@ const state = {
             activeSection: activeSection,
             gameStats: this.gameStats,
             dailyChallenges: this.dailyChallenges,
-            currentGameMode: this.currentGameMode,
             soundEnabled: this.soundEnabled,
             timestamp: Date.now()
         };
@@ -95,6 +89,7 @@ const state = {
             this.players = s.players || [];
             this.roles = s.roles || [];
             this.chosenWordObj = s.chosenWordObj || { w: "", h: "" };
+            this.chameleonWordObj = s.chameleonWordObj || { w: "", h: "" };
             this.currentIndex = s.currentIndex || 0;
             this.timeLeft = s.timeLeft || 0;
             this.isDetectiveMode = s.isDetectiveMode;
@@ -102,7 +97,6 @@ const state = {
             this.config = { ...this.config, ...s.config }; 
             this.gameStats = s.gameStats || this.gameStats;
             this.dailyChallenges = s.dailyChallenges || [];
-            this.currentGameMode = s.currentGameMode || "normal";
             this.soundEnabled = s.soundEnabled !== undefined ? s.soundEnabled : true;
             return true;
         } catch (e) { return false; }
@@ -119,60 +113,45 @@ const state = {
         }
     },
 
-    saveConfig() {
-        this.audio.playSound('click');
-        const getInt = (id) => parseInt(document.getElementById(id)?.value) || 0;
+    updateConfig(key, value) {
+        // Convert numbers
+        if (['spyCount', 'detectiveCount', 'assassinCount', 'doctorCount', 'psychicCount', 'jokerCount', 'timePerRound'].includes(key)) {
+            value = parseInt(value) || 0;
+        }
         
-        this.config.spyCount = getInt("spyCountConfig") || 1; 
-        this.config.detectiveCount = getInt("detectiveCount");
-        this.config.assassinCount = getInt("assassinCount");
-        this.config.doctorCount = getInt("doctorCount");
-        this.config.psychicCount = getInt("psychicCount");
-        this.config.jokerCount = getInt("jokerCount");
-        this.config.timePerRound = getInt("timeConfig") || 120;
+        // Convert boolean
+        if (key === 'spyHintEnabled') value = !!value;
         
-        const playerOrder = document.getElementById("playerOrder");
-        if (playerOrder) this.config.playerOrder = playerOrder.value;
+        // Update checkbox categories specially if needed, but for single inputs:
+        this.config[key] = value;
         
-        const pointsSystem = document.getElementById("pointsSystem");
-        if (pointsSystem) this.config.pointsSystem = pointsSystem.value;
-
-        const spyHintToggle = document.getElementById("spyHintToggle");
-        if (spyHintToggle) this.config.spyHintEnabled = spyHintToggle.checked;
-        
-        const themeSelect = document.getElementById("themeSelect");
-        if (themeSelect) this.config.theme = themeSelect.value;
-
-        const checkboxes = document.querySelectorAll("#categoriesContainer input[type='checkbox']");
-        const selected = [];
-        checkboxes.forEach(cb => { if (cb.checked) selected.push(cb.value); });
-        if (selected.length === 0) selected.push("mix");
-        this.config.selectedCategories = selected;
+        // Special logic for Theme
+        if (key === 'theme') {
+            ui.updateTheme();
+        }
 
         this.saveGame();
-        ui.updateTheme(); 
-        ui.showToast("✅ პარამეტრები შენახულია");
-        setTimeout(() => ui.showPlayerInput(), 300);
+        ui.showToast("✅ შენახულია");
     },
     
-    setGameMode(mode) {
+    setGameVariant(variant) {
         state.audio.playSound('click');
-        state.currentGameMode = mode;
-        state.config.gameMode = mode;
-        const conf = GAME_MODES[mode];
+        state.config.gameVariant = variant;
+        state.updateConfig('gameVariant', variant);
         
-        state.config.spyCount = conf.spies;
-        state.config.detectiveCount = conf.detectives;
-        state.config.timePerRound = conf.time;
-        
-        document.getElementById("spyCountConfig").value = conf.spies;
-        document.getElementById("detectiveCount").value = conf.detectives;
-        document.getElementById("timeConfig").value = conf.time;
-
         document.querySelectorAll('.game-mode-card-mini').forEach(c => c.classList.remove('active'));
-        const activeCard = document.getElementById(mode === 'normal' ? 'modeNormal' : mode === 'blitz' ? 'modeBlitz' : 'modeHardcore');
+        const activeCard = document.getElementById(variant === 'standard' ? 'modeStandard' : 'modeChameleon');
         if(activeCard) activeCard.classList.add('active');
         
-        ui.showToast(`არჩეულია რეჟიმი: ${conf.name}`);
+        const desc = document.getElementById("modeDescription");
+        if(desc) {
+            if(variant === 'standard') {
+                desc.textContent = "სტანდარტული რეჟიმი. ჯაშუშმა იცის რომ ჯაშუშია.";
+            } else {
+                desc.textContent = "ქამელეონი: ჯაშუშს ეწერება სხვა სიტყვა და არ იცის რომ ჯაშუშია.";
+            }
+        }
+        
+        ui.showToast(`არჩეულია რეჟიმი: ${variant === 'standard' ? 'კლასიკური' : 'ქამელეონი'}`);
     }
 };
