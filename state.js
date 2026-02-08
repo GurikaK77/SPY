@@ -8,7 +8,7 @@ const state = {
     currentIndex: 0,
     timerInterval: null,
     timeLeft: 0,
-    wakeLock: null, // <-- დაემატა ეკრანის გასაკონტროლებლად
+    wakeLock: null, 
     isDetectiveMode: false,
     isPointsEnabled: false,
     usedWords: [],
@@ -31,7 +31,9 @@ const state = {
         selectedCategories: ["mix"],
         gameVariant: "standard", 
         timePerRound: 120,
-        spyHintEnabled: true
+        
+        // აქ შევცვალეთ: ნაგულისხმევად გამორთულია
+        spyHintEnabled: false 
     },
 
     gameStats: {
@@ -59,7 +61,6 @@ const state = {
 
     saveGame() {
         const activeSection = document.querySelector('.section.active')?.id || 'playerInput';
-        // არ ვინახავთ wakeLock-ს localStorage-ში, რადგან ის სესიის ნაწილია
         const gameState = {
             players: this.players,
             roles: this.roles,
