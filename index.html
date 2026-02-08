@@ -194,121 +194,170 @@
                 <h2><i class="fas fa-cogs"></i> პარამეტრები</h2>
             </div>
 
-             <div class="input-group">
-                <label class="form-label"><i class="fas fa-gamepad"></i> თამაშის რეჟიმი:</label>
-                <div class="game-modes-grid-mini">
-                    <div class="game-mode-card-mini active" id="modeStandard" onclick="state.setGameVariant('standard')">
-                        <i class="fas fa-user-secret"></i> კლასიკური
+            <div class="settings-tabs">
+                <button class="tab-btn active" onclick="ui.switchSettingsTab('gameplay')">
+                    <i class="fas fa-gamepad"></i> გეიმპლეი
+                </button>
+                <button class="tab-btn" onclick="ui.switchSettingsTab('roles')">
+                    <i class="fas fa-users"></i> როლები
+                </button>
+                <button class="tab-btn" onclick="ui.switchSettingsTab('content')">
+                    <i class="fas fa-palette"></i> ვიზუალი
+                </button>
+            </div>
+
+            <div id="tab-gameplay" class="tab-content active-tab">
+                <div class="input-group">
+                    <label class="form-label">თამაშის რეჟიმი:</label>
+                    <div class="game-modes-grid-mini">
+                        <div class="game-mode-card-mini active" id="modeStandard" onclick="state.setGameVariant('standard')">
+                            <i class="fas fa-user-secret"></i> კლასიკური
+                        </div>
+                        <div class="game-mode-card-mini" id="modeChameleon" onclick="state.setGameVariant('chameleon')">
+                            <i class="fas fa-random"></i> ქამელეონი
+                        </div>
                     </div>
-                    <div class="game-mode-card-mini" id="modeChameleon" onclick="state.setGameVariant('chameleon')">
-                        <i class="fas fa-random"></i> ქამელეონი
+                    <div id="modeDescription" style="font-size:0.8rem; color:var(--text-muted); margin-top:10px; text-align:center; background:rgba(0,0,0,0.3); padding:8px; border-radius:10px;"></div>
+                </div>
+
+                <div class="input-group">
+                    <label class="form-label"><i class="fas fa-clock"></i> დრო (წამები):</label>
+                    <input type="number" id="timeConfig" min="30" max="600" value="120" onchange="state.updateConfig('timePerRound', this.value)">
+                </div>
+
+                <div class="input-group">
+                    <label class="form-label"><i class="fas fa-star-half-alt"></i> ქულების სისტემა:</label>
+                    <select id="pointsSystem" onchange="state.updateConfig('pointsSystem', this.value)">
+                        <option value="enabled">ჩართვა</option>
+                        <option value="disabled" selected>გამორთვა</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label class="form-label"><i class="fas fa-random"></i> რიგი:</label>
+                    <select id="playerOrder" onchange="state.updateConfig('playerOrder', this.value)">
+                        <option value="sequential" selected>თანმიმდევრობით</option>
+                        <option value="random">შემთხვევითი</option>
+                    </select>
+                </div>
+
+                <div class="toggle-container">
+                    <label><i class="fas fa-lightbulb"></i> ჯაშუშის მინიშნება</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="spyHintToggle" checked onchange="state.updateConfig('spyHintEnabled', this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div id="tab-roles" class="tab-content">
+                <div class="roles-grid-container">
+                    
+                    <div class="role-setting-item">
+                        <div class="role-label-group">
+                            <label><i class="fas fa-user-secret" style="color:var(--neon-pink)"></i> ჯაშუში</label>
+                            <div class="info-tooltip">
+                                <i class="fas fa-info-circle"></i>
+                                <span class="tooltip-text">უნდა გამოიცნოს სიტყვა ან დარჩეს შეუმჩნეველი.</span>
+                            </div>
+                        </div>
+                        <select id="spyCountConfig" onchange="state.updateConfig('spyCount', this.value)">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                        </select>
                     </div>
+
+                    <div class="role-setting-item">
+                        <div class="role-label-group">
+                            <label><i class="fas fa-search" style="color:var(--neon-blue)"></i> დეტექტივი</label>
+                            <div class="info-tooltip">
+                                <i class="fas fa-info-circle"></i>
+                                <span class="tooltip-text">იცის ჯაშუშის მინიშნება. ეძებს ვინ გამოიყენებს მას.</span>
+                            </div>
+                        </div>
+                        <select id="detectiveCount" onchange="state.updateConfig('detectiveCount', this.value)">
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                        </select>
+                    </div>
+
+                    <div class="role-setting-item">
+                        <div class="role-label-group">
+                            <label><i class="fas fa-skull-crossbones" style="color:var(--neon-pink)"></i> მკვლელი</label>
+                            <div class="info-tooltip">
+                                <i class="fas fa-info-circle"></i>
+                                <span class="tooltip-text">ჯაშუშის მოკავშირე. იგებს თუ ჯაშუში იგებს.</span>
+                            </div>
+                        </div>
+                        <select id="assassinCount" onchange="state.updateConfig('assassinCount', this.value)">
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                        </select>
+                    </div>
+
+                    <div class="role-setting-item">
+                        <div class="role-label-group">
+                            <label><i class="fas fa-user-md" style="color:var(--success)"></i> ექიმი</label>
+                            <div class="info-tooltip">
+                                <i class="fas fa-info-circle"></i>
+                                <span class="tooltip-text">იცავს უდანაშაულოებს შეცდომისგან.</span>
+                            </div>
+                        </div>
+                        <select id="doctorCount" onchange="state.updateConfig('doctorCount', this.value)">
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                        </select>
+                    </div>
+
+                    <div class="role-setting-item">
+                        <div class="role-label-group">
+                            <label><i class="fas fa-eye" style="color:#bf00ff"></i> ნათელმხილველი</label>
+                            <div class="info-tooltip">
+                                <i class="fas fa-info-circle"></i>
+                                <span class="tooltip-text">იცის სიტყვის კატეგორია.</span>
+                            </div>
+                        </div>
+                        <select id="psychicCount" onchange="state.updateConfig('psychicCount', this.value)">
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                        </select>
+                    </div>
+
+                    <div class="role-setting-item">
+                        <div class="role-label-group">
+                            <label><i class="fas fa-theater-masks" style="color:var(--warning)"></i> ჯოკერი</label>
+                            <div class="info-tooltip">
+                                <i class="fas fa-info-circle"></i>
+                                <span class="tooltip-text">უნდა გააგდებინოს თავი ხალხს.</span>
+                            </div>
+                        </div>
+                        <select id="jokerCount" onchange="state.updateConfig('jokerCount', this.value)">
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                        </select>
+                    </div>
+
                 </div>
-                <div id="modeDescription" style="font-size:0.85rem; color:var(--text-muted); margin-top:10px; text-align:center; background:rgba(0,0,0,0.3); padding:10px; border-radius:10px;">
-                    სტანდარტული რეჟიმი. ჯაშუშმა იცის რომ ჯაშუშია.
+            </div>
+
+            <div id="tab-content" class="tab-content">
+                <div class="input-group">
+                    <label class="form-label"><i class="fas fa-palette"></i> ვიზუალური თემა:</label>
+                    <select id="themeSelect" onchange="state.updateConfig('theme', this.value)">
+                        <option value="standard" selected>სტანდარტული</option>
+                        <option value="halloween">🎃 Halloween</option>
+                        <option value="christmas">🎄 Christmas</option>
+                        <option value="cyberpunk">🤖 Cyberpunk</option>
+                        <option value="fantasy">🏰 Fantasy</option>
+                    </select>
                 </div>
-            </div>
-
-            <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin: 20px 0;">
-
-            <div class="input-group">
-                <label class="form-label"><i class="fas fa-clock"></i> დრო (წამები):</label>
-                <input type="number" id="timeConfig" min="30" max="600" value="120" onchange="state.updateConfig('timePerRound', this.value)">
-            </div>
-
-            <div class="input-group">
-                <label class="form-label"><i class="fas fa-palette"></i> თემა (Theme):</label>
-                <select id="themeSelect" onchange="state.updateConfig('theme', this.value)">
-                    <option value="standard" selected>სტანდარტული</option>
-                    <option value="halloween">🎃 Halloween</option>
-                    <option value="christmas">🎄 Christmas</option>
-                    <option value="cyberpunk">🤖 Cyberpunk</option>
-                    <option value="fantasy">🏰 Fantasy</option>
-                </select>
-            </div>
-            
-            <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin: 20px 0;">
-            <h4 style="color:var(--text-muted); margin-bottom:15px; text-align:center;">სპეციალური როლები</h4>
-
-            <div class="input-group">
-                <label class="form-label"><i class="fas fa-user-secret"></i> ჯაშუშები:</label>
-                <select id="spyCountConfig" onchange="state.updateConfig('spyCount', this.value)">
-                    <option value="1">1 ჯაშუში</option>
-                    <option value="2">2 ჯაშუში</option>
-                    <option value="3">3 ჯაშუში</option>
-                </select>
-            </div>
-
-            <div class="input-group">
-                <label class="form-label"><i class="fas fa-search"></i> დეტექტივი:</label>
-                <select id="detectiveCount" onchange="state.updateConfig('detectiveCount', this.value)">
-                    <option value="0" selected>0 (გამორთვა)</option>
-                    <option value="1">1 დეტექტივი</option>
-                    <option value="2">2 დეტექტივი</option>
-                </select>
-            </div>
-            
-            <div class="input-group">
-                <label class="form-label"><i class="fas fa-skull-crossbones"></i> მკვლელი:</label>
-                <select id="assassinCount" onchange="state.updateConfig('assassinCount', this.value)">
-                    <option value="0" selected>0 (გამორთვა)</option>
-                    <option value="1">1 მკვლელი</option>
-                </select>
-            </div>
-
-            <div class="input-group">
-                <label class="form-label"><i class="fas fa-user-md"></i> ექიმი:</label>
-                <select id="doctorCount" onchange="state.updateConfig('doctorCount', this.value)">
-                    <option value="0" selected>0 (გამორთვა)</option>
-                    <option value="1">1 ექიმი</option>
-                </select>
-            </div>
-
-            <div class="input-group">
-                <label class="form-label"><i class="fas fa-eye"></i> ნათელმხილველი:</label>
-                <select id="psychicCount" onchange="state.updateConfig('psychicCount', this.value)">
-                    <option value="0" selected>0 (გამორთვა)</option>
-                    <option value="1">1 ნათელმხილველი</option>
-                </select>
-            </div>
-
-            <div class="input-group">
-                <label class="form-label"><i class="fas fa-theater-masks"></i> ჯოკერი:</label>
-                <select id="jokerCount" onchange="state.updateConfig('jokerCount', this.value)">
-                    <option value="0" selected>0 (გამორთვა)</option>
-                    <option value="1">1 ჯოკერი</option>
-                </select>
-            </div>
-
-            <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin: 20px 0;">
-
-            <div class="toggle-container">
-                <label><i class="fas fa-lightbulb"></i> ჯაშუშის მინიშნება</label>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="spyHintToggle" checked onchange="state.updateConfig('spyHintEnabled', this.checked)">
-                    <span class="slider"></span>
-                </label>
-            </div>
-
-            <div class="input-group">
-                <label class="form-label"><i class="fas fa-star-half-alt"></i> ქულების სისტემა:</label>
-                <select id="pointsSystem" onchange="state.updateConfig('pointsSystem', this.value)">
-                    <option value="enabled">ჩართვა</option>
-                    <option value="disabled" selected>გამორთვა</option>
-                </select>
-            </div>
-            
-            <div class="input-group">
-                <label class="form-label"><i class="fas fa-random"></i> რიგი:</label>
-                <select id="playerOrder" onchange="state.updateConfig('playerOrder', this.value)">
-                    <option value="sequential" selected>თანმიმდევრობით</option>
-                    <option value="random">შემთხვევითი</option>
-                </select>
-            </div>
-            
-            <div class="categories-wrapper" style="margin-top:20px;">
-                <label class="form-label"><i class="fas fa-list"></i> კატეგორიები (სტანდარტულ რეჟიმში):</label>
-                <div class="categories-container-full" id="categoriesContainer"></div>
+                
+                <div class="categories-wrapper" style="margin-top:20px;">
+                    <label class="form-label"><i class="fas fa-list"></i> კატეგორიები:</label>
+                    <div class="categories-container-full" id="categoriesContainer"></div>
+                </div>
             </div>
 
             <div class="sticky-action-bar">
@@ -317,7 +366,6 @@
                 </button>
             </div>
         </div>
-
         <div id="statsSection" class="section">
             <div class="section-header-main">
                 <h2><i class="fas fa-chart-bar"></i> სტატისტიკა</h2>
