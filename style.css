@@ -188,9 +188,42 @@ input:focus, select:focus { outline: none; border-color: var(--neon-blue); box-s
 input:checked + .slider { background-color: var(--neon-purple); border-color: var(--neon-purple); }
 input:checked + .slider:before { transform: translateX(26px); }
 
-/* Categories & Settings */
+/* --- NEW SETTINGS TABS & HACKER EFFECTS --- */
+.settings-tabs { display: flex; gap: 5px; margin-bottom: 20px; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); }
+.tab-btn { flex: 1; padding: 12px; border: none; background: transparent; color: var(--text-muted); font-family: 'Orbitron', sans-serif; font-size: 0.8rem; cursor: pointer; border-radius: 10px; transition: var(--transition); display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.tab-btn i { font-size: 1.2rem; margin-bottom: 2px; }
+.tab-btn.active { background: rgba(188, 19, 254, 0.2); color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); box-shadow: inset 0 0 15px rgba(188, 19, 254, 0.2); border: 1px solid rgba(188, 19, 254, 0.4); }
+
+.tab-content { display: none; padding: 10px; border-radius: 10px; }
+.tab-content.active-tab { display: block; animation: hackerGlitch 0.4s ease-out; position: relative; overflow: hidden; }
+
+/* Hacker Transitions */
+@keyframes hackerGlitch {
+    0% { opacity: 0; transform: skewX(10deg) translateX(-10px); clip-path: inset(0 0 0 0); filter: hue-rotate(90deg); }
+    20% { opacity: 1; transform: skewX(-10deg) translateX(10px); clip-path: inset(10% 0 80% 0); }
+    40% { transform: skewX(5deg); clip-path: inset(80% 0 10% 0); }
+    60% { transform: skewX(-5deg); clip-path: inset(40% 0 40% 0); filter: hue-rotate(0deg); }
+    100% { opacity: 1; transform: none; clip-path: inset(0 0 0 0); }
+}
+
+.tab-content.active-tab::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: rgba(0, 243, 255, 0.5); opacity: 0.5; animation: scanline 1.5s linear forwards; pointer-events: none; }
+@keyframes scanline { 0% { top: -10%; opacity: 0; } 50% { opacity: 1; } 100% { top: 110%; opacity: 0; } }
+
+/* Roles Grid & Info Cards */
+.roles-grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.role-setting-item { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); }
+.role-label-group { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-main); font-weight: bold; }
+.role-label-group i { margin-right: 5px; }
+
+/* Info Tooltip */
+.info-tooltip { position: relative; cursor: help; color: var(--text-muted); transition: 0.3s; }
+.info-tooltip:hover { color: var(--neon-blue); }
+.tooltip-text { visibility: hidden; width: 180px; background-color: rgba(0,0,0,0.95); color: #fff; text-align: center; border-radius: 6px; padding: 8px; position: absolute; z-index: 100; bottom: 125%; left: 50%; margin-left: -90px; opacity: 0; transition: opacity 0.3s; border: 1px solid var(--neon-blue); font-size: 0.8rem; font-weight: normal; box-shadow: 0 0 15px rgba(0,0,0,0.5); pointer-events: none; }
+.info-tooltip:hover .tooltip-text { visibility: visible; opacity: 1; }
+
+/* --- Categories & Settings --- */
 .categories-container-full { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
-.categories-wrapper { max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); }
+.categories-wrapper { max-height: 250px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); }
 .category-option { padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: var(--transition); border: 1px solid transparent; }
 .category-option:hover { background: rgba(255,255,255,0.1); border-color: var(--neon-purple); }
 .category-option input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--neon-purple); margin: 0; }
@@ -334,4 +367,5 @@ input:checked + .slider:before { transform: translateX(26px); }
     .section, .modal-content, .role-card-front, .role-card-back { backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); }
     .container { padding: 15px; padding-bottom: 120px; }
     .burger-menu-btn { top: 15px; right: 15px; width: 45px; height: 45px; }
+    .roles-grid-container { grid-template-columns: 1fr; }
 }
