@@ -6,7 +6,6 @@ const ui = {
         if (toast) {
             toast.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
             toast.classList.add("show");
-            // Clear previous timeout if exists
             if (this.toastTimeout) clearTimeout(this.toastTimeout);
             this.toastTimeout = setTimeout(() => { toast.classList.remove("show"); }, 2000);
         }
@@ -91,11 +90,9 @@ const ui = {
         state.config.manualEntry = isManual;
 
         if (triggeredByToggle) {
-            // FIX: Clear players list when switching to Manual to avoid auto-generated names remaining
             if (isManual) {
                 state.players = [];
             } else {
-                // Determine count from input if switching to Auto
                 const count = parseInt(countInput.value) || 5;
                 state.players = [];
                 for (let i = 1; i <= count; i++) {
@@ -144,9 +141,12 @@ const ui = {
     updatePlayerList() {
         const list = document.getElementById("playerList");
         list.innerHTML = "";
+        
+        // აქ შევცვალეთ: თუ სია ცარიელია, უბრალოდ ვასრულებთ და არაფერს ვწერთ
         if (state.players.length === 0) {
-            list.innerHTML = '<div style="text-align:center; color:var(--text-muted)">სიცარიელეა</div>';
+            return; 
         }
+
         state.players.forEach((p, i) => {
             const div = document.createElement("div");
             div.className = "player-item";
@@ -175,11 +175,30 @@ const ui = {
             span.style.color = state.players.length >= 3 ? "var(--success)" : "var(--neon-pink)";
         }
     },
+    
+    // --- NEW TABS LOGIC ---
+    switchSettingsTab(tabName) {
+        state.audio.playSound('click');
+        
+        // Update Buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if(btn.getAttribute('onclick').includes(`'${tabName}'`)) {
+                btn.classList.add('active');
+            }
+        });
+
+        // Update Content
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active-tab');
+        });
+        const activeContent = document.getElementById(`tab-${tabName}`);
+        if(activeContent) activeContent.classList.add('active-tab');
+    },
 
     showSystemSettings() {
         state.audio.playSound('click');
         
-        // Populate inputs
         const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
         
         setVal("spyCountConfig", state.config.spyCount);
@@ -193,12 +212,12 @@ const ui = {
         setVal("playerOrder", state.config.playerOrder);
         setVal("themeSelect", state.config.theme);
 
-        document.getElementById("spyHintToggle").checked = state.config.spyHintEnabled;
+        // აქ ვამოწმებთ სეტინგებს გახსნისას
+        const spyToggle = document.getElementById("spyHintToggle");
+        if(spyToggle) spyToggle.checked = state.config.spyHintEnabled;
         
-        // Set Game Variant UI
         state.setGameVariant(state.config.gameVariant);
         
-        // Categories
         const container = document.getElementById("categoriesContainer");
         container.innerHTML = "";
         
@@ -213,7 +232,6 @@ const ui = {
             chk.id = `cat_${key}`;
             if(state.config.selectedCategories.includes(key)) chk.checked = true;
             
-            // Add onchange for categories
             chk.onchange = function() {
                 const checkboxes = document.querySelectorAll("#categoriesContainer input[type='checkbox']");
                 const selected = [];
@@ -230,6 +248,7 @@ const ui = {
             container.appendChild(div);
         });
 
+        this.switchSettingsTab('gameplay');
         this.setActiveSection('systemSettingsSection');
     },
 
@@ -344,15 +363,12 @@ const ui = {
             case "Spy":
                 navigator.vibrate?.([100, 50, 100]);
                 
-                // CHAMELEON LOGIC
                 if (state.config.gameVariant === 'chameleon') {
-                     // Show as Civilian with Fake Word
                     contentHtml = `
                         <div class="role-icon"><i class="fas fa-user"></i></div>
                         <div class="role-text">სიტყვა:<br><span class="sityva">${state.chameleonWordObj.w}</span></div>
                     `;
                 } else {
-                    // Standard Spy
                     let hintHtml = "";
                     if (state.config.spyHintEnabled) {
                         hintHtml = `<div style="font-size:0.9rem; color:#aaa; margin-top:10px;">მინიშნება: ${state.chosenWordObj.h}</div>`;
