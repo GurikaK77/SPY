@@ -44,8 +44,9 @@ function initDailyChallenges() {
     
     if (storedDate !== today) {
         state.dailyChallenges = [
-            { id: 1, type: 'spy_win', description: "გაიმარჯვე როგორც ჯაშუში", target: 1, progress: 0, completed: false },
-            { id: 2, type: 'play_games', description: "ითამაშე 2 თამაში", target: 2, progress: 0, completed: false }
+            { id: 1, type: 'play_games', description: "ითამაშე 2 თამაში", target: 2, progress: 0, completed: false },
+            { id: 2, type: 'win_spy', description: "მოიგე ჯაშუშად", target: 1, progress: 0, completed: false },
+            { id: 3, type: 'win_civilian', description: "მოიგე მოქალაქედ", target: 1, progress: 0, completed: false }
         ];
         localStorage.setItem('dailyChallenges', JSON.stringify(state.dailyChallenges));
         localStorage.setItem('challengeDate', today);
@@ -62,6 +63,21 @@ window.onload = function() {
     ui.updateTheme();
     createParticles();
     
+    // --- FIX START: ჩარჩენილი მოთამაშეების გასუფთავება ---
+    // თუ ხელით შეყვანაა ჩართული (manualEntry == true)
+    if (state.config.manualEntry) {
+        // ვამოწმებთ, სიაში თუ არის დარჩენილი ავტომატური სახელები (მაგ: "Player 1", "Player 2"...)
+        // (შენიშვნა: წინა კოდში სახელები შევცვალეთ "Player"-ზე, ამიტომ ამას ვეძებთ)
+        const hasAutoNames = state.players.some(p => p.name.startsWith("Player ") || p.name.startsWith("მოთამაშე "));
+        
+        if (hasAutoNames) {
+            // თუ ვიპოვეთ, ვასუფთავებთ სიას, რომ სუფთა ფურცლიდან დაიწყოს
+            state.players = [];
+            state.saveGame();
+        }
+    }
+    // --- FIX END ---
+    
     setTimeout(() => {
         const loadingScreen = document.getElementById("loadingScreen");
         if (loadingScreen) loadingScreen.style.display = "none";
@@ -69,10 +85,18 @@ window.onload = function() {
         if (hasSavedGame) {
             document.getElementById("mainContent").style.display = "block";
             ui.updatePlayerList();
+            
+            // თუ თამაში მიმდინარეობდა, ვაგრძელებთ
             if (state.timeLeft > 0 && document.getElementById("gameSection").style.display === "block") {
                 game.startTimer();
             }
+            
             ui.setActiveSection(state.activeSection || 'playerInput');
+            
+            // ვააფდეითებთ ინპუტის ვიზუალს (Toggle-ს მდგომარეობას)
+            const manualToggle = document.getElementById("manualEntryToggle");
+            if(manualToggle) manualToggle.checked = state.config.manualEntry;
+            
             ui.updateInputMode(false); 
         } else {
             document.getElementById("readyScreen").style.display = "flex";
