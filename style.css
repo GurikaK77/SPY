@@ -267,7 +267,6 @@ input:checked + .slider:before { transform: translateX(26px); }
 .role-icon { font-size: 4rem; margin-bottom: 20px; filter: drop-shadow(0 0 15px currentColor); animation: bounceIn 0.8s; }
 
 /* --- Role Card Text --- */
-/* ეს სტილები ახლა ui.js-დან იმართება, მაგრამ საბაზისოს ვტოვებთ */
 .role-text { 
     font-size: 2rem; 
     font-weight: 700; 
@@ -281,6 +280,7 @@ input:checked + .slider:before { transform: translateX(26px); }
 
 .spy-text { color: var(--neon-pink); .role-icon { color: var(--neon-pink); } } .detektivi { color: var(--neon-blue); .role-icon { color: var(--neon-blue); } }
 
+/* დავტოვეთ საბაზისო, მაგრამ JS-ი გადააწერს */
 .sityva { 
     color: var(--gold); 
     display: block; 
