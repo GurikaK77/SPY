@@ -265,8 +265,35 @@ input:checked + .slider:before { transform: translateX(26px); }
 .role-card-front::after { content: '?'; font-size: 8rem; font-family: 'Cinzel', serif; color: rgba(255,255,255,0.05); position: absolute; }
 .role-card-back { background: #000; transform: rotateY(180deg); border: 2px solid var(--neon-blue); overflow: hidden; }
 .role-icon { font-size: 4rem; margin-bottom: 20px; filter: drop-shadow(0 0 15px currentColor); animation: bounceIn 0.8s; }
-.role-text { font-size: 1.8rem; font-weight: 700; font-family: 'Cinzel', serif; text-transform: uppercase; }
-.spy-text { color: var(--neon-pink); .role-icon { color: var(--neon-pink); } } .detektivi { color: var(--neon-blue); .role-icon { color: var(--neon-blue); } } .sityva { color: var(--gold); display: block; font-size: 2.2rem; margin-top: 10px; text-shadow: 0 0 10px var(--gold); }
+
+/* --- Role Card Text Fixes --- */
+.role-text { 
+    font-size: clamp(1.2rem, 5vw, 1.8rem); 
+    font-weight: 700; 
+    font-family: 'Cinzel', serif; 
+    text-transform: uppercase; 
+    word-wrap: break-word;      
+    overflow-wrap: break-word; 
+    width: 100%;
+    line-height: 1.2;
+    padding: 0 5px;
+}
+
+.spy-text { color: var(--neon-pink); .role-icon { color: var(--neon-pink); } } .detektivi { color: var(--neon-blue); .role-icon { color: var(--neon-blue); } }
+
+.sityva { 
+    color: var(--gold); 
+    display: block; 
+    font-size: clamp(1.4rem, 6vw, 2.2rem);
+    margin-top: 10px; 
+    text-shadow: 0 0 10px var(--gold); 
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    width: 100%;
+    line-height: 1.1;
+}
+
 @keyframes bounceIn { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.2); } 100% { transform: scale(1); opacity: 1; } }
 
 .current-player { margin-top: 20px; color: var(--text-muted); font-size: 1.2rem; }
