@@ -1,6 +1,17 @@
 // ui.js
 
 const ui = {
+    // აუდიოს ინიციალიზაცია პირველ დაჭერაზე (ბრაუზერის პოლიტიკის გამო)
+    initAudio() {
+        if(state.audio && state.audio.sounds && state.audio.sounds.click) {
+            // ვცდილობთ დავუკრათ და მაშინვე გავაჩეროთ, რომ სისტემამ აუდიო განბლოკოს
+            state.audio.sounds.click.play().then(() => {
+                state.audio.sounds.click.pause();
+                state.audio.sounds.click.currentTime = 0;
+            }).catch(e => console.log("Audio init failed:", e));
+        }
+    },
+
     showToast(message) {
         const toast = document.getElementById("toastMessage");
         if (toast) {
@@ -79,6 +90,20 @@ const ui = {
         this.updatePlayerList();
     },
 
+    // ფუნქცია +/- ღილაკებისთვის
+    adjustPlayerCount(delta) {
+        state.audio.playSound('click');
+        const input = document.getElementById("totalPlayersCount");
+        let val = parseInt(input.value) || 5;
+        val += delta;
+        
+        if(val < 3) val = 3;
+        if(val > 20) val = 20;
+        
+        input.value = val;
+        this.updateInputMode(true);
+    },
+
     updateInputMode(triggeredByToggle = false) {
         const manualToggle = document.getElementById("manualEntryToggle");
         const manualContainer = document.getElementById("manualInputContainer");
@@ -89,19 +114,23 @@ const ui = {
         const isManual = manualToggle ? manualToggle.checked : true;
         state.config.manualEntry = isManual;
 
+        // აქ ვასწორებთ "მოთამაშეების ჩარჩენის" პრობლემას
         if (triggeredByToggle) {
-            if (isManual) {
-                state.players = [];
-            } else {
+            // ყოველთვის ვასუფთავებთ სიას, რომ ძველი მონაცემები არ დარჩეს
+            state.players = []; 
+
+            if (!isManual) {
+                // თუ ავტომატურია, ახლიდან ვქმნით Player X სახელებით
                 const count = parseInt(countInput.value) || 5;
-                state.players = [];
                 for (let i = 1; i <= count; i++) {
                      state.players.push({ 
-                        name: `მოთამაშე ${i}`, 
+                        name: `Player ${i}`, // შეიცვალა Player-ზე
                         points: 0, coins: 10, inventory: [], level: 1, xp: 0 
                     });
                 }
             }
+            // თუ ხელით შეყვანაა (Manual), სია რჩება ცარიელი (state.players = [])
+            
             this.updatePlayerList();
         }
 
@@ -110,6 +139,7 @@ const ui = {
             autoContainer.style.display = "none";
             if(pointsSelect) pointsSelect.disabled = false;
         } else {
+            manualContainer.style.display = "block"; // hack: auto container is inside manual container visually in some designs, but here separated
             manualContainer.style.display = "none";
             autoContainer.style.display = "block";
             if(pointsSelect) { 
@@ -142,7 +172,6 @@ const ui = {
         const list = document.getElementById("playerList");
         list.innerHTML = "";
         
-        // აქ შევცვალეთ: თუ სია ცარიელია, უბრალოდ ვასრულებთ და არაფერს ვწერთ
         if (state.players.length === 0) {
             return; 
         }
@@ -176,11 +205,10 @@ const ui = {
         }
     },
     
-    // --- NEW TABS LOGIC ---
+    // --- TABS LOGIC ---
     switchSettingsTab(tabName) {
         state.audio.playSound('click');
         
-        // Update Buttons
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.classList.remove('active');
             if(btn.getAttribute('onclick').includes(`'${tabName}'`)) {
@@ -188,7 +216,6 @@ const ui = {
             }
         });
 
-        // Update Content
         document.querySelectorAll('.tab-content').forEach(content => {
             content.classList.remove('active-tab');
         });
@@ -212,7 +239,6 @@ const ui = {
         setVal("playerOrder", state.config.playerOrder);
         setVal("themeSelect", state.config.theme);
 
-        // აქ ვამოწმებთ სეტინგებს გახსნისას
         const spyToggle = document.getElementById("spyHintToggle");
         if(spyToggle) spyToggle.checked = state.config.spyHintEnabled;
         
