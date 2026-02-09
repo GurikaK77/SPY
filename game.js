@@ -31,7 +31,7 @@ const game = {
             const count = parseInt(document.getElementById("totalPlayersCount").value);
             state.players = [];
             for (let i = 1; i <= count; i++) {
-                state.players.push({ name: `მოთამაშე ${i}`, points: 0, coins: 10, inventory: [], level: 1, xp: 0 });
+                state.players.push({ name: `Player ${i}`, points: 0, coins: 10, inventory: [], level: 1, xp: 0 });
             }
         }
         
