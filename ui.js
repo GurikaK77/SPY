@@ -1,7 +1,6 @@
 // ui.js
 
 const ui = {
-    // აუდიოს ინიციალიზაცია
     initAudio() {
         if(state.audio && state.audio.sounds && state.audio.sounds.click) {
             state.audio.sounds.click.play().then(() => {
@@ -220,9 +219,7 @@ const ui = {
         setVal("playerOrder", state.config.playerOrder);
         setVal("themeSelect", state.config.theme);
 
-        const spyToggle = document.getElementById("spyHintToggle");
-        if(spyToggle) spyToggle.checked = state.config.spyHintEnabled;
-        
+        document.getElementById("spyHintToggle").checked = state.config.spyHintEnabled;
         state.setGameVariant(state.config.gameVariant);
         
         const container = document.getElementById("categoriesContainer");
@@ -358,6 +355,7 @@ const ui = {
         document.getElementById("roleCardFront").innerHTML = `<div class="role-icon"><i class="fas fa-fingerprint"></i></div>`;
     },
 
+    // --- აქ არის მთავარი ცვლილება ---
     revealRole() {
         state.audio.playSound('reveal');
         document.getElementById("roleCard").classList.add("flipped");
@@ -366,18 +364,44 @@ const ui = {
         
         let contentHtml = '';
         
-        // --- SMART FONT SIZE LOGIC ---
+        // --- SMART FONT SIZE LOGIC (შესწორებული) ---
+        // ეს ფუნქცია ითვლის ასოების რაოდენობას და არგებს ზომას
         const calculateStyle = (text) => {
             const len = text.length;
-            let size = '2rem';
+            const hasSpace = text.includes(' ');
             
-            if (len <= 6) size = '3.5rem';       // მოკლე სიტყვა (მაგ: ხე, სახლი) - უზარმაზარი
-            else if (len <= 9) size = '2.5rem';  // საშუალო (მაგ: მანქანა) - დიდი
-            else if (len <= 14) size = '1.8rem'; // გრძელი (მაგ: ინსტაგრამი) - ნორმალური (ეტევა)
-            else size = '1.4rem';                // ძალიან გრძელი (წინადადება) - პატარა
-            
-            // ეს სტილი უზრუნველყოფს რომ სიტყვა ჩამოვიდეს თუ მაინც ვერ ეტევა
-            return `font-size:${size}; line-height:1.1; white-space:normal; overflow-wrap:break-word; word-break:normal; display:block; width:100%; text-align:center; padding:0 5px;`;
+            // თუ ერთი სიტყვაა:
+            if (!hasSpace) {
+                // ფორმულა: რაც მეტია ასო, მით ნაკლებია ზომა.
+                // მაგალითად: 10 ასო -> 2.2rem. 5 ასო -> 3rem (მაქსიმუმი).
+                let size = Math.min(3.0, 22 / len); 
+                if (size < 1.1) size = 1.1; // მინიმუმი რომ სულ არ გაქრეს
+                
+                return `
+                    font-size: ${size}rem; 
+                    white-space: nowrap; 
+                    overflow: visible; 
+                    display: block; 
+                    width: 100%; 
+                    text-align: center; 
+                    line-height: 1.2;
+                `;
+            } else {
+                // თუ ორი ან მეტი სიტყვაა:
+                // თუ მოკლეა (მაგ: დიდი ხე) -> 2.5rem
+                // თუ გრძელია (მაგ: ელექტრო ჩაიდანი) -> 1.8rem და გადავიდეს ხაზზე
+                let size = (len < 12) ? 2.5 : 1.8;
+                
+                return `
+                    font-size: ${size}rem; 
+                    white-space: normal; /* აქ ვრთავთ ხაზზე გადასვლას */
+                    word-wrap: break-word;
+                    display: block; 
+                    width: 100%; 
+                    text-align: center; 
+                    line-height: 1.1;
+                `;
+            }
         };
         // -----------------------------
 
