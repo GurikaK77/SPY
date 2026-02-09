@@ -266,23 +266,18 @@ input:checked + .slider:before { transform: translateX(26px); }
 .role-card-back { background: #000; transform: rotateY(180deg); border: 2px solid var(--neon-blue); overflow: hidden; }
 .role-icon { font-size: 4rem; margin-bottom: 20px; filter: drop-shadow(0 0 15px currentColor); animation: bounceIn 0.8s; }
 
-/* --- Role Card Text Fixes (BIGGER VERSION) --- */
-
+/* --- Role Card Text Fixes (RESPONSIVE NO-WRAP) --- */
 .role-text { 
-    /* გავზარდეთ ზომები: მინიმუმ 1.5rem, მაქსიმუმ 2.5rem */
-    font-size: clamp(1.5rem, 6vw, 2.5rem); 
+    /* ზომა: ეკრანის სიგანის 8%, მაქსიმუმ 2rem. */
+    font-size: min(8vw, 2rem); 
     font-weight: 700; 
     font-family: 'Cinzel', serif; 
     text-transform: uppercase; 
-    
-    /* ტექსტის გადატანა */
-    white-space: normal;
-    word-wrap: break-word;      
-    overflow-wrap: break-word; 
-    
+    white-space: nowrap; /* არ გადაიტანოს */
     width: 100%;
-    line-height: 1.1;
-    padding: 0 10px;
+    text-align: center;
+    padding: 0 5px;
+    margin-bottom: 10px;
 }
 
 .spy-text { color: var(--neon-pink); } 
@@ -294,21 +289,17 @@ input:checked + .slider:before { transform: translateX(26px); }
     color: var(--gold); 
     display: block; 
     
-    /* აქ არის მთავარი ცვლილება - გავზარდეთ ზომები */
-    /* მინიმუმ 2.2rem (დიდია), მაქსიმუმ 4rem (უზარმაზარია) */
-    font-size: clamp(2.2rem, 12vw, 4rem);
+    /* მთავარი: ეკრანის სიგანის 11% ან მაქს 3rem. */
+    /* ეს ნიშნავს, რომ პატარა ეკრანზე/გრძელ სიტყვაზე ზომა დაიკლებს, მაგრამ არ ჩამოვარდება */
+    font-size: min(11vw, 3rem);
     
-    margin-top: 15px; 
+    margin-top: 10px; 
     text-shadow: 0 0 15px var(--gold); 
-    
-    /* გადატანის ლოგიკა */
-    white-space: normal;        /* უფლებას აძლევს ჩამოვიდეს */
-    word-wrap: break-word;      /* თუ არ ეტევა, ტეხავს სიტყვას */
-    overflow-wrap: break-word;  
-    
+    white-space: nowrap; /* არ გადაიტანოს */
+    overflow: visible; 
     width: 100%;
-    line-height: 1.0;           /* ხაზები ახლოს იყოს ერთმანეთთან */
-    padding: 0 5px;
+    text-align: center;
+    padding: 0 2px;
 }
 
 @keyframes bounceIn { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.2); } 100% { transform: scale(1); opacity: 1; } }
