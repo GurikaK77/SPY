@@ -25,7 +25,6 @@ const ui = {
         const overlay = document.getElementById("burgerMenuOverlay");
         menu.classList.toggle("show");
         overlay.classList.toggle("show");
-        
         const st = document.getElementById("burgerSoundToggle");
         if(st) st.checked = state.soundEnabled;
     },
@@ -54,7 +53,6 @@ const ui = {
                          'findSpySection', 'resultSection', 'statsSection',
                          'challengesSection', 'instructionsSection', 'aboutSection',
                          'systemSettingsSection']; 
-        
         const logoArea = document.getElementById('logoArea');
         const hideLogo = ['gameSection', 'roleSection', 'findSpySection', 'resultSection'].includes(activeId);
         if (logoArea) logoArea.style.display = hideLogo ? 'none' : 'block';
@@ -156,7 +154,6 @@ const ui = {
     updatePlayerList() {
         const list = document.getElementById("playerList");
         list.innerHTML = "";
-        
         if (state.players.length === 0) return;
 
         state.players.forEach((p, i) => {
@@ -355,7 +352,7 @@ const ui = {
         document.getElementById("roleCardFront").innerHTML = `<div class="role-icon"><i class="fas fa-fingerprint"></i></div>`;
     },
 
-    // --- აქ არის მთავარი ცვლილება ---
+    // --- აქ არის მთავარი გამოსწორება ---
     revealRole() {
         state.audio.playSound('reveal');
         document.getElementById("roleCard").classList.add("flipped");
@@ -364,37 +361,39 @@ const ui = {
         
         let contentHtml = '';
         
-        // --- SMART FONT SIZE LOGIC (შესწორებული) ---
-        // ეს ფუნქცია ითვლის ასოების რაოდენობას და არგებს ზომას
+        // --- SMART FONT SIZE LOGIC ---
+        // ეს ფუნქცია ზუსტად განსაზღვრავს ზომას და გადატანის წესს
         const calculateStyle = (text) => {
             const len = text.length;
             const hasSpace = text.includes(' ');
             
-            // თუ ერთი სიტყვაა:
             if (!hasSpace) {
-                // ფორმულა: რაც მეტია ასო, მით ნაკლებია ზომა.
-                // მაგალითად: 10 ასო -> 2.2rem. 5 ასო -> 3rem (მაქსიმუმი).
-                let size = Math.min(3.0, 22 / len); 
-                if (size < 1.1) size = 1.1; // მინიმუმი რომ სულ არ გაქრეს
+                // *** 1. ერთი სიტყვა (მაგ: შოკოლადი, ინსტაგრამი) ***
+                // white-space: nowrap კრძალავს გაწყვეტას!
+                
+                let size = '2.5rem';
+                if (len > 14) size = '1.3rem';      // ძალიან გრძელი (მაგ: ბენზინგასამართი)
+                else if (len > 11) size = '1.6rem'; // გრძელი (მაგ: ინსტაგრამი)
+                else if (len > 8) size = '2.0rem';  // საშუალო (მაგ: შოკოლადი)
                 
                 return `
-                    font-size: ${size}rem; 
-                    white-space: nowrap; 
-                    overflow: visible; 
+                    font-size: ${size}; 
+                    white-space: nowrap; /* აკრძალულია გადატანა! */
                     display: block; 
                     width: 100%; 
                     text-align: center; 
                     line-height: 1.2;
+                    overflow: visible;
                 `;
             } else {
-                // თუ ორი ან მეტი სიტყვაა:
-                // თუ მოკლეა (მაგ: დიდი ხე) -> 2.5rem
-                // თუ გრძელია (მაგ: ელექტრო ჩაიდანი) -> 1.8rem და გადავიდეს ხაზზე
-                let size = (len < 12) ? 2.5 : 1.8;
+                // *** 2. ორი ან მეტი სიტყვა (მაგ: დიდი სახლი) ***
+                // white-space: normal აძლევს გადატანის უფლებას (სიტყვებს შორის)
+                
+                let size = (len < 15) ? '2.2rem' : '1.8rem';
                 
                 return `
-                    font-size: ${size}rem; 
-                    white-space: normal; /* აქ ვრთავთ ხაზზე გადასვლას */
+                    font-size: ${size}; 
+                    white-space: normal; /* გადატანა მოსულა */
                     word-wrap: break-word;
                     display: block; 
                     width: 100%; 
