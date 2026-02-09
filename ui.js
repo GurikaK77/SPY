@@ -1,10 +1,9 @@
 // ui.js
 
 const ui = {
-    // აუდიოს ინიციალიზაცია პირველ დაჭერაზე (ბრაუზერის პოლიტიკის გამო)
+    // აუდიოს ინიციალიზაცია
     initAudio() {
         if(state.audio && state.audio.sounds && state.audio.sounds.click) {
-            // ვცდილობთ დავუკრათ და მაშინვე გავაჩეროთ, რომ სისტემამ აუდიო განბლოკოს
             state.audio.sounds.click.play().then(() => {
                 state.audio.sounds.click.pause();
                 state.audio.sounds.click.currentTime = 0;
@@ -45,11 +44,9 @@ const ui = {
     
     updateTheme() {
         document.body.classList.remove('theme-halloween', 'theme-christmas', 'theme-cyberpunk', 'theme-fantasy');
-        
         if(state.config.theme !== 'standard') {
             document.body.classList.add(`theme-${state.config.theme}`);
         }
-        
         if(window.createParticles) window.createParticles();
     },
 
@@ -90,16 +87,13 @@ const ui = {
         this.updatePlayerList();
     },
 
-    // ფუნქცია +/- ღილაკებისთვის
     adjustPlayerCount(delta) {
         state.audio.playSound('click');
         const input = document.getElementById("totalPlayersCount");
         let val = parseInt(input.value) || 5;
         val += delta;
-        
         if(val < 3) val = 3;
         if(val > 20) val = 20;
-        
         input.value = val;
         this.updateInputMode(true);
     },
@@ -114,23 +108,17 @@ const ui = {
         const isManual = manualToggle ? manualToggle.checked : true;
         state.config.manualEntry = isManual;
 
-        // აქ ვასწორებთ "მოთამაშეების ჩარჩენის" პრობლემას
         if (triggeredByToggle) {
-            // ყოველთვის ვასუფთავებთ სიას, რომ ძველი მონაცემები არ დარჩეს
             state.players = []; 
-
             if (!isManual) {
-                // თუ ავტომატურია, ახლიდან ვქმნით Player X სახელებით
                 const count = parseInt(countInput.value) || 5;
                 for (let i = 1; i <= count; i++) {
                      state.players.push({ 
-                        name: `Player ${i}`, // შეიცვალა Player-ზე
+                        name: `Player ${i}`, 
                         points: 0, coins: 10, inventory: [], level: 1, xp: 0 
                     });
                 }
             }
-            // თუ ხელით შეყვანაა (Manual), სია რჩება ცარიელი (state.players = [])
-            
             this.updatePlayerList();
         }
 
@@ -139,7 +127,6 @@ const ui = {
             autoContainer.style.display = "none";
             if(pointsSelect) pointsSelect.disabled = false;
         } else {
-            manualContainer.style.display = "block"; // hack: auto container is inside manual container visually in some designs, but here separated
             manualContainer.style.display = "none";
             autoContainer.style.display = "block";
             if(pointsSelect) { 
@@ -148,7 +135,6 @@ const ui = {
                 state.config.pointsSystem = "disabled";
             }
         }
-        
         this.updatePlayerCountInfo();
     },
 
@@ -172,9 +158,7 @@ const ui = {
         const list = document.getElementById("playerList");
         list.innerHTML = "";
         
-        if (state.players.length === 0) {
-            return; 
-        }
+        if (state.players.length === 0) return;
 
         state.players.forEach((p, i) => {
             const div = document.createElement("div");
@@ -205,17 +189,14 @@ const ui = {
         }
     },
     
-    // --- TABS LOGIC ---
     switchSettingsTab(tabName) {
         state.audio.playSound('click');
-        
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.classList.remove('active');
             if(btn.getAttribute('onclick').includes(`'${tabName}'`)) {
                 btn.classList.add('active');
             }
         });
-
         document.querySelectorAll('.tab-content').forEach(content => {
             content.classList.remove('active-tab');
         });
@@ -385,14 +366,29 @@ const ui = {
         
         let contentHtml = '';
         
+        // --- SMART FONT SIZE LOGIC ---
+        const calculateStyle = (text) => {
+            const len = text.length;
+            let size = '2rem';
+            
+            if (len <= 6) size = '3.5rem';       // მოკლე სიტყვა (მაგ: ხე, სახლი) - უზარმაზარი
+            else if (len <= 9) size = '2.5rem';  // საშუალო (მაგ: მანქანა) - დიდი
+            else if (len <= 14) size = '1.8rem'; // გრძელი (მაგ: ინსტაგრამი) - ნორმალური (ეტევა)
+            else size = '1.4rem';                // ძალიან გრძელი (წინადადება) - პატარა
+            
+            // ეს სტილი უზრუნველყოფს რომ სიტყვა ჩამოვიდეს თუ მაინც ვერ ეტევა
+            return `font-size:${size}; line-height:1.1; white-space:normal; overflow-wrap:break-word; word-break:normal; display:block; width:100%; text-align:center; padding:0 5px;`;
+        };
+        // -----------------------------
+
         switch(role) {
             case "Spy":
                 navigator.vibrate?.([100, 50, 100]);
-                
                 if (state.config.gameVariant === 'chameleon') {
                     contentHtml = `
                         <div class="role-icon"><i class="fas fa-user"></i></div>
-                        <div class="role-text">სიტყვა:<br><span class="sityva">${state.chameleonWordObj.w}</span></div>
+                        <div class="role-text">სიტყვა:<br>
+                        <span class="sityva" style="${calculateStyle(state.chameleonWordObj.w)}">${state.chameleonWordObj.w}</span></div>
                     `;
                 } else {
                     let hintHtml = "";
@@ -410,7 +406,8 @@ const ui = {
                 contentHtml = `
                     <div class="role-icon" style="color:var(--neon-blue)"><i class="fas fa-search"></i></div>
                     <div class="role-text detektivi">დეტექტივი</div>
-                    <div style="font-size:0.8rem; margin-top:10px; color:#aaa;">სიტყვა:<br><span class="sityva" style="font-size:1.5rem">${state.chosenWordObj.w}</span></div>
+                    <div style="font-size:0.8rem; margin-top:10px; color:#aaa;">სიტყვა:<br>
+                    <span class="sityva" style="${calculateStyle(state.chosenWordObj.w)}">${state.chosenWordObj.w}</span></div>
                     
                     <div style="background:rgba(0, 243, 255, 0.1); border:1px solid var(--neon-blue); border-radius:10px; padding:10px; margin-top:15px;">
                         <div style="font-size:0.9rem; color:var(--neon-blue); font-weight:bold; margin-bottom:5px;">
@@ -426,14 +423,16 @@ const ui = {
                 contentHtml = `
                     <div class="role-icon" style="color:var(--neon-pink)"><i class="fas fa-skull-crossbones"></i></div>
                     <div class="role-text" style="color:var(--neon-pink)">მკვლელი</div>
-                    <div style="font-size:0.8rem; margin-top:10px; color:#aaa;">სიტყვა:<br><span class="sityva" style="font-size:1.5rem">${state.chosenWordObj.w}</span></div>
+                    <div style="font-size:0.8rem; margin-top:10px; color:#aaa;">სიტყვა:<br>
+                    <span class="sityva" style="${calculateStyle(state.chosenWordObj.w)}">${state.chosenWordObj.w}</span></div>
                 `;
                 break;
             case "Doctor":
                 contentHtml = `
                     <div class="role-icon" style="color:#00ff88"><i class="fas fa-user-md"></i></div>
                     <div class="role-text" style="color:#00ff88">ექიმი</div>
-                    <div style="font-size:0.8rem; margin-top:10px; color:#aaa;">სიტყვა:<br><span class="sityva" style="font-size:1.5rem">${state.chosenWordObj.w}</span></div>
+                    <div style="font-size:0.8rem; margin-top:10px; color:#aaa;">სიტყვა:<br>
+                    <span class="sityva" style="${calculateStyle(state.chosenWordObj.w)}">${state.chosenWordObj.w}</span></div>
                 `;
                 break;
             case "Psychic":
@@ -447,7 +446,8 @@ const ui = {
                 contentHtml = `
                     <div class="role-icon" style="color:#bf00ff"><i class="fas fa-eye"></i></div>
                     <div class="role-text" style="color:#bf00ff">ნათელმხილველი</div>
-                    <div style="font-size:0.8rem; margin-top:10px; color:#aaa;">სიტყვა:<br><span class="sityva" style="font-size:1.5rem">${state.chosenWordObj.w}</span></div>
+                    <div style="font-size:0.8rem; margin-top:10px; color:#aaa;">სიტყვა:<br>
+                    <span class="sityva" style="${calculateStyle(state.chosenWordObj.w)}">${state.chosenWordObj.w}</span></div>
                     <div style="font-size:0.8rem; color:#ffd700; margin-top:5px;">კატეგორია: ${catName}</div>
                 `;
                 break;
@@ -455,13 +455,15 @@ const ui = {
                 contentHtml = `
                     <div class="role-icon" style="color:#ffaa00"><i class="fas fa-theater-masks"></i></div>
                     <div class="role-text" style="color:#ffaa00">ჯოკერი</div>
-                    <div style="font-size:0.8rem; margin-top:10px; color:#aaa;">სიტყვა:<br><span class="sityva" style="font-size:1.5rem">${state.chosenWordObj.w}</span></div>
+                    <div style="font-size:0.8rem; margin-top:10px; color:#aaa;">სიტყვა:<br>
+                    <span class="sityva" style="${calculateStyle(state.chosenWordObj.w)}">${state.chosenWordObj.w}</span></div>
                 `;
                 break;
             default: // Civilian
                 contentHtml = `
                     <div class="role-icon"><i class="fas fa-user"></i></div>
-                    <div class="role-text">სიტყვა:<br><span class="sityva">${state.chosenWordObj.w}</span></div>
+                    <div class="role-text">სიტყვა:<br>
+                    <span class="sityva" style="${calculateStyle(state.chosenWordObj.w)}">${state.chosenWordObj.w}</span></div>
                 `;
         }
         
