@@ -26,7 +26,7 @@
                 <p>Cyber Noir Edition</p>
             </div>
             <h2>მზად ხართ?</h2>
-            <button class="btn im-ready" onclick="ui.showMainPage()">
+            <button class="btn im-ready" onclick="ui.initAudio(); ui.showMainPage()">
                 <i class="fas fa-power-off"></i> დაწყება
             </button>
         </div>
@@ -141,16 +141,31 @@
 
             <div id="autoInputContainer" style="display:none;">
                 <div class="input-group">
-                    <label class="form-label">
-                        <i class="fas fa-users"></i> მოთამაშეების რაოდენობა:
+                    <label class="form-label" style="justify-content:center; font-size:1.1rem;">
+                        <i class="fas fa-users"></i> მოთამაშეების რაოდენობა
                     </label>
-                    <input type="number" id="totalPlayersCount" min="3" max="20" value="5" />
+                    
+                    <div class="player-count-controls">
+                        <button class="btn-control minus" onclick="ui.adjustPlayerCount(-1)">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        
+                        <input type="number" id="totalPlayersCount" 
+                               min="3" max="20" value="5" 
+                               inputmode="numeric" 
+                               onfocus="this.select()"
+                               onchange="ui.updateInputMode(true)" />
+                               
+                        <button class="btn-control plus" onclick="ui.adjustPlayerCount(1)">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
 
             <div id="manualInputContainer">
                 <div class="input-with-button">
-                    <input type="text" id="playerName" placeholder="მოთამაშის სახელი" />
+                    <input type="text" id="playerName" placeholder="Player Name" />
                     <button class="btn" onclick="ui.addPlayer()">
                         <i class="fas fa-plus"></i> დამატება
                     </button>
@@ -244,7 +259,7 @@
                 <div class="toggle-container">
                     <label><i class="fas fa-lightbulb"></i> ჯაშუშის მინიშნება</label>
                     <label class="toggle-switch">
-                        <input type="checkbox" id="spyHintToggle" checked onchange="state.updateConfig('spyHintEnabled', this.checked)">
+                        <input type="checkbox" id="spyHintToggle" onchange="state.updateConfig('spyHintEnabled', this.checked)">
                         <span class="slider"></span>
                     </label>
                 </div>
@@ -366,6 +381,7 @@
                 </button>
             </div>
         </div>
+
         <div id="statsSection" class="section">
             <div class="section-header-main">
                 <h2><i class="fas fa-chart-bar"></i> სტატისტიკა</h2>
