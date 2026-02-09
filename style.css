@@ -266,37 +266,27 @@ input:checked + .slider:before { transform: translateX(26px); }
 .role-card-back { background: #000; transform: rotateY(180deg); border: 2px solid var(--neon-blue); overflow: hidden; }
 .role-icon { font-size: 4rem; margin-bottom: 20px; filter: drop-shadow(0 0 15px currentColor); animation: bounceIn 0.8s; }
 
-/* --- Role Card Text Fixes (RESPONSIVE NO-WRAP) --- */
+/* --- Role Card Text --- */
+/* ეს სტილები ახლა ui.js-დან იმართება, მაგრამ საბაზისოს ვტოვებთ */
 .role-text { 
-    /* ზომა: ეკრანის სიგანის 8%, მაქსიმუმ 2rem. */
-    font-size: min(8vw, 2rem); 
+    font-size: 2rem; 
     font-weight: 700; 
     font-family: 'Cinzel', serif; 
     text-transform: uppercase; 
-    white-space: nowrap; /* არ გადაიტანოს */
     width: 100%;
     text-align: center;
     padding: 0 5px;
     margin-bottom: 10px;
 }
 
-.spy-text { color: var(--neon-pink); } 
-.spy-text .role-icon { color: var(--neon-pink); } 
-.detektivi { color: var(--neon-blue); } 
-.detektivi .role-icon { color: var(--neon-blue); }
+.spy-text { color: var(--neon-pink); .role-icon { color: var(--neon-pink); } } .detektivi { color: var(--neon-blue); .role-icon { color: var(--neon-blue); } }
 
 .sityva { 
     color: var(--gold); 
     display: block; 
-    
-    /* მთავარი: ეკრანის სიგანის 11% ან მაქს 3rem. */
-    /* ეს ნიშნავს, რომ პატარა ეკრანზე/გრძელ სიტყვაზე ზომა დაიკლებს, მაგრამ არ ჩამოვარდება */
-    font-size: min(11vw, 3rem);
-    
+    font-size: 2.5rem;
     margin-top: 10px; 
     text-shadow: 0 0 15px var(--gold); 
-    white-space: nowrap; /* არ გადაიტანოს */
-    overflow: visible; 
     width: 100%;
     text-align: center;
     padding: 0 2px;
