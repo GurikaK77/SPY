@@ -27,13 +27,12 @@ const state = {
         
         playerOrder: "sequential", 
         pointsSystem: "disabled", 
-        manualEntry: true, 
+        // შეცვლილია: default off
+        manualEntry: false, 
         selectedCategories: ["mix"],
         gameVariant: "standard", 
         timePerRound: 120,
-        
-        // აქ შევცვალეთ: ნაგულისხმევად გამორთულია
-        spyHintEnabled: false 
+        spyHintEnabled: true
     },
 
     gameStats: {
