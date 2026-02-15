@@ -103,12 +103,23 @@ const ui = {
         const countInput = document.getElementById("totalPlayersCount");
 
         const isManual = manualToggle ? manualToggle.checked : true;
-        state.config.manualEntry = isManual;
-
+        
+        // თუ რეჟიმი შეიცვალა (გადართვა მოხდა)
         if (triggeredByToggle) {
-            state.players = []; 
-            if (!isManual) {
+            if (isManual) {
+                // ჩაირთო სახელების რეჟიმი -> აღვადგინოთ შენახული სახელები
+                state.players = state.savedManualPlayers || [];
+            } else {
+                // გამორთო სახელების რეჟიმი (ავტომატური)
+                // ჯერ შევინახოთ მიმდინარე სახელები მეხსიერებაში (თუ სახელებია და არა "Player X")
+                // (მაგრამ აქ ვუშვებთ, რომ თუ სახელებით იყო, უნდა შეინახოს)
+                if (state.config.manualEntry) { // თუ აქამდე მანუალზე იყო
+                     state.savedManualPlayers = [...state.players];
+                }
+                
+                // დავაგენერიროთ ახალი Player 1, 2...
                 const count = parseInt(countInput.value) || 5;
+                state.players = [];
                 for (let i = 1; i <= count; i++) {
                      state.players.push({ 
                         name: `Player ${i}`, 
@@ -116,8 +127,14 @@ const ui = {
                     });
                 }
             }
-            this.updatePlayerList();
         }
+        
+        state.config.manualEntry = isManual;
+        
+        // თუ მანუალია და სია ცარიელია, არაფერს ვშვებით (ცარიელი იქნება).
+        // თუ ავტომატურია, უკვე შევავსეთ ზემოთ.
+
+        this.updatePlayerList();
 
         if (isManual) {
             manualContainer.style.display = "block";
@@ -143,6 +160,9 @@ const ui = {
             state.players.push({ 
                 name: name, points: 0, coins: 10, inventory: [], level: 1, xp: 0 
             });
+            // განახლებისას ვინახავთ მეხსიერებაშიც, რომ გადართვისას არ დაიკარგოს
+            state.savedManualPlayers = [...state.players];
+            
             this.updatePlayerList();
             input.value = "";
             state.saveGame();
@@ -154,6 +174,7 @@ const ui = {
     updatePlayerList() {
         const list = document.getElementById("playerList");
         list.innerHTML = "";
+        
         if (state.players.length === 0) return;
 
         state.players.forEach((p, i) => {
@@ -164,13 +185,22 @@ const ui = {
                 div.style.backgroundSize = '400% 400%';
                 div.style.animation = 'rainbow 3s ease infinite';
             }
+            
+            // წაშლის ღილაკის ლოგიკა
+            let removeBtnHtml = '';
+            // მხოლოდ მაშინ ვშლით, თუ სახელებით შეყვანა ჩართულია
+            if (state.config.manualEntry) {
+                removeBtnHtml = `
+                <button class="remove-btn" onclick="state.players.splice(${i}, 1); state.savedManualPlayers = [...state.players]; ui.updatePlayerList(); state.saveGame();">
+                    <i class="fas fa-times"></i>
+                </button>`;
+            }
+
             div.innerHTML = `
                 <div class="player-name">
                     ${p.name} <span class="level-badge" style="font-size:0.7rem; margin-left:10px; background:var(--neon-purple); padding:2px 6px; border-radius:10px;">Lvl ${p.level}</span>
                 </div>
-                <button class="remove-btn" onclick="state.players.splice(${i}, 1); ui.updatePlayerList(); state.saveGame();">
-                    <i class="fas fa-times"></i>
-                </button>
+                ${removeBtnHtml}
             `;
             list.appendChild(div);
         });
@@ -352,7 +382,6 @@ const ui = {
         document.getElementById("roleCardFront").innerHTML = `<div class="role-icon"><i class="fas fa-fingerprint"></i></div>`;
     },
 
-    // --- აქ არის მთავარი გამოსწორება ---
     revealRole() {
         state.audio.playSound('reveal');
         document.getElementById("roleCard").classList.add("flipped");
@@ -361,24 +390,19 @@ const ui = {
         
         let contentHtml = '';
         
-        // --- SMART FONT SIZE LOGIC ---
-        // ეს ფუნქცია ზუსტად განსაზღვრავს ზომას და გადატანის წესს
         const calculateStyle = (text) => {
             const len = text.length;
             const hasSpace = text.includes(' ');
             
             if (!hasSpace) {
-                // *** 1. ერთი სიტყვა (მაგ: შოკოლადი, ინსტაგრამი) ***
-                // white-space: nowrap კრძალავს გაწყვეტას!
-                
                 let size = '2.5rem';
-                if (len > 14) size = '1.3rem';      // ძალიან გრძელი (მაგ: ბენზინგასამართი)
-                else if (len > 11) size = '1.6rem'; // გრძელი (მაგ: ინსტაგრამი)
-                else if (len > 8) size = '2.0rem';  // საშუალო (მაგ: შოკოლადი)
+                if (len > 14) size = '1.3rem';
+                else if (len > 11) size = '1.6rem';
+                else if (len > 8) size = '2.0rem';
                 
                 return `
                     font-size: ${size}; 
-                    white-space: nowrap; /* აკრძალულია გადატანა! */
+                    white-space: nowrap; 
                     display: block; 
                     width: 100%; 
                     text-align: center; 
@@ -386,14 +410,11 @@ const ui = {
                     overflow: visible;
                 `;
             } else {
-                // *** 2. ორი ან მეტი სიტყვა (მაგ: დიდი სახლი) ***
-                // white-space: normal აძლევს გადატანის უფლებას (სიტყვებს შორის)
-                
                 let size = (len < 15) ? '2.2rem' : '1.8rem';
                 
                 return `
                     font-size: ${size}; 
-                    white-space: normal; /* გადატანა მოსულა */
+                    white-space: normal;
                     word-wrap: break-word;
                     display: block; 
                     width: 100%; 
@@ -402,7 +423,6 @@ const ui = {
                 `;
             }
         };
-        // -----------------------------
 
         switch(role) {
             case "Spy":
