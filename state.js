@@ -31,13 +31,15 @@ const state = {
         playerOrder: "sequential", 
         pointsSystem: "disabled", 
         
-        // Default: გამორთულია
+        // სახელით დამატება: Default გამორთული
         manualEntry: false, 
         
         selectedCategories: ["mix"],
         gameVariant: "standard", 
         timePerRound: 120,
-        spyHintEnabled: true
+        
+        // ჯაშუშის მინიშნება: Default გამორთული
+        spyHintEnabled: false 
     },
 
     gameStats: {
@@ -67,7 +69,7 @@ const state = {
         const activeSection = document.querySelector('.section.active')?.id || 'playerInput';
         const gameState = {
             players: this.players,
-            savedManualPlayers: this.savedManualPlayers, // ვინახავთ ქეშს
+            savedManualPlayers: this.savedManualPlayers,
             roles: this.roles,
             chosenWordObj: this.chosenWordObj,
             chameleonWordObj: this.chameleonWordObj,
@@ -95,7 +97,7 @@ const state = {
                 return false; 
             }
             this.players = s.players || [];
-            this.savedManualPlayers = s.savedManualPlayers || []; // აღვადგენთ ქეშს
+            this.savedManualPlayers = s.savedManualPlayers || [];
             this.roles = s.roles || [];
             this.chosenWordObj = s.chosenWordObj || { w: "", h: "" };
             this.chameleonWordObj = s.chameleonWordObj || { w: "", h: "" };
@@ -103,6 +105,7 @@ const state = {
             this.timeLeft = s.timeLeft || 0;
             this.isDetectiveMode = s.isDetectiveMode;
             this.isPointsEnabled = s.isPointsEnabled;
+            // აქ ხდება პარამეტრების აღდგენა (თუ მომხმარებელმა შეცვალა, აქედან წამოიღებს)
             this.config = { ...this.config, ...s.config }; 
             this.gameStats = s.gameStats || this.gameStats;
             this.dailyChallenges = s.dailyChallenges || [];
@@ -126,7 +129,9 @@ const state = {
         if (['spyCount', 'detectiveCount', 'assassinCount', 'doctorCount', 'psychicCount', 'jokerCount', 'timePerRound'].includes(key)) {
             value = parseInt(value) || 0;
         }
+        // Checkbox-ისთვის მნიშვნელოვანია, რომ სწორი ბულიანი (true/false) მიიღოს
         if (key === 'spyHintEnabled') value = !!value;
+        
         this.config[key] = value;
         if (key === 'theme') { ui.updateTheme(); }
 
