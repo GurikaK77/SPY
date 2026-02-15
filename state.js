@@ -15,6 +15,9 @@ const state = {
     dailyChallenges: [],
     soundEnabled: true,
     
+    // აქ ინახება ხელით დამატებული მოთამაშეები (ქეში)
+    savedManualPlayers: [],
+
     config: {
         spyCount: 1,
         detectiveCount: 0,
@@ -27,8 +30,10 @@ const state = {
         
         playerOrder: "sequential", 
         pointsSystem: "disabled", 
-        // შეცვლილია: default off
+        
+        // Default: გამორთულია
         manualEntry: false, 
+        
         selectedCategories: ["mix"],
         gameVariant: "standard", 
         timePerRound: 120,
@@ -62,6 +67,7 @@ const state = {
         const activeSection = document.querySelector('.section.active')?.id || 'playerInput';
         const gameState = {
             players: this.players,
+            savedManualPlayers: this.savedManualPlayers, // ვინახავთ ქეშს
             roles: this.roles,
             chosenWordObj: this.chosenWordObj,
             chameleonWordObj: this.chameleonWordObj,
@@ -89,6 +95,7 @@ const state = {
                 return false; 
             }
             this.players = s.players || [];
+            this.savedManualPlayers = s.savedManualPlayers || []; // აღვადგენთ ქეშს
             this.roles = s.roles || [];
             this.chosenWordObj = s.chosenWordObj || { w: "", h: "" };
             this.chameleonWordObj = s.chameleonWordObj || { w: "", h: "" };
