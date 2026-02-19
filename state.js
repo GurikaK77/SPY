@@ -14,8 +14,6 @@ const state = {
     usedWords: [],
     dailyChallenges: [],
     soundEnabled: true,
-    
-    // აქ ინახება ხელით დამატებული მოთამაშეები (ქეში)
     savedManualPlayers: [],
 
     config: {
@@ -23,22 +21,25 @@ const state = {
         detectiveCount: 0,
         assassinCount: 0,
         doctorCount: 0,
-        psychicCount: 0,
         jokerCount: 0,
+        syndicateCount: 0, 
+        hackerCount: 0,
+        doubleAgentCount: 0,
         
         theme: "standard", 
-        
         playerOrder: "sequential", 
         pointsSystem: "disabled", 
-        
-        // სახელით დამატება: Default გამორთული
         manualEntry: false, 
-        
         selectedCategories: ["mix"],
+        customWordsList: "", 
         gameVariant: "standard", 
-        timePerRound: 120,
         
-        // ჯაშუშის მინიშნება: Default გამორთული
+        modifierInfection: false,
+        modifierBlackout: false,
+        // ნათელმხილველი ამოღებულია
+        blackoutAllowedRoles: ['Detective', 'Assassin', 'Doctor', 'Joker', 'Syndicate', 'Hacker', 'DoubleAgent'],
+        
+        timePerRound: 120,
         spyHintEnabled: false 
     },
 
@@ -47,7 +48,8 @@ const state = {
         spyWins: 0,
         civilianWins: 0,
         totalPoints: 0,
-        favoriteWords: {}
+        favoriteWords: {},
+        achievements: [] 
     },
 
     audio: {
@@ -105,8 +107,12 @@ const state = {
             this.timeLeft = s.timeLeft || 0;
             this.isDetectiveMode = s.isDetectiveMode;
             this.isPointsEnabled = s.isPointsEnabled;
-            // აქ ხდება პარამეტრების აღდგენა (თუ მომხმარებელმა შეცვალა, აქედან წამოიღებს)
             this.config = { ...this.config, ...s.config }; 
+            
+            if (!this.config.blackoutAllowedRoles) {
+                this.config.blackoutAllowedRoles = [];
+            }
+            
             this.gameStats = s.gameStats || this.gameStats;
             this.dailyChallenges = s.dailyChallenges || [];
             this.soundEnabled = s.soundEnabled !== undefined ? s.soundEnabled : true;
@@ -126,11 +132,10 @@ const state = {
     },
 
     updateConfig(key, value) {
-        if (['spyCount', 'detectiveCount', 'assassinCount', 'doctorCount', 'psychicCount', 'jokerCount', 'timePerRound'].includes(key)) {
+        if (['spyCount', 'detectiveCount', 'assassinCount', 'doctorCount', 'jokerCount', 'syndicateCount', 'hackerCount', 'doubleAgentCount', 'timePerRound'].includes(key)) {
             value = parseInt(value) || 0;
         }
-        // Checkbox-ისთვის მნიშვნელოვანია, რომ სწორი ბულიანი (true/false) მიიღოს
-        if (key === 'spyHintEnabled') value = !!value;
+        if (['spyHintEnabled', 'modifierInfection', 'modifierBlackout'].includes(key)) value = !!value;
         
         this.config[key] = value;
         if (key === 'theme') { ui.updateTheme(); }
@@ -139,24 +144,48 @@ const state = {
         ui.showToast("✅ შენახულია");
     },
     
+    toggleBlackoutRole(role, isEnabled) {
+        if (!this.config.blackoutAllowedRoles) {
+            this.config.blackoutAllowedRoles = [];
+        }
+        if (isEnabled) {
+            if (!this.config.blackoutAllowedRoles.includes(role)) this.config.blackoutAllowedRoles.push(role);
+        } else {
+            this.config.blackoutAllowedRoles = this.config.blackoutAllowedRoles.filter(r => r !== role);
+        }
+        this.saveGame();
+    },
+    
     setGameVariant(variant) {
         state.audio.playSound('click');
         state.config.gameVariant = variant;
-        state.updateConfig('gameVariant', variant);
+        this.updateConfig('gameVariant', variant);
         
         document.querySelectorAll('.game-mode-card-mini').forEach(c => c.classList.remove('active'));
         const activeCard = document.getElementById(variant === 'standard' ? 'modeStandard' : 'modeChameleon');
         if(activeCard) activeCard.classList.add('active');
         
-        const desc = document.getElementById("modeDescription");
-        if(desc) {
-            if(variant === 'standard') {
-                desc.textContent = "სტანდარტული რეჟიმი. ჯაშუშმა იცის რომ ჯაშუშია.";
-            } else {
-                desc.textContent = "ქამელეონი: ჯაშუშს ეწერება სხვა სიტყვა და არ იცის რომ ჯაშუშია.";
-            }
-        }
-        
         ui.showToast(`არჩეულია რეჟიმი: ${variant === 'standard' ? 'კლასიკური' : 'ქამელეონი'}`);
+    },
+
+    checkAchievements() {
+        if (typeof globalAchievements === 'undefined') return;
+        let unlocked = false;
+        globalAchievements.forEach(ach => {
+            if (!this.gameStats.achievements) this.gameStats.achievements = [];
+            if (!this.gameStats.achievements.includes(ach.id)) {
+                let conditionMet = false;
+                if (ach.type === 'games' && this.gameStats.totalGames >= ach.target) conditionMet = true;
+                if (ach.type === 'spy_wins' && this.gameStats.spyWins >= ach.target) conditionMet = true;
+                if (ach.type === 'civ_wins' && this.gameStats.civilianWins >= ach.target) conditionMet = true;
+                
+                if (conditionMet) {
+                    this.gameStats.achievements.push(ach.id);
+                    ui.showToast(`🏆 ახალი მიღწევა: ${ach.name}!`);
+                    unlocked = true;
+                }
+            }
+        });
+        if (unlocked) this.saveGame();
     }
 };
