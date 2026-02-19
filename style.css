@@ -182,8 +182,8 @@ h1, h2, h3, .result-title, .timer { font-family: 'Cinzel', serif; text-transform
 
 /* --- Inputs --- */
 .input-with-button { display: flex; gap: 10px; margin-bottom: 20px; }
-input, select { width: 100%; padding: 15px 20px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px; color: var(--text-main); font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; transition: var(--transition); text-align: center; }
-input:focus, select:focus { outline: none; border-color: var(--neon-blue); box-shadow: 0 0 15px rgba(0, 243, 255, 0.3); background: rgba(0, 0, 0, 0.5); }
+input, select, textarea { width: 100%; padding: 15px 20px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px; color: var(--text-main); font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; transition: var(--transition); text-align: center; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--neon-blue); box-shadow: 0 0 15px rgba(0, 243, 255, 0.3); background: rgba(0, 0, 0, 0.5); }
 .input-group { margin-bottom: 20px; } 
 .form-label { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; color: var(--neon-blue); font-weight: 600; text-transform: uppercase; font-size: 0.9rem; }
 
@@ -198,7 +198,7 @@ input:focus, select:focus { outline: none; border-color: var(--neon-blue); box-s
 input:checked + .slider { background-color: var(--neon-purple); border-color: var(--neon-purple); }
 input:checked + .slider:before { transform: translateX(26px); }
 
-/* --- NEW SETTINGS TABS & HACKER EFFECTS --- */
+/* --- SETTINGS TABS & HACKER EFFECTS --- */
 .settings-tabs { display: flex; gap: 5px; margin-bottom: 20px; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); }
 .tab-btn { flex: 1; padding: 12px; border: none; background: transparent; color: var(--text-muted); font-family: 'Orbitron', sans-serif; font-size: 0.8rem; cursor: pointer; border-radius: 10px; transition: var(--transition); display: flex; flex-direction: column; align-items: center; gap: 5px; }
 .tab-btn i { font-size: 1.2rem; margin-bottom: 2px; }
@@ -278,9 +278,11 @@ input:checked + .slider:before { transform: translateX(26px); }
     margin-bottom: 10px;
 }
 
-.spy-text { color: var(--neon-pink); .role-icon { color: var(--neon-pink); } } .detektivi { color: var(--neon-blue); .role-icon { color: var(--neon-blue); } }
+.spy-text { color: var(--neon-pink); }
+.spy-text .role-icon { color: var(--neon-pink); }
+.detektivi { color: var(--neon-blue); }
+.detektivi .role-icon { color: var(--neon-blue); }
 
-/* დავტოვეთ საბაზისო, მაგრამ JS-ი გადააწერს */
 .sityva { 
     color: var(--gold); 
     display: block; 
@@ -385,7 +387,40 @@ input:checked + .slider:before { transform: translateX(26px); }
 .joker-card { border-left: 3px solid var(--warning); } .joker-card .inst-icon { color: var(--warning); } .joker-card h5 { color: var(--warning); }
 .assassin-card { border-left: 3px solid var(--neon-pink); } .assassin-card .inst-icon { color: var(--neon-pink); } .assassin-card h5 { color: var(--neon-pink); }
 .doctor-card { border-left: 3px solid var(--success); } .doctor-card .inst-icon { color: var(--success); } .doctor-card h5 { color: var(--success); }
-.psychic-card { border-left: 3px solid #bf00ff; } .psychic-card .inst-icon { color: #bf00ff; } .psychic-card h5 { color: #bf00ff; }
+
+/* --- XP & Avatars & Custom UI --- */
+.level-badge {
+    background: var(--neon-purple); padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; margin-left: 10px; box-shadow: 0 0 5px var(--neon-purple); color: #fff; text-transform: uppercase; letter-spacing: 1px;
+}
+.xp-bar-container {
+    width: 100px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 5px; margin-left: 10px; overflow: hidden; position: relative; display: inline-block; vertical-align: middle;
+}
+.xp-bar-fill {
+    height: 100%; background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple)); transition: width 0.5s ease;
+}
+.player-avatar {
+    font-size: 1.5rem; margin-right: 10px; background: rgba(0,0,0,0.4); border-radius: 50%; padding: 5px; border: 1px solid rgba(255,255,255,0.2); width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+}
+.syndicate-card { border-left: 3px solid #ff00ff; } .syndicate-card .inst-icon { color: #ff00ff; } .syndicate-card h5 { color: #ff00ff; }
+.hacker-card { border-left: 3px solid var(--hacker-green); } .hacker-card .inst-icon { color: var(--hacker-green); } .hacker-card h5 { color: var(--hacker-green); }
+.doubleagent-card { border-left: 3px solid var(--warning); } .doubleagent-card .inst-icon { color: var(--warning); } .doubleagent-card h5 { color: var(--warning); }
+
+.achievement-card {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 10px; display: flex; align-items: center; gap: 10px; transition: var(--transition); filter: grayscale(100%); opacity: 0.5;
+}
+.achievement-card.unlocked { filter: grayscale(0%); opacity: 1; border-color: var(--gold); box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); }
+.achiev-icon { font-size: 2rem; }
+.achiev-info h5 { color: var(--gold); margin-bottom: 3px; font-family: 'Orbitron', sans-serif; font-size: 0.9rem; }
+.achiev-info p { font-size: 0.7rem; color: var(--text-muted); line-height: 1.1; }
+
+.blackout-roles-grid input[type="checkbox"] { width: 16px; height: 16px; margin-right: 5px; accent-color: var(--neon-purple); cursor: pointer; }
+.blackout-roles-grid label { display: flex; align-items: center; cursor: pointer; }
+
+.modal-close-top {
+    position: absolute; top: 15px; right: 15px; background: transparent; border: none;
+    color: var(--text-muted); font-size: 1.5rem; cursor: pointer; transition: var(--transition); z-index: 10;
+}
+.modal-close-top:hover { color: var(--neon-pink); transform: scale(1.2) rotate(90deg); }
 
 @media (max-width: 600px) {
     .logo h1 { font-size: 2.5rem; } 
