@@ -241,7 +241,7 @@ const ui = {
         setVal("doctorCount", state.config.doctorCount);
         setVal("psychicCount", state.config.psychicCount);
         setVal("jokerCount", state.config.jokerCount);
-        setVal("timeConfig", state.config.timePerRound);
+        setVal("timeConfig", state.config.timePerRound / 60); // დრო წუთებში აისახება
         setVal("pointsSystem", state.config.pointsSystem);
         setVal("playerOrder", state.config.playerOrder);
         setVal("themeSelect", state.config.theme);
@@ -285,6 +285,11 @@ const ui = {
 
     showShop() {
         state.audio.playSound('click');
+        if (!state.config.manualEntry) {
+            this.showToast("მაღაზია ხელმისაწვდომია მხოლოდ სახელებით დამატების რეჟიმში!");
+            return;
+        }
+        
         const select = document.getElementById("shopPlayerSelect");
         select.innerHTML = "";
         state.players.forEach((p, i) => {
