@@ -230,33 +230,36 @@ const game = {
         
         state.players.forEach((p, i) => {
             let pts = 0;
+            let earnedCoins = 0;
             const role = state.roles[i];
 
             if (jokerWins) {
-                if (role === "Joker") pts = 5 * multiplier; 
+                if (role === "Joker") { pts = 5 * multiplier; earnedCoins = 10; }
             } else if (civiliansWin) {
                 if (role !== "Spy" && role !== "Joker") {
                     pts = 2 * multiplier;
-                    if (role === "Detective" && p.inventory.some(x=>x.id==='magnifier')) pts += 3;
-                    if (role === "Assassin") pts += 1; 
+                    earnedCoins = 5;
+                    if (role === "Detective" && p.inventory.some(x=>x.id==='magnifier')) { pts += 3; earnedCoins += 2; }
+                    if (role === "Assassin") { pts += 1; earnedCoins += 2; } 
                 }
             } else {
                 if (role === "Spy") {
                     pts = 3 * multiplier;
+                    earnedCoins = 8;
                     if (state.config.gameVariant === 'chameleon') pts += 2;
                     if (p.inventory.some(x=>x.id==='spy_mask')) pts += 3;
-                    if (p.inventory.some(x=>x.id==='backdoor')) pts *= 2;
+                    if (p.inventory.some(x=>x.id==='backdoor')) { pts *= 2; earnedCoins *= 2; }
                 }
                 if (role === "Assassin") {
                     pts = 3 * multiplier;
+                    earnedCoins = 5;
                 }
             }
             
             p.points += Math.round(pts);
+            p.coins += earnedCoins;
             state.gameStats.totalPoints += Math.round(pts);
         });
-        
-        state.players.forEach(p => p.coins += 2);
         
         this.revealSpies(true);
     },
