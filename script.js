@@ -1,17 +1,14 @@
 // script.js
 
-// Particles Generation based on Theme
 function createParticles() {
     const particlesContainer = document.getElementById("particles");
     if(!particlesContainer) return;
     
-    // Clean up existing particles if any
     particlesContainer.innerHTML = '';
     
     const isMobile = window.innerWidth < 600;
     const particleCount = isMobile ? 15 : 30;
     
-    // Determine shape/color based on theme
     const theme = state.config.theme;
     let particleClass = 'particle'; 
     
@@ -41,31 +38,30 @@ function initDailyChallenges() {
     const today = new Date().toDateString();
     const storedDate = localStorage.getItem('challengeDate');
     
-    if (storedDate !== today) {
+    if(storedDate !== today || !state.dailyChallenges || state.dailyChallenges.length === 0) {
         state.dailyChallenges = [
-            { id: 1, type: 'play_games', description: "ითამაშე 2 თამაში", target: 2, progress: 0, completed: false },
-            { id: 2, type: 'win_spy', description: "მოიგე ჯაშუშად", target: 1, progress: 0, completed: false },
-            { id: 3, type: 'win_civilian', description: "მოიგე მოქალაქედ", target: 1, progress: 0, completed: false }
+            { id: 'c1', description: 'ითამაშე 3 რაუნდი', target: 3, progress: 0, completed: false },
+            { id: 'c2', description: 'მოიგე ჯაშუშით', target: 1, progress: 0, completed: false },
+            { id: 'c3', description: 'გამოიყენე მაღაზია', target: 1, progress: 0, completed: false }
         ];
-        localStorage.setItem('dailyChallenges', JSON.stringify(state.dailyChallenges));
         localStorage.setItem('challengeDate', today);
-    } else {
-        const saved = localStorage.getItem('dailyChallenges');
-        if (saved) state.dailyChallenges = JSON.parse(saved);
+        state.saveGame();
     }
 }
 
-window.onload = function() {
+window.onload = () => {
     initDailyChallenges();
     const hasSavedGame = state.loadGame();
-    
     ui.updateTheme();
-    createParticles();
     
     setTimeout(() => {
-        const loadingScreen = document.getElementById("loadingScreen");
-        if (loadingScreen) loadingScreen.style.display = "none";
+        document.getElementById("loadingScreen").style.display = "none";
         
+        // ამოწმებს უნახავს თუ არა უკვე წესების ფანჯარა
+        if (!localStorage.getItem('hasSeenRulesModal')) {
+            document.getElementById("welcomeModal").style.display = "flex";
+        }
+
         if (hasSavedGame) {
             document.getElementById("mainContent").style.display = "block";
             ui.updatePlayerList();
@@ -83,13 +79,11 @@ window.onload = function() {
             
             ui.updateInputMode(false); 
         } else {
-            // თუ პირველად შედის (ან წაშალა მონაცემები), 
-            // დარწმუნდი რომ ავტომატური სია შევსებულია
             if (!state.config.manualEntry && state.players.length === 0) {
                 for (let i = 1; i <= 5; i++) {
                      state.players.push({ 
                         name: `Player ${i}`, 
-                        points: 0, coins: 10, inventory: [], level: 1, xp: 0 
+                        points: 0, coins: 10, inventory: [], level: 1, xp: 0, avatar: '👤' 
                     });
                 }
             }
