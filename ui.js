@@ -121,7 +121,6 @@ const ui = {
             manualContainer.style.display = "none"; autoContainer.style.display = "block";
             if(pointsSelect) { pointsSelect.value = "disabled"; pointsSelect.disabled = true; state.config.pointsSystem = "disabled"; }
             
-            // ვთიშავთ მკვლელს და სინდიკატს ავტომატურ რეჟიმში
             state.config.assassinCount = 0;
             state.config.syndicateCount = 0;
             if (state.config.blackoutAllowedRoles) {
@@ -239,7 +238,6 @@ const ui = {
         
         this.toggleBlackoutSettings();
         
-        // მკვლელის და სინდიკატის მენიუს გათიშვა/ჩართვის ლოგიკა გლობალურად და ბლექაუთში
         const assSelect = document.getElementById("assassinCount");
         const synSelect = document.getElementById("syndicateCount");
         if (assSelect) {
@@ -404,15 +402,19 @@ const ui = {
         const role = state.roles[state.currentIndex];
         const back = document.getElementById("roleCardBack");
         
+        // დაემატა უსაფრთხოების ზომა ტექსტის მოჭრის წინააღმდეგ
+        back.style.overflowY = "auto";
+        back.style.overflowX = "hidden";
+        
         let contentHtml = '';
         
         const calculateStyle = (text) => {
             const len = text.length; const hasSpace = text.includes(' ');
             if (!hasSpace) {
-                let size = len > 14 ? '1.3rem' : len > 11 ? '1.6rem' : len > 8 ? '2.0rem' : '2.5rem';
+                let size = len > 14 ? '1.1rem' : len > 11 ? '1.3rem' : len > 8 ? '1.6rem' : '2rem';
                 return `font-size: ${size}; white-space: nowrap; display: block; width: 100%; text-align: center; line-height: 1.2; overflow: visible;`;
             } else {
-                let size = (len < 15) ? '2.2rem' : '1.8rem';
+                let size = (len < 15) ? '1.8rem' : '1.4rem';
                 return `font-size: ${size}; white-space: normal; word-wrap: break-word; display: block; width: 100%; text-align: center; line-height: 1.1;`;
             }
         };
@@ -423,22 +425,26 @@ const ui = {
             case "Spy":
                 navigator.vibrate?.([100, 50, 100]);
                 if (state.config.gameVariant === 'chameleon') {
-                    contentHtml = `<div class="role-icon"><i class="fas fa-user"></i></div><div class="role-text">სიტყვა:<br><span class="sityva" style="${calculateStyle(state.chameleonWordObj.w)}">${state.chameleonWordObj.w}</span></div>`;
+                    contentHtml = `<div class="role-icon" style="font-size:3rem; margin-bottom:5px;"><i class="fas fa-user"></i></div><div class="role-text" style="font-size:1.5rem; margin-bottom:5px;">სიტყვა:<br><span class="sityva" style="${calculateStyle(state.chameleonWordObj.w)}">${state.chameleonWordObj.w}</span></div>`;
                 } else {
-                    let hintHtml = state.config.spyHintEnabled ? `<div style="font-size:0.9rem; color:#aaa; margin-top:10px;">მინიშნება: ${state.chosenWordObj.h}</div>` : "";
-                    contentHtml = `<div class="role-icon" style="color:var(--neon-pink)"><i class="fas fa-user-secret"></i></div><div class="role-text spy-text">ჯაშუში</div>${hintHtml}`;
+                    let hintHtml = state.config.spyHintEnabled ? `<div style="font-size:0.9rem; color:#aaa; margin-top:5px;">მინიშნება: ${state.chosenWordObj.h}</div>` : "";
+                    contentHtml = `<div class="role-icon" style="color:var(--neon-pink); font-size:3rem; margin-bottom:5px;"><i class="fas fa-user-secret"></i></div><div class="role-text spy-text" style="font-size:2rem; margin-bottom:5px;">ჯაშუში</div>${hintHtml}`;
                 }
                 break;
             case "Detective":
                 let detectiveHintHtml = "";
                 if (state.config.gameVariant === 'chameleon') {
-                    detectiveHintHtml = `<div style="font-size:0.9rem; color:var(--neon-blue); font-weight:bold; margin-bottom:5px;"><i class="fas fa-user-secret"></i> ჯაშუში ხედავს სიტყვას:</div><div style="font-size:1rem; color:#fff; font-style:italic;">"${state.chameleonWordObj.w}"</div>`;
+                    detectiveHintHtml = `<div style="font-size:0.8rem; color:var(--neon-blue); font-weight:bold; margin-bottom:2px;"><i class="fas fa-user-secret"></i> ჯაშუში ხედავს:</div><div style="font-size:1rem; color:#fff; font-style:italic; line-height:1.2;">"${state.chameleonWordObj.w}"</div>`;
                 } else {
-                    detectiveHintHtml = `<div style="font-size:0.9rem; color:var(--neon-blue); font-weight:bold; margin-bottom:5px;"><i class="fas fa-user-secret"></i> ჯაშუშის მინიშნება:</div><div style="font-size:1rem; color:#fff; font-style:italic;">"${state.chosenWordObj.h}"</div>`;
+                    detectiveHintHtml = `<div style="font-size:0.8rem; color:var(--neon-blue); font-weight:bold; margin-bottom:2px;"><i class="fas fa-user-secret"></i> მინიშნება:</div><div style="font-size:1rem; color:#fff; font-style:italic; line-height:1.2;">"${state.chosenWordObj.h}"</div>`;
                 }
                 
-                contentHtml = `<div class="role-icon" style="color:var(--neon-blue)"><i class="fas fa-search"></i></div><div class="role-text detektivi">დეტექტივი</div><div style="font-size:0.8rem; margin-top:10px; color:#aaa;">სიტყვა:<br><span class="sityva" style="${calculateStyle(state.chosenWordObj.w)}">${theWord}</span></div>
-                    <div style="background:rgba(0, 243, 255, 0.1); border:1px solid var(--neon-blue); border-radius:10px; padding:10px; margin-top:15px;">${detectiveHintHtml}</div>`;
+                contentHtml = `
+                    <div class="role-icon" style="color:var(--neon-blue); font-size:2.5rem; margin-bottom:5px;"><i class="fas fa-search"></i></div>
+                    <div class="role-text detektivi" style="font-size:1.5rem; margin-bottom:5px;">დეტექტივი</div>
+                    <div style="font-size:0.8rem; color:#aaa; margin-bottom:5px;">სიტყვა:<br>
+                    <span class="sityva" style="${calculateStyle(state.chosenWordObj.w)}">${theWord}</span></div>
+                    <div style="background:rgba(0, 243, 255, 0.1); border:1px solid var(--neon-blue); border-radius:8px; padding:6px 10px; width:100%; box-sizing:border-box;">${detectiveHintHtml}</div>`;
                 break;
             case "Assassin":
                 let spyNames = [];
@@ -446,46 +452,53 @@ const ui = {
                 let spyText = spyNames.length > 0 ? spyNames.join(", ") : "ვერ მოიძებნა";
                 
                 contentHtml = `
-                    <div class="role-icon" style="color:var(--neon-pink)"><i class="fas fa-skull-crossbones"></i></div>
-                    <div class="role-text" style="color:var(--neon-pink)">მკვლელი</div>
-                    <div style="font-size:0.8rem; margin-top:10px; color:#aaa;">სიტყვა:<br>
+                    <div class="role-icon" style="color:var(--neon-pink); font-size:2.5rem; margin-bottom:5px;"><i class="fas fa-skull-crossbones"></i></div>
+                    <div class="role-text" style="color:var(--neon-pink); font-size:1.5rem; margin-bottom:5px;">მკვლელი</div>
+                    <div style="font-size:0.8rem; color:#aaa; margin-bottom:5px;">სიტყვა:<br>
                     <span class="sityva" style="${calculateStyle(state.chosenWordObj.w)}">${theWord}</span></div>
-                    <div style="margin-top:15px; font-size:0.9rem; color:var(--neon-pink);">
+                    <div style="background:rgba(255, 0, 85, 0.1); border:1px solid var(--neon-pink); border-radius:8px; padding:6px 10px; width:100%; box-sizing:border-box; font-size:0.85rem; color:var(--neon-pink);">
                         დასაცავი ჯაშუში:<br><strong>${spyText}</strong>
                     </div>`;
                 break;
             case "Doctor":
-                contentHtml = `<div class="role-icon" style="color:#00ff88"><i class="fas fa-user-md"></i></div><div class="role-text" style="color:#00ff88">ექიმი</div><div style="font-size:0.8rem; margin-top:10px; color:#aaa;">სიტყვა:<br><span class="sityva" style="${calculateStyle(state.chosenWordObj.w)}">${theWord}</span></div>`;
+                contentHtml = `<div class="role-icon" style="color:#00ff88; font-size:3rem; margin-bottom:5px;"><i class="fas fa-user-md"></i></div><div class="role-text" style="color:#00ff88; font-size:1.8rem; margin-bottom:10px;">ექიმი</div><div style="font-size:0.8rem; color:#aaa;">სიტყვა:<br><span class="sityva" style="${calculateStyle(state.chosenWordObj.w)}">${theWord}</span></div>`;
                 break;
             case "Joker":
-                contentHtml = `<div class="role-icon" style="color:#ffaa00"><i class="fas fa-theater-masks"></i></div><div class="role-text" style="color:#ffaa00">ჯოკერი</div><div style="font-size:0.8rem; margin-top:10px; color:#aaa;">სიტყვა:<br><span class="sityva" style="${calculateStyle(state.chosenWordObj.w)}">${state.chosenWordObj.w}</span></div>`;
+                contentHtml = `<div class="role-icon" style="color:#ffaa00; font-size:3rem; margin-bottom:5px;"><i class="fas fa-theater-masks"></i></div><div class="role-text" style="color:#ffaa00; font-size:1.8rem; margin-bottom:10px;">ჯოკერი</div><div style="font-size:0.8rem; color:#aaa;">სიტყვა:<br><span class="sityva" style="${calculateStyle(state.chosenWordObj.w)}">${state.chosenWordObj.w}</span></div>`;
                 break;
             case "Syndicate":
                 let partner = "ვერ მოიძებნა";
                 state.roles.forEach((r, i) => { if(r === "Syndicate" && i !== state.currentIndex) partner = state.players[i].name; });
-                contentHtml = `<div class="role-icon" style="color:#ff00ff"><i class="fas fa-user-friends"></i></div><div class="role-text" style="color:#ff00ff">სინდიკატი</div><div style="font-size:0.8rem; margin-top:10px; color:#aaa;">სიტყვა:<br><span class="sityva" style="${calculateStyle(state.chosenWordObj.w)}">${theWord}</span></div><div style="margin-top:15px; font-size:1rem; color:#ff00ff;">შენი პარტნიორი:<br><strong>${partner}</strong></div>`;
+                contentHtml = `
+                    <div class="role-icon" style="color:#ff00ff; font-size:2.5rem; margin-bottom:5px;"><i class="fas fa-user-friends"></i></div>
+                    <div class="role-text" style="color:#ff00ff; font-size:1.5rem; margin-bottom:5px;">სინდიკატი</div>
+                    <div style="font-size:0.8rem; color:#aaa; margin-bottom:5px;">სიტყვა:<br>
+                    <span class="sityva" style="${calculateStyle(state.chosenWordObj.w)}">${theWord}</span></div>
+                    <div style="background:rgba(255, 0, 255, 0.1); border:1px solid #ff00ff; border-radius:8px; padding:6px 10px; width:100%; box-sizing:border-box; font-size:0.9rem; color:#ff00ff;">
+                        შენი პარტნიორი:<br><strong>${partner}</strong>
+                    </div>`;
                 break;
             case "Hacker":
-                contentHtml = `<div class="role-icon" style="color:var(--hacker-green)"><i class="fas fa-laptop-code"></i></div><div class="role-text" style="color:var(--hacker-green)">ჰაკერი</div><div style="font-size:0.8rem; margin-top:10px; color:#aaa;">სიტყვა:<br><span class="sityva" style="${calculateStyle(state.chosenWordObj.w)}">${theWord}</span></div><div style="margin-top:10px; font-size:0.85rem; color:var(--hacker-green);">სისტემის პრივილეგია:<br>შენი ხმა ითვლება 2-ად.</div>`;
+                contentHtml = `<div class="role-icon" style="color:var(--hacker-green); font-size:3rem; margin-bottom:5px;"><i class="fas fa-laptop-code"></i></div><div class="role-text" style="color:var(--hacker-green); font-size:1.5rem; margin-bottom:10px;">ჰაკერი</div><div style="font-size:0.8rem; color:#aaa;">სიტყვა:<br><span class="sityva" style="${calculateStyle(state.chosenWordObj.w)}">${theWord}</span></div><div style="margin-top:10px; font-size:0.85rem; color:var(--hacker-green);">სისტემის პრივილეგია:<br>შენი ხმა ითვლება 2-ად.</div>`;
                 break;
             case "DoubleAgent":
                 contentHtml = `
-                    <div class="role-icon" style="color:var(--warning)"><i class="fas fa-user-ninja"></i></div>
-                    <div class="role-text" style="color:var(--warning); font-size:1.5rem;">ორმაგი აგენტი</div>
-                    <div style="font-size:0.8rem; margin-top:10px; color:#aaa;">სიტყვა:<br>
+                    <div class="role-icon" style="color:var(--warning); font-size:2.5rem; margin-bottom:5px;"><i class="fas fa-user-ninja"></i></div>
+                    <div class="role-text" style="color:var(--warning); font-size:1.4rem; margin-bottom:5px;">ორმაგი აგენტი</div>
+                    <div style="font-size:0.8rem; color:#aaa; margin-bottom:5px;">სიტყვა:<br>
                     <span class="sityva" style="${calculateStyle(state.chosenWordObj.w)}">${theWord}</span></div>
-                    <div style="margin-top:10px; font-size:0.85rem; color:#aaa;">
-                        შენ ხარ ჯაშუშის მოკავშირე. გადაარჩინე ის ისე, რომ <strong style="color:var(--warning)">არ იცი ვინ არის ის!</strong>
+                    <div style="background:rgba(255, 170, 0, 0.1); border:1px solid var(--warning); border-radius:8px; padding:6px; width:100%; box-sizing:border-box; font-size:0.75rem; color:#aaa; line-height:1.2;">
+                        გადაარჩინე ჯაშუში ისე, რომ <strong style="color:var(--warning)">არ იცი ვინ არის ის!</strong>
                     </div>`;
                 break;
             default: // Civilian
                 contentHtml = `
-                    <div class="role-icon" style="color:#aaa;"><i class="fas fa-user"></i></div>
-                    <div style="font-size:0.8rem; margin-top:20px; color:#aaa;">სიტყვა:<br>
+                    <div class="role-icon" style="color:#aaa; font-size:3rem; margin-bottom:10px;"><i class="fas fa-user"></i></div>
+                    <div style="font-size:0.8rem; color:#aaa;">სიტყვა:<br>
                     <span class="sityva" style="${calculateStyle(state.chosenWordObj.w)}">${state.chosenWordObj.w}</span></div>
                 `;
                 if (state.config.modifierBlackout) {
-                    contentHtml += `<div style="font-size:0.75rem; color:var(--neon-pink); margin-top:20px; text-transform:uppercase;"><i class="fas fa-eye-slash"></i> ბლექაუთი აქტიურია</div>`;
+                    contentHtml += `<div style="font-size:0.75rem; color:var(--neon-pink); margin-top:15px; text-transform:uppercase;"><i class="fas fa-eye-slash"></i> ბლექაუთი აქტიურია</div>`;
                 }
         }
         
