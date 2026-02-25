@@ -28,10 +28,11 @@ const game = {
                 state.players.push({ name: `Player ${i}`, points: 0, coins: 10, inventory: [], level: 1, xp: 0, avatar: '👤' });
             }
             
-            // იძულებით ვთიშავთ მკვლელს, თუ სახელები გამორთულია
+            // იძულებით ვთიშავთ მკვლელს და სინდიკატს, თუ სახელები გამორთულია
             state.config.assassinCount = 0;
+            state.config.syndicateCount = 0;
             if (state.config.blackoutAllowedRoles) {
-                state.config.blackoutAllowedRoles = state.config.blackoutAllowedRoles.filter(r => r !== 'Assassin');
+                state.config.blackoutAllowedRoles = state.config.blackoutAllowedRoles.filter(r => r !== 'Assassin' && r !== 'Syndicate');
             }
         }
         
@@ -331,8 +332,12 @@ const game = {
             }
             
             p.points += Math.round(pts);
-            p.coins += earnedCoins;
-            this.addXP(p, earnedXP);
+            
+            // ეკონომიკა მხოლოდ სახელების ჩაწერისას
+            if (state.config.manualEntry) {
+                p.coins += earnedCoins;
+                this.addXP(p, earnedXP);
+            }
             
             state.gameStats.totalPoints = (parseInt(state.gameStats.totalPoints) || 0) + Math.round(pts);
         });
@@ -352,14 +357,26 @@ const game = {
         const jokers = state.roles.map((r, i) => r === "Joker" ? state.players[i].name : null).filter(Boolean).join(", ");
         const dAgents = state.roles.map((r, i) => r === "DoubleAgent" ? state.players[i].name : null).filter(Boolean).join(", ");
         
-        let revealHtml = `
-            <div class="spy-reveal-container">
-                <div class="spy-label">ჯაშუში არის</div>
-                <div class="spy-name-big">${spies || "ვერ მოიძებნა"}</div>
-            </div>`;
-        
-        if (jokers) revealHtml += `<div style="margin-top:10px; font-size:1rem; color:var(--warning);">🃏 ჯოკერი იყო: ${jokers}</div>`;
-        if (dAgents) revealHtml += `<div style="margin-top:10px; font-size:1rem; color:var(--hacker-green);">🕵️‍♂️ ორმაგი აგენტი: ${dAgents}</div>`;
+        let revealHtml = '';
+
+        if (state.config.manualEntry) {
+            revealHtml = `
+                <div class="spy-reveal-container">
+                    <div class="spy-label">ჯაშუში არის</div>
+                    <div class="spy-name-big">${spies || "ვერ მოიძებნა"}</div>
+                </div>`;
+            
+            if (jokers) revealHtml += `<div style="margin-top:10px; font-size:1rem; color:var(--warning);">🃏 ჯოკერი იყო: ${jokers}</div>`;
+            if (dAgents) revealHtml += `<div style="margin-top:10px; font-size:1rem; color:var(--hacker-green);">🕵️‍♂️ ორმაგი აგენტი: ${dAgents}</div>`;
+        } else {
+            revealHtml = `
+                <div class="spy-reveal-container" style="margin: 20px 0;">
+                    <div class="spy-label" style="color: var(--text-muted); font-size: 1.1rem;">
+                        <i class="fas fa-user-secret" style="margin-right: 8px;"></i> ჯაშუშის ვინაობა დაფარულია 
+                        <br><span style="font-size: 0.85rem;">(რადგან მოთამაშეების სახელები გამორთულია)</span>
+                    </div>
+                </div>`;
+        }
         
         if(state.config.gameVariant === 'chameleon') {
              revealHtml += `<div style="margin-top:20px; font-size:1rem; color:var(--neon-pink);">
@@ -383,7 +400,9 @@ const game = {
         
         if (!calculated && !forceNoText) {
             state.gameStats.totalGames = (parseInt(state.gameStats.totalGames) || 0) + 1;
-            state.players.forEach(p => this.addXP(p, 10));
+            if (state.config.manualEntry) {
+                state.players.forEach(p => this.addXP(p, 10));
+            }
         }
 
         if (calculated) {
