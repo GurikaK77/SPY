@@ -121,10 +121,11 @@ const ui = {
             manualContainer.style.display = "none"; autoContainer.style.display = "block";
             if(pointsSelect) { pointsSelect.value = "disabled"; pointsSelect.disabled = true; state.config.pointsSystem = "disabled"; }
             
-            // ვთიშავთ მკვლელს ავტომატურ რეჟიმში
+            // ვთიშავთ მკვლელს და სინდიკატს ავტომატურ რეჟიმში
             state.config.assassinCount = 0;
+            state.config.syndicateCount = 0;
             if (state.config.blackoutAllowedRoles) {
-                state.config.blackoutAllowedRoles = state.config.blackoutAllowedRoles.filter(r => r !== 'Assassin');
+                state.config.blackoutAllowedRoles = state.config.blackoutAllowedRoles.filter(r => r !== 'Assassin' && r !== 'Syndicate');
             }
         }
         this.updatePlayerCountInfo();
@@ -238,17 +239,22 @@ const ui = {
         
         this.toggleBlackoutSettings();
         
-        // მკვლელის მენიუს გათიშვა/ჩართვის ლოგიკა გლობალურად და ბლექაუთში
+        // მკვლელის და სინდიკატის მენიუს გათიშვა/ჩართვის ლოგიკა გლობალურად და ბლექაუთში
         const assSelect = document.getElementById("assassinCount");
+        const synSelect = document.getElementById("syndicateCount");
         if (assSelect) {
             assSelect.disabled = !state.config.manualEntry;
             if(!state.config.manualEntry) { assSelect.value = "0"; state.config.assassinCount = 0; }
+        }
+        if (synSelect) {
+            synSelect.disabled = !state.config.manualEntry;
+            if(!state.config.manualEntry) { synSelect.value = "0"; state.config.syndicateCount = 0; }
         }
 
         const bRoles = state.config.blackoutAllowedRoles || [];
         document.querySelectorAll("#blackoutRolesSettings input[type='checkbox']").forEach(cb => {
             cb.checked = bRoles.includes(cb.value);
-            if (cb.value === 'Assassin') {
+            if (cb.value === 'Assassin' || cb.value === 'Syndicate') {
                 cb.disabled = !state.config.manualEntry;
                 if(!state.config.manualEntry) cb.checked = false;
             }
@@ -424,8 +430,15 @@ const ui = {
                 }
                 break;
             case "Detective":
+                let detectiveHintHtml = "";
+                if (state.config.gameVariant === 'chameleon') {
+                    detectiveHintHtml = `<div style="font-size:0.9rem; color:var(--neon-blue); font-weight:bold; margin-bottom:5px;"><i class="fas fa-user-secret"></i> ჯაშუში ხედავს სიტყვას:</div><div style="font-size:1rem; color:#fff; font-style:italic;">"${state.chameleonWordObj.w}"</div>`;
+                } else {
+                    detectiveHintHtml = `<div style="font-size:0.9rem; color:var(--neon-blue); font-weight:bold; margin-bottom:5px;"><i class="fas fa-user-secret"></i> ჯაშუშის მინიშნება:</div><div style="font-size:1rem; color:#fff; font-style:italic;">"${state.chosenWordObj.h}"</div>`;
+                }
+                
                 contentHtml = `<div class="role-icon" style="color:var(--neon-blue)"><i class="fas fa-search"></i></div><div class="role-text detektivi">დეტექტივი</div><div style="font-size:0.8rem; margin-top:10px; color:#aaa;">სიტყვა:<br><span class="sityva" style="${calculateStyle(state.chosenWordObj.w)}">${theWord}</span></div>
-                    <div style="background:rgba(0, 243, 255, 0.1); border:1px solid var(--neon-blue); border-radius:10px; padding:10px; margin-top:15px;"><div style="font-size:0.9rem; color:var(--neon-blue); font-weight:bold; margin-bottom:5px;"><i class="fas fa-user-secret"></i> ჯაშუშის მინიშნება:</div><div style="font-size:1rem; color:#fff; font-style:italic;">"${state.chosenWordObj.h}"</div></div>`;
+                    <div style="background:rgba(0, 243, 255, 0.1); border:1px solid var(--neon-blue); border-radius:10px; padding:10px; margin-top:15px;">${detectiveHintHtml}</div>`;
                 break;
             case "Assassin":
                 let spyNames = [];
