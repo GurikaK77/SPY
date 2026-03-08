@@ -1,0 +1,74 @@
+const CACHE_NAME = 'spy-full-v7';
+const urlsToCache = [
+  '/',
+  '/index.html',
+  '/style.css',
+  '/data.js',
+  '/state.js',
+  '/anim.js',
+  '/ui.js',
+  '/game.js',
+  '/script.js',
+  '/manifest.json',
+  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
+  'https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap',
+  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvC3mnXkzAiNW0DlOvHPt8luqNI9c010FotA&s',
+  'https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3',
+  'https://assets.mixkit.co/sfx/preview/mixkit-magic-sparkles-300.mp3',
+  'https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3',
+  'https://assets.mixkit.co/sfx/preview/mixkit-coins-handling-1939.mp3',
+  'https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3',
+  'https://assets.mixkit.co/sfx/preview/mixkit-fast-small-sweep-transition-166.mp3',
+  'https://assets.mixkit.co/sfx/preview/mixkit-static-whoosh-1076.mp3',
+  'https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3',
+  'https://assets.mixkit.co/music/preview/mixkit-futuristic-technology-ambient-257.mp3',
+  'https://assets.mixkit.co/music/preview/mixkit-cyberpunk-moonlight-sonata-141.mp3'
+];
+
+self.addEventListener('install', e => {
+  self.skipWaiting();
+  e.waitUntil(
+    caches.open(CACHE_NAME).then(async cache => {
+      console.log('[SW] Cache Opening & Preloading...');
+      for (const url of urlsToCache) {
+        try {
+          await cache.add(url);
+        } catch (err) {
+          console.log('[SW] ვერ ჩაიწერა:', url);
+        }
+      }
+    })
+  );
+});
+
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys => Promise.all(
+      keys.map(key => {
+        if (key !== CACHE_NAME) return caches.delete(key);
+      })
+    ))
+  );
+  return self.clients.claim();
+});
+
+self.addEventListener('fetch', e => {
+  if (e.request.method !== 'GET') return;
+
+  e.respondWith(
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.match(e.request).then(cachedResponse => {
+        const fetchPromise = fetch(e.request)
+          .then(networkResponse => {
+            if (networkResponse && networkResponse.status === 200) {
+              cache.put(e.request, networkResponse.clone());
+            }
+            return networkResponse;
+          })
+          .catch(() => cachedResponse);
+
+        return cachedResponse || fetchPromise;
+      });
+    })
+  );
+});
