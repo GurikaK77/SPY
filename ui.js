@@ -692,7 +692,7 @@ const ui = {
     revealRole() {
         if ((state.config.roleRevealMode || 'standard') === 'lift') {
             if (Date.now() > (this.rolePeekState.suppressClickUntil || 0)) {
-                this.showToast("⬆️ ზემოთ ასვი როლის სანახავად");
+                this.showToast("⬆️ აუსვი ზემოთ როლის სანახავად");
             }
             return;
         }
