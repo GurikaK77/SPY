@@ -679,7 +679,7 @@ const ui = {
         const revealMode = state.config.roleRevealMode || 'standard';
         if (revealMode === 'lift') {
             card.classList.add("slide-mode");
-            front.innerHTML = `<div class="role-icon"><i class="fas fa-angles-up"></i></div><div class="role-front-hint">ასვი ზემოთ</div>`;
+            front.innerHTML = `<div class="role-icon"><i class="fas fa-angles-up"></i></div><div class="role-front-hint">Swipe Up</div>`;
         } else {
             card.classList.remove("slide-mode");
             front.innerHTML = `<div class="role-icon"><i class="fas fa-fingerprint"></i></div><div class="role-front-hint">დააჭირე სანახავად</div>`;
